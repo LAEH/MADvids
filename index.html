@@ -74,6 +74,24 @@
             overflow: hidden;
             background: #08080c;
         }
+        /* Shimmer while video loads */
+        .card-preview::before {
+            content: '';
+            position: absolute; inset: 0; z-index: 1;
+            background: linear-gradient(
+                110deg,
+                transparent 30%,
+                rgba(255,255,255,0.03) 50%,
+                transparent 70%
+            );
+            background-size: 200% 100%;
+            animation: shimmer 1.8s ease infinite;
+        }
+        .card-preview.loaded::before { opacity: 0; transition: opacity 0.4s; }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
         .card-preview video {
             width: 100%;
             height: 100%;
@@ -170,7 +188,7 @@
         <div class="grid">
             <a class="card" href="experiments/hyperpod-cinematic/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="none">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-dgfdf.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -186,7 +204,7 @@
 
             <a class="card" href="experiments/hyperpod-showcase/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="none">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jhojeh.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -202,7 +220,7 @@
 
             <a class="card" href="experiments/hyperpod-grid/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="none">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-kjhxsa.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -218,7 +236,7 @@
 
             <a class="card" href="experiments/hyperpod-immersive/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="none">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jfdgyie.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -234,7 +252,7 @@
 
             <a class="card" href="experiments/delightfull-video/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="none">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/Video_Generation_With_Specific_Colors%20copy.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -270,7 +288,10 @@
             entries.forEach(function(e) {
                 var v = e.target;
                 if (e.isIntersecting) {
-                    v.play().then(function() { v.classList.add('playing'); }).catch(function() {});
+                    v.play().then(function() {
+                        v.classList.add('playing');
+                        v.closest('.card-preview').classList.add('loaded');
+                    }).catch(function() {});
                 } else {
                     v.pause();
                     v.classList.remove('playing');
@@ -279,7 +300,25 @@
         }, { rootMargin: '100px' });
 
         document.querySelectorAll('.card-preview video').forEach(function(v) {
+            // Mark loaded on metadata/data ready
+            v.addEventListener('loadeddata', function() {
+                v.closest('.card-preview').classList.add('loaded');
+            }, { once: true });
             videoObserver.observe(v);
+        });
+
+        // Prefetch experiment page on hover — warm the browser cache
+        var prefetched = {};
+        document.querySelectorAll('.card').forEach(function(card) {
+            card.addEventListener('mouseenter', function() {
+                var href = card.getAttribute('href');
+                if (!href || prefetched[href]) return;
+                prefetched[href] = true;
+                var link = document.createElement('link');
+                link.rel = 'prefetch';
+                link.href = href;
+                document.head.appendChild(link);
+            }, { once: true });
         });
 
         // Staggered card entrance
