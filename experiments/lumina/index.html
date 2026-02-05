@@ -21,6 +21,7 @@
             -webkit-text-size-adjust: 100%;
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
+            cursor: none;
         }
 
         /* ═══ VIDEO ═══ */
@@ -35,19 +36,27 @@
         /* ═══ OVERLAYS ═══ */
         .dark-overlay {
             position: fixed; inset: 0; z-index: 1;
-            background: #000; opacity: 0.45;
+            background: #000; opacity: 0.3;
             pointer-events: none;
-            transition: opacity 2s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: opacity 1.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
         #canvas {
             position: fixed; inset: 0; z-index: 2;
-            pointer-events: none;
         }
         .vignette {
             position: fixed; inset: 0; z-index: 3;
-            background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.6) 100%);
+            background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.4) 100%);
             pointer-events: none;
         }
+
+        /* ═══ FLASH ═══ */
+        .flash {
+            position: fixed; inset: 0; z-index: 4;
+            background: #fff; opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease-out;
+        }
+        .flash.pop { opacity: 0.12; transition: none; }
 
         /* ═══ CHAPTERS ═══ */
         .chapter {
@@ -59,8 +68,8 @@
             pointer-events: none;
             opacity: 0;
             transform: translateY(30px) scale(0.97);
-            transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-                        transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .chapter.active {
             opacity: 1;
@@ -76,7 +85,7 @@
             font-weight: 600;
             letter-spacing: 0.18em;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.25);
+            color: rgba(255,255,255,0.35);
             margin-bottom: 20px;
         }
 
@@ -95,16 +104,16 @@
             font-size: clamp(11px, 1.2vw, 13px);
             font-weight: 600;
             letter-spacing: 0.2em;
-            color: rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.3);
             margin-bottom: 18px;
         }
 
         .chapter-title {
-            font-size: clamp(44px, 9vw, 100px);
+            font-size: clamp(48px, 10vw, 120px);
             font-weight: 900;
             letter-spacing: -0.04em;
-            line-height: 0.95;
-            background: linear-gradient(160deg, #fff 20%, rgba(255,255,255,0.55) 100%);
+            line-height: 0.92;
+            background: linear-gradient(160deg, #fff 10%, rgba(255,255,255,0.6) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -115,27 +124,27 @@
             font-size: clamp(14px, 1.6vw, 18px);
             font-weight: 300;
             line-height: 1.75;
-            color: rgba(255,255,255,0.4);
+            color: rgba(255,255,255,0.5);
             max-width: 440px;
         }
 
         .chapter-instruction {
             margin-top: 40px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 500;
             letter-spacing: 0.08em;
-            color: rgba(255,255,255,0.25);
-            animation: pulse-instruction 2.5s ease-in-out infinite;
+            color: rgba(255,255,255,0.4);
+            animation: pulse-instruction 2s ease-in-out infinite;
         }
         @keyframes pulse-instruction {
-            0%, 100% { opacity: 0.25; }
-            50% { opacity: 0.55; }
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
         }
 
         .chapter-final {
             font-size: clamp(11px, 1vw, 13px);
             font-weight: 400;
-            color: rgba(255,255,255,0.18);
+            color: rgba(255,255,255,0.25);
             margin-top: 32px;
             letter-spacing: 0.04em;
         }
@@ -148,10 +157,10 @@
             z-index: 10;
             display: flex; align-items: center; gap: 10px;
             padding: 8px 18px 8px 12px;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.06);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 100px;
             transform: translateY(-10px);
             opacity: 0;
@@ -167,15 +176,15 @@
         .lumen-value {
             font-size: 15px; font-weight: 700;
             font-variant-numeric: tabular-nums;
-            color: rgba(255,255,255,0.85);
+            color: rgba(255,255,255,0.9);
             min-width: 18px;
-            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .lumen-value.bump { transform: scale(1.35); }
+        .lumen-value.bump { transform: scale(1.5); }
         .lumen-label {
             font-size: 8px; font-weight: 600;
             letter-spacing: 0.14em;
-            color: rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.25);
             text-transform: uppercase;
         }
 
@@ -190,25 +199,25 @@
         }
         .toast {
             padding: 10px 18px;
-            background: rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.08);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
             border-radius: 12px;
             transform: translateX(130%);
             opacity: 0;
-            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-                        opacity 0.6s;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                        opacity 0.5s;
         }
         .toast.show { transform: translateX(0); opacity: 1; }
         .toast-title {
             font-size: 12px; font-weight: 700;
-            color: rgba(255,200,80,0.9);
+            color: rgba(255,200,80,0.95);
             letter-spacing: -0.01em;
         }
         .toast-desc {
             font-size: 10px; font-weight: 400;
-            color: rgba(255,255,255,0.3);
+            color: rgba(255,255,255,0.35);
             margin-top: 2px;
         }
 
@@ -217,14 +226,14 @@
             position: fixed;
             bottom: env(safe-area-inset-bottom, 0);
             left: 0; right: 0;
-            height: 2px;
-            background: rgba(255,255,255,0.03);
+            height: 3px;
+            background: rgba(255,255,255,0.04);
             z-index: 10;
         }
         .progress-fill {
             height: 100%; width: 0%;
-            background: linear-gradient(90deg, rgba(255,200,80,0.4), rgba(255,80,160,0.4));
-            transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            background: linear-gradient(90deg, rgba(255,200,80,0.6), rgba(255,80,160,0.6));
+            transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         /* ═══ BACK ═══ */
@@ -242,6 +251,7 @@
             display: flex; align-items: center; justify-content: center;
             text-decoration: none; color: #fff;
             transition: background 0.2s, transform 0.2s;
+            cursor: pointer;
         }
         .back-btn:hover { background: rgba(255,255,255,0.12); transform: scale(1.05); }
 
@@ -252,7 +262,7 @@
         }
         @media (prefers-reduced-motion: reduce) {
             .chapter { transition: opacity 0.3s; }
-            .chapter-instruction { animation: none; opacity: 0.4; }
+            .chapter-instruction { animation: none; opacity: 0.5; }
         }
     </style>
 </head>
@@ -266,47 +276,48 @@
     <div class="dark-overlay" id="darkOverlay"></div>
     <canvas id="canvas"></canvas>
     <div class="vignette"></div>
+    <div class="flash" id="flash"></div>
 
     <!-- ═══ STORY CHAPTERS ═══ -->
     <div class="chapter active" id="c0">
         <p class="chapter-overline">An interactive light experience</p>
         <h1 class="chapter-display">Lumina</h1>
-        <p class="chapter-instruction" id="instruction">Tap the light</p>
+        <p class="chapter-instruction" id="instruction">Move through the light</p>
     </div>
 
     <div class="chapter" id="c1">
-        <p class="chapter-num">I &mdash; Genesis</p>
-        <h2 class="chapter-title">Before<br>Light</h2>
-        <p class="chapter-text">Before light, there was only longing &mdash;<br>a universe holding its breath in perfect dark.</p>
+        <p class="chapter-num">I</p>
+        <h2 class="chapter-title">First<br>Spark</h2>
+        <p class="chapter-text">Every great thing begins with a single point of light &mdash; small, impossibly bright, full of everything it could become.</p>
     </div>
 
     <div class="chapter" id="c2">
-        <p class="chapter-num">II &mdash; Refraction</p>
-        <h2 class="chapter-title">The Longer<br>Path</h2>
-        <p class="chapter-text">The first photon didn't travel straight.<br>It wandered. It bent. It chose the longer,<br>more beautiful path.</p>
+        <p class="chapter-num">II</p>
+        <h2 class="chapter-title">Chain<br>Reaction</h2>
+        <p class="chapter-text">One catches two. Two catches four.<br>Light doesn't add &mdash; it multiplies.</p>
     </div>
 
     <div class="chapter" id="c3">
-        <p class="chapter-num">III &mdash; Chromatic</p>
-        <h2 class="chapter-title">Everything<br>At Once</h2>
-        <p class="chapter-text">Color was born the moment light learned<br>it didn't have to be one thing.<br>It could be everything &mdash; all at once.</p>
+        <p class="chapter-num">III</p>
+        <h2 class="chapter-title">Full<br>Spectrum</h2>
+        <p class="chapter-text">Every color racing through you at once &mdash;<br>not choosing, not filtering.<br>Just blazing.</p>
     </div>
 
     <div class="chapter" id="c4">
-        <p class="chapter-num">IV &mdash; Confluence</p>
-        <h2 class="chapter-title">New Light<br>Was Born</h2>
-        <p class="chapter-text">Where two frequencies met, they didn't compete.<br>They danced. And in that resonance &mdash;<br>new light was born.</p>
+        <p class="chapter-num">IV</p>
+        <h2 class="chapter-title">Super-<br>nova</h2>
+        <p class="chapter-text">The moment right before everything<br>becomes impossibly, radiantly bright &mdash;<br>that's where the magic lives.</p>
     </div>
 
     <div class="chapter" id="c5">
-        <p class="chapter-num">V &mdash; Luminous</p>
-        <h2 class="chapter-title">You Are<br>The Light</h2>
-        <p class="chapter-text">You were never searching for the light.<br>You were the light &mdash;<br>forgetting, then remembering.</p>
+        <p class="chapter-num">V</p>
+        <h2 class="chapter-title">Pure<br>Light</h2>
+        <p class="chapter-text">You didn't collect the light.<br>You reminded it where to go.</p>
     </div>
 
     <div class="chapter" id="c6">
         <h2 class="chapter-title" style="font-size:clamp(52px,12vw,140px)">&infin;</h2>
-        <p class="chapter-text">The void exhaled. And every photon<br>you gathered now lives in the dark<br>as a promise that it was never empty.</p>
+        <p class="chapter-text">Every photon you touched is still moving,<br>still carrying the shape of this moment<br>to the edge of everything.</p>
         <p class="chapter-final">Lumina complete</p>
     </div>
 
@@ -335,24 +346,26 @@
            CONFIG
            ═══════════════════════════════════════ */
 
-        var THRESHOLDS = [0, 3, 10, 22, 40, 65, 100];
+        var THRESHOLDS = [0, 2, 8, 18, 35, 55, 80];
 
         var ACHIEVEMENTS = [
-            { at: 1,   title: 'First Light',   desc: 'Your first lumen' },
-            { at: 10,  title: 'Spark',          desc: '10 lumens gathered' },
-            { at: 25,  title: 'Glow',           desc: 'The void notices you' },
-            { at: 50,  title: 'Radiance',       desc: 'Shadows retreat' },
-            { at: 75,  title: 'Luminous',       desc: 'Light remembers' },
-            { at: 100, title: 'Transcendent',   desc: 'You became the light' }
+            { at: 1,  title: 'First Light',     desc: 'Let there be light' },
+            { at: 5,  title: 'Spark',            desc: 'You\'re glowing' },
+            { at: 15, title: 'Chain Reaction',   desc: 'Can\'t stop the light' },
+            { at: 30, title: 'Radiant',          desc: 'The screen feels it' },
+            { at: 50, title: 'Supernova',        desc: 'Everything is light' },
+            { at: 80, title: 'Transcendent',     desc: 'You became the light' }
         ];
 
         var COLORS = [
-            [255, 70, 150],   // magenta
-            [70, 130, 255],   // cobalt
-            [255, 195, 70],   // gold
-            [70, 255, 195],   // teal
-            [200, 140, 255],  // lavender
-            [255, 130, 90]    // coral
+            [255, 80, 180],   // hot pink
+            [80, 160, 255],   // sky blue
+            [255, 210, 60],   // golden
+            [60, 255, 200],   // mint
+            [200, 120, 255],  // violet
+            [255, 140, 70],   // tangerine
+            [120, 255, 120],  // lime
+            [255, 100, 100]   // warm red
         ];
 
         /* ═══════════════════════════════════════
@@ -365,9 +378,11 @@
         var lastCollectTime = 0;
         var mx = -500, my = -500;
         var W, H;
-        var maxOrbs = 8;
-        var spawnInterval = 1600;
+        var maxOrbs = 14;
+        var spawnInterval = 600;
         var spawnTimer = 0;
+        var magnetRadius = 160;
+        var autoCollectRadius = 55;
 
         /* ═══════════════════════════════════════
            DOM
@@ -376,6 +391,7 @@
         var canvas = document.getElementById('canvas');
         var ctx = canvas.getContext('2d');
         var darkOverlay = document.getElementById('darkOverlay');
+        var flashEl = document.getElementById('flash');
         var lumenValueEl = document.getElementById('lumenValue');
         var hudEl = document.getElementById('hud');
         var toastContainer = document.getElementById('toastContainer');
@@ -412,16 +428,16 @@
             var x = c.getContext('2d');
             var gr = x.createRadialGradient(rad, rad, 0, rad, rad, rad);
             gr.addColorStop(0, 'rgba(' + r + ',' + g + ',' + b + ',1)');
-            gr.addColorStop(0.2, 'rgba(' + r + ',' + g + ',' + b + ',0.5)');
-            gr.addColorStop(0.5, 'rgba(' + r + ',' + g + ',' + b + ',0.12)');
+            gr.addColorStop(0.15, 'rgba(' + r + ',' + g + ',' + b + ',0.6)');
+            gr.addColorStop(0.4, 'rgba(' + r + ',' + g + ',' + b + ',0.15)');
             gr.addColorStop(1, 'rgba(' + r + ',' + g + ',' + b + ',0)');
             x.fillStyle = gr;
             x.fillRect(0, 0, c.width, c.height);
             return c;
         }
 
-        var glows = COLORS.map(function(c) { return makeGlow(c[0], c[1], c[2], 80); });
-        var cursorGlow = makeGlow(255, 255, 255, 80);
+        var glows = COLORS.map(function(c) { return makeGlow(c[0], c[1], c[2], 100); });
+        var cursorGlow = makeGlow(255, 255, 255, 120);
 
         /* ═══════════════════════════════════════
            PARTICLES
@@ -429,58 +445,62 @@
 
         /* — Ambient — */
         var ambients = [];
-        for (var i = 0; i < 40; i++) {
+        for (var i = 0; i < 60; i++) {
             ambients.push({
                 x: Math.random() * 2000,
                 y: Math.random() * 2000,
-                vx: (Math.random() - 0.5) * 0.25,
-                vy: (Math.random() - 0.5) * 0.25,
-                r: 0.8 + Math.random() * 1.8,
-                a: 0.08 + Math.random() * 0.15,
-                phase: Math.random() * 6.28
+                vx: (Math.random() - 0.5) * 0.4,
+                vy: (Math.random() - 0.5) * 0.4,
+                r: 0.6 + Math.random() * 2.5,
+                a: 0.1 + Math.random() * 0.2,
+                phase: Math.random() * 6.28,
+                ci: Math.floor(Math.random() * COLORS.length)
             });
         }
+
+        /* — Trails (follow cursor) — */
+        var trails = [];
 
         /* — Collectible Orbs — */
         var orbs = [];
 
         function spawnOrb() {
             if (orbs.length >= maxOrbs) return;
-            var side = Math.floor(Math.random() * 4);
             var o = {
                 x: 0, y: 0, vx: 0, vy: 0,
-                radius: 10 + Math.random() * 10,
+                radius: 14 + Math.random() * 14,
                 ci: Math.floor(Math.random() * COLORS.length),
                 phase: Math.random() * 6.28,
                 alive: true,
                 collecting: false,
-                ct: 0, tx: 0, ty: 0
+                ct: 0, born: performance.now()
             };
-            var speed = 0.25 + Math.random() * 0.45;
-            var drift = (Math.random() - 0.5) * 0.3;
-            if (side === 0)      { o.x = -40; o.y = Math.random() * H; o.vx = speed; o.vy = drift; }
-            else if (side === 1) { o.x = W + 40; o.y = Math.random() * H; o.vx = -speed; o.vy = drift; }
-            else if (side === 2) { o.x = Math.random() * W; o.y = -40; o.vx = drift; o.vy = speed; }
-            else                 { o.x = Math.random() * W; o.y = H + 40; o.vx = drift; o.vy = -speed; }
+            var side = Math.floor(Math.random() * 4);
+            var speed = 0.5 + Math.random() * 0.8;
+            var drift = (Math.random() - 0.5) * 0.5;
+            if (side === 0)      { o.x = -50; o.y = Math.random() * H; o.vx = speed; o.vy = drift; }
+            else if (side === 1) { o.x = W + 50; o.y = Math.random() * H; o.vx = -speed; o.vy = drift; }
+            else if (side === 2) { o.x = Math.random() * W; o.y = -50; o.vx = drift; o.vy = speed; }
+            else                 { o.x = Math.random() * W; o.y = H + 50; o.vx = drift; o.vy = -speed; }
             orbs.push(o);
         }
 
-        for (var i = 0; i < 5; i++) spawnOrb();
+        for (var i = 0; i < 8; i++) spawnOrb();
 
         /* — Burst particles — */
         var bursts = [];
 
-        function emitBurst(x, y, ci) {
-            var n = 7 + Math.floor(Math.random() * 5);
+        function emitBurst(x, y, ci, power) {
+            var n = 10 + Math.floor(Math.random() * 8 + power * 3);
             for (var i = 0; i < n; i++) {
-                var angle = (6.28 / n) * i + Math.random() * 0.4;
-                var speed = 1.5 + Math.random() * 3.5;
+                var angle = (6.28 / n) * i + Math.random() * 0.5;
+                var speed = 2 + Math.random() * 5 + power;
                 bursts.push({
                     x: x, y: y,
                     vx: Math.cos(angle) * speed,
                     vy: Math.sin(angle) * speed,
-                    r: 1.5 + Math.random() * 3,
-                    alpha: 1, ci: ci
+                    r: 1.5 + Math.random() * 4,
+                    alpha: 1.2, ci: ci
                 });
             }
         }
@@ -490,6 +510,15 @@
 
         /* — Floating score texts — */
         var floats = [];
+
+        /* ═══════════════════════════════════════
+           SCREEN EFFECTS
+           ═══════════════════════════════════════ */
+
+        function screenFlash() {
+            flashEl.classList.add('pop');
+            setTimeout(function() { flashEl.classList.remove('pop'); }, 20);
+        }
 
         /* ═══════════════════════════════════════
            INPUT
@@ -507,51 +536,64 @@
             if (e.touches.length) {
                 mx = e.touches[0].clientX;
                 my = e.touches[0].clientY;
-                doPulse(mx, my);
             }
         }, { passive: true });
 
+        /* Click causes a shockwave that collects everything nearby */
         document.addEventListener('click', function(e) {
-            doPulse(e.clientX, e.clientY);
-        });
-
-        function doPulse(px, py) {
-            pulses.push({ x: px, y: py, radius: 0, alpha: 0.45 });
+            pulses.push({ x: e.clientX, y: e.clientY, radius: 0, alpha: 0.55 });
+            /* Shockwave collects in a large radius */
             for (var i = 0; i < orbs.length; i++) {
                 var o = orbs[i];
                 if (o.collecting || !o.alive) continue;
-                var dx = px - o.x, dy = py - o.y;
-                if (Math.sqrt(dx * dx + dy * dy) < 110) {
-                    collectOrb(o, px, py);
+                var dx = e.clientX - o.x, dy = e.clientY - o.y;
+                if (Math.sqrt(dx * dx + dy * dy) < 200) {
+                    collectOrb(o);
                 }
             }
-        }
+        });
 
-        function collectOrb(o, px, py) {
+        function collectOrb(o) {
+            if (o.collecting) return;
             o.collecting = true;
-            o.tx = px; o.ty = py; o.ct = 0;
+            o.ct = 0;
 
             var now = performance.now();
-            if (now - lastCollectTime < 2500) { combo++; }
+            if (now - lastCollectTime < 2000) { combo++; }
             else { combo = 1; }
             lastCollectTime = now;
 
             var points = combo;
             var ci = o.ci;
-            var ox = o;
 
             setTimeout(function() {
-                if (!ox.alive) return;
-                emitBurst(ox.x, ox.y, ci);
-                ox.alive = false;
+                if (!o.alive) return;
+                emitBurst(o.x, o.y, ci, Math.min(combo, 5));
+                screenFlash();
+                o.alive = false;
                 lumens += points;
                 onLumensChange();
                 floats.push({
-                    x: ox.x, y: ox.y,
+                    x: o.x, y: o.y - 10,
                     text: '+' + points,
-                    alpha: 1.2, vy: -0.7
+                    alpha: 1.5, vy: -1.2,
+                    scale: 1 + Math.min(combo * 0.15, 1)
                 });
-            }, 220);
+
+                /* Chain reaction — nearby orbs get pulled in too */
+                if (combo >= 2) {
+                    for (var j = 0; j < orbs.length; j++) {
+                        var oo = orbs[j];
+                        if (oo === o || oo.collecting || !oo.alive) continue;
+                        var ddx = o.x - oo.x, ddy = o.y - oo.y;
+                        if (Math.sqrt(ddx * ddx + ddy * ddy) < 120 + combo * 15) {
+                            setTimeout(function(target) {
+                                return function() { collectOrb(target); };
+                            }(oo), 80 + Math.random() * 120);
+                        }
+                    }
+                }
+            }, 150);
         }
 
         /* ═══════════════════════════════════════
@@ -561,21 +603,21 @@
         function onLumensChange() {
             lumenValueEl.textContent = lumens;
             lumenValueEl.classList.add('bump');
-            setTimeout(function() { lumenValueEl.classList.remove('bump'); }, 200);
+            setTimeout(function() { lumenValueEl.classList.remove('bump'); }, 180);
 
             if (lumens >= 1) {
                 hudEl.classList.add('visible');
                 instructionEl.style.display = 'none';
             }
 
-            /* Dark overlay fades with collection */
-            var overlayAlpha = Math.max(0.04, 0.45 - (lumens / 100) * 0.41);
+            /* Dark overlay fades quickly */
+            var overlayAlpha = Math.max(0.02, 0.3 - (lumens / 80) * 0.28);
             darkOverlay.style.opacity = overlayAlpha;
 
-            /* Difficulty scaling */
-            if (lumens >= 50)      { maxOrbs = 14; spawnInterval = 700; }
-            else if (lumens >= 25) { maxOrbs = 11; spawnInterval = 1100; }
-            else if (lumens >= 10) { maxOrbs = 9;  spawnInterval = 1400; }
+            /* Difficulty + reward scaling */
+            if (lumens >= 40)      { maxOrbs = 22; spawnInterval = 300; magnetRadius = 220; autoCollectRadius = 80; }
+            else if (lumens >= 20) { maxOrbs = 18; spawnInterval = 400; magnetRadius = 190; autoCollectRadius = 70; }
+            else if (lumens >= 8)  { maxOrbs = 16; spawnInterval = 500; magnetRadius = 175; autoCollectRadius = 60; }
 
             updateProgress();
             checkChapters();
@@ -605,13 +647,13 @@
             var prev = chapters[activeChapter];
             prev.classList.remove('active');
             prev.classList.add('exit');
-            var captured = idx;
             activeChapter = idx;
+            var captured = idx;
             setTimeout(function() {
                 prev.classList.remove('exit');
                 chapters[captured].classList.add('active');
                 updateProgress();
-            }, 650);
+            }, 500);
         }
 
         function checkAchievements() {
@@ -634,8 +676,8 @@
             });
             setTimeout(function() {
                 el.classList.remove('show');
-                setTimeout(function() { el.remove(); }, 600);
-            }, 3500);
+                setTimeout(function() { el.remove(); }, 500);
+            }, 3000);
         }
 
         /* ═══════════════════════════════════════
@@ -654,28 +696,67 @@
             spawnTimer += dt;
             if (spawnTimer > spawnInterval) { spawnOrb(); spawnTimer = 0; }
 
-            /* — Cursor glow — */
-            ctx.globalCompositeOperation = 'lighter';
+            /* — Cursor trail — */
             if (mx > 0 && my > 0) {
-                var gs = 35 + lumens * 0.15;
-                ctx.globalAlpha = 0.08 + Math.min(lumens * 0.001, 0.07);
+                trails.push({
+                    x: mx, y: my,
+                    alpha: 0.5, r: 3 + Math.random() * 3,
+                    ci: Math.floor(Math.random() * COLORS.length)
+                });
+                if (trails.length > 30) trails.shift();
+            }
+
+            ctx.globalCompositeOperation = 'lighter';
+
+            /* — Cursor glow — */
+            if (mx > 0 && my > 0) {
+                var gs = 50 + lumens * 0.4;
+                ctx.globalAlpha = 0.12 + Math.min(lumens * 0.002, 0.12);
                 ctx.drawImage(cursorGlow, mx - gs, my - gs, gs * 2, gs * 2);
                 ctx.globalAlpha = 1;
             }
+
+            /* — Trails — */
+            for (var i = trails.length - 1; i >= 0; i--) {
+                var tr = trails[i];
+                tr.alpha -= 0.025;
+                if (tr.alpha <= 0) { trails.splice(i, 1); continue; }
+                ctx.globalAlpha = tr.alpha * 0.4;
+                ctx.beginPath();
+                ctx.arc(tr.x, tr.y, tr.r, 0, 6.28);
+                var tc = COLORS[tr.ci];
+                ctx.fillStyle = 'rgba(' + tc[0] + ',' + tc[1] + ',' + tc[2] + ',1)';
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
 
             /* — Ambient particles — */
             for (var i = 0; i < ambients.length; i++) {
                 var a = ambients[i];
                 a.x += a.vx; a.y += a.vy;
-                a.phase += 0.008;
+                a.phase += 0.012;
                 if (a.x < -10) a.x = W + 10;
                 if (a.x > W + 10) a.x = -10;
                 if (a.y < -10) a.y = H + 10;
                 if (a.y > H + 10) a.y = -10;
-                ctx.globalAlpha = a.a * (0.6 + 0.4 * Math.sin(a.phase));
+
+                /* Ambient particles react to cursor */
+                if (mx > 0) {
+                    var adx = mx - a.x, ady = my - a.y;
+                    var adist = Math.sqrt(adx * adx + ady * ady);
+                    if (adist < 180 && adist > 1) {
+                        a.vx += (adx / adist) * 0.015;
+                        a.vy += (ady / adist) * 0.015;
+                    }
+                    a.vx *= 0.99; a.vy *= 0.99;
+                }
+
+                var brightness = a.a * (0.5 + 0.5 * Math.sin(a.phase));
+                ctx.globalAlpha = brightness;
+                var ac = COLORS[a.ci];
                 ctx.beginPath();
                 ctx.arc(a.x, a.y, a.r, 0, 6.28);
-                ctx.fillStyle = '#fff';
+                ctx.fillStyle = 'rgba(' + ac[0] + ',' + ac[1] + ',' + ac[2] + ',1)';
                 ctx.fill();
             }
             ctx.globalAlpha = 1;
@@ -686,37 +767,54 @@
                 if (!o.alive) { orbs.splice(i, 1); continue; }
 
                 if (o.collecting) {
-                    o.x += (o.tx - o.x) * 0.14;
-                    o.y += (o.ty - o.y) * 0.14;
+                    o.x += (mx - o.x) * 0.2;
+                    o.y += (my - o.y) * 0.2;
                     o.ct += dt;
                 } else {
-                    /* Cursor attraction */
+                    /* Magnetic pull toward cursor */
                     var dx = mx - o.x, dy = my - o.y;
                     var dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 220 && dist > 1) {
-                        var force = 60 / (dist * dist) * 0.45;
+                    if (dist < magnetRadius && dist > 1) {
+                        var force = (magnetRadius - dist) / magnetRadius;
+                        force = force * force * 1.8;
                         o.vx += (dx / dist) * force;
                         o.vy += (dy / dist) * force;
                     }
-                    o.vx *= 0.985; o.vy *= 0.985;
+
+                    /* Auto-collect on proximity */
+                    if (dist < autoCollectRadius) {
+                        collectOrb(o);
+                    }
+
+                    o.vx *= 0.97; o.vy *= 0.97;
                     o.x += o.vx; o.y += o.vy;
 
-                    if (o.x < -70) o.x = W + 70;
-                    if (o.x > W + 70) o.x = -70;
-                    if (o.y < -70) o.y = H + 70;
-                    if (o.y > H + 70) o.y = -70;
+                    if (o.x < -80) o.x = W + 80;
+                    if (o.x > W + 80) o.x = -80;
+                    if (o.y < -80) o.y = H + 80;
+                    if (o.y > H + 80) o.y = -80;
                 }
 
-                var pulse = 1 + 0.18 * Math.sin(now * 0.003 + o.phase);
+                var pulse = 1 + 0.25 * Math.sin(now * 0.004 + o.phase);
                 var dr = o.radius * pulse;
+                /* Entrance scale */
+                var age = Math.min((now - o.born) / 400, 1);
+                dr *= age;
+
                 var tex = glows[o.ci];
-                ctx.globalAlpha = o.collecting ? Math.max(0, 1 - o.ct / 220) : 0.85;
-                ctx.drawImage(tex, o.x - dr * 2.5, o.y - dr * 2.5, dr * 5, dr * 5);
-                /* Core dot */
-                ctx.globalAlpha = (o.collecting ? Math.max(0, 1 - o.ct / 180) : 1) * 0.9;
+                ctx.globalAlpha = (o.collecting ? Math.max(0, 1 - o.ct / 150) : 0.9) * age;
+                ctx.drawImage(tex, o.x - dr * 3, o.y - dr * 3, dr * 6, dr * 6);
+                /* Bright core */
+                ctx.globalAlpha = (o.collecting ? Math.max(0, 1 - o.ct / 120) : 1) * age;
                 ctx.beginPath();
-                ctx.arc(o.x, o.y, dr * 0.35, 0, 6.28);
+                ctx.arc(o.x, o.y, dr * 0.4, 0, 6.28);
                 ctx.fillStyle = 'rgba(' + COLORS[o.ci][0] + ',' + COLORS[o.ci][1] + ',' + COLORS[o.ci][2] + ',1)';
+                ctx.fill();
+                /* White-hot center */
+                ctx.globalAlpha = (o.collecting ? Math.max(0, 1 - o.ct / 100) : 0.7) * age;
+                ctx.beginPath();
+                ctx.arc(o.x, o.y, dr * 0.15, 0, 6.28);
+                ctx.fillStyle = '#fff';
                 ctx.fill();
             }
             ctx.globalAlpha = 1;
@@ -725,26 +823,26 @@
             for (var i = bursts.length - 1; i >= 0; i--) {
                 var b = bursts[i];
                 b.x += b.vx; b.y += b.vy;
-                b.vx *= 0.955; b.vy *= 0.955;
-                b.alpha -= 0.018;
+                b.vx *= 0.94; b.vy *= 0.94;
+                b.alpha -= 0.022;
                 if (b.alpha <= 0) { bursts.splice(i, 1); continue; }
-                ctx.globalAlpha = b.alpha;
+                ctx.globalAlpha = Math.min(b.alpha, 1);
                 var tex = glows[b.ci];
-                ctx.drawImage(tex, b.x - b.r * 2.5, b.y - b.r * 2.5, b.r * 5, b.r * 5);
+                ctx.drawImage(tex, b.x - b.r * 3, b.y - b.r * 3, b.r * 6, b.r * 6);
             }
             ctx.globalAlpha = 1;
 
             /* — Pulse rings — */
             for (var i = pulses.length - 1; i >= 0; i--) {
                 var p = pulses[i];
-                p.radius += 2.5;
-                p.alpha -= 0.008;
+                p.radius += 4;
+                p.alpha -= 0.01;
                 if (p.alpha <= 0) { pulses.splice(i, 1); continue; }
                 ctx.globalCompositeOperation = 'source-over';
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.radius, 0, 6.28);
-                ctx.strokeStyle = 'rgba(255,255,255,' + p.alpha + ')';
-                ctx.lineWidth = 1;
+                ctx.strokeStyle = 'rgba(255,255,255,' + Math.min(p.alpha, 1) + ')';
+                ctx.lineWidth = 1.5;
                 ctx.stroke();
                 ctx.globalCompositeOperation = 'lighter';
             }
@@ -754,31 +852,33 @@
             for (var i = floats.length - 1; i >= 0; i--) {
                 var f = floats[i];
                 f.y += f.vy;
-                f.alpha -= 0.012;
+                f.alpha -= 0.018;
                 if (f.alpha <= 0) { floats.splice(i, 1); continue; }
                 ctx.globalAlpha = Math.min(f.alpha, 1);
-                ctx.font = '700 15px Inter, sans-serif';
+                var fs = Math.round(16 * (f.scale || 1));
+                ctx.font = '800 ' + fs + 'px Inter, sans-serif';
                 ctx.fillStyle = '#fff';
                 ctx.textAlign = 'center';
                 ctx.fillText(f.text, f.x, f.y);
             }
 
             /* — Combo indicator — */
-            if (combo > 1 && now - lastCollectTime < 2500) {
-                var ca = Math.min(1, (2500 - (now - lastCollectTime)) / 800);
-                ctx.globalAlpha = ca * 0.75;
-                ctx.font = '800 13px Inter, sans-serif';
-                ctx.fillStyle = 'rgba(255,200,80,1)';
+            if (combo > 1 && now - lastCollectTime < 2000) {
+                var ca = Math.min(1, (2000 - (now - lastCollectTime)) / 600);
+                ctx.globalAlpha = ca * 0.9;
+                var comboSize = Math.min(16 + combo * 2, 32);
+                ctx.font = '900 ' + comboSize + 'px Inter, sans-serif';
+                ctx.fillStyle = 'rgba(255,220,80,1)';
                 ctx.textAlign = 'center';
-                ctx.fillText('\u00d7' + combo, mx + 22, my - 22);
+                ctx.fillText('\u00d7' + combo, mx + 28, my - 28);
 
                 /* Combo ring */
-                var ringProgress = 1 - (now - lastCollectTime) / 2500;
-                ctx.globalAlpha = ca * 0.25;
+                var ringProgress = 1 - (now - lastCollectTime) / 2000;
+                ctx.globalAlpha = ca * 0.35;
                 ctx.beginPath();
-                ctx.arc(mx, my, 20, -1.57, -1.57 + ringProgress * 6.28);
-                ctx.strokeStyle = 'rgba(255,200,80,1)';
-                ctx.lineWidth = 1.5;
+                ctx.arc(mx, my, 25 + combo * 2, -1.57, -1.57 + ringProgress * 6.28);
+                ctx.strokeStyle = 'rgba(255,220,80,1)';
+                ctx.lineWidth = 2;
                 ctx.stroke();
             }
 
