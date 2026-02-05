@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delightfull</title>
+    <link rel="stylesheet" href="https://use.typekit.net/ijn4thf.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: 'articulat-cf', sans-serif;
+            background: #000;
+            overflow-x: hidden;
+        }
+
+        /* Video Background */
+        .video-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .video-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            pointer-events: none;
+        }
+
+        .video-bg video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            will-change: transform;
+        }
+
+        .scroll-container {
+            height: 800vh;
+            position: relative;
+        }
+
+        .sticky-wrapper {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            overflow: hidden;
+        }
+
+        /* Group containers */
+        .group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            opacity: 0;
+            transform: translateY(40px) translateZ(0);
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            position: absolute;
+            will-change: opacity, transform;
+        }
+
+        .group.visible {
+            opacity: 1;
+            transform: translateY(0) translateZ(0);
+        }
+
+        .group.exit {
+            opacity: 0;
+            transform: translateY(-60px) translateZ(0);
+        }
+
+        .word {
+            font-size: clamp(3rem, 11vw, 9rem);
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: -0.03em;
+            line-height: 1.05;
+            perspective: 1000px;
+            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .word-large {
+            font-size: clamp(4rem, 18vw, 14rem);
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: -0.04em;
+            line-height: 0.95;
+            perspective: 1000px;
+            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .word-medium {
+            font-size: clamp(2rem, 7vw, 5rem);
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+            perspective: 1000px;
+            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .word span,
+        .word-large span,
+        .word-medium span {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(100%) rotateX(-80deg);
+            transform-origin: center top;
+            backface-visibility: hidden;
+            will-change: opacity, transform;
+            transition:
+                transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .word.visible span,
+        .word-large.visible span,
+        .word-medium.visible span {
+            opacity: 1;
+            transform: translateY(0) rotateX(0deg);
+        }
+
+        /* Dim state */
+        .word.dimmed span,
+        .word-large.dimmed span,
+        .word-medium.dimmed span {
+            opacity: 0.25;
+            transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Stagger the letter animations */
+        .word span:nth-child(1), .word-large span:nth-child(1), .word-medium span:nth-child(1) { transition-delay: 0s; }
+        .word span:nth-child(2), .word-large span:nth-child(2), .word-medium span:nth-child(2) { transition-delay: 0.025s; }
+        .word span:nth-child(3), .word-large span:nth-child(3), .word-medium span:nth-child(3) { transition-delay: 0.05s; }
+        .word span:nth-child(4), .word-large span:nth-child(4), .word-medium span:nth-child(4) { transition-delay: 0.075s; }
+        .word span:nth-child(5), .word-large span:nth-child(5), .word-medium span:nth-child(5) { transition-delay: 0.1s; }
+        .word span:nth-child(6), .word-large span:nth-child(6), .word-medium span:nth-child(6) { transition-delay: 0.125s; }
+        .word span:nth-child(7), .word-large span:nth-child(7), .word-medium span:nth-child(7) { transition-delay: 0.15s; }
+        .word span:nth-child(8), .word-large span:nth-child(8), .word-medium span:nth-child(8) { transition-delay: 0.175s; }
+        .word span:nth-child(9), .word-large span:nth-child(9), .word-medium span:nth-child(9) { transition-delay: 0.2s; }
+        .word span:nth-child(10), .word-large span:nth-child(10), .word-medium span:nth-child(10) { transition-delay: 0.225s; }
+        .word span:nth-child(11), .word-large span:nth-child(11), .word-medium span:nth-child(11) { transition-delay: 0.25s; }
+        .word span:nth-child(12), .word-large span:nth-child(12), .word-medium span:nth-child(12) { transition-delay: 0.275s; }
+        .word span:nth-child(13), .word-large span:nth-child(13), .word-medium span:nth-child(13) { transition-delay: 0.3s; }
+        .word span:nth-child(14), .word-large span:nth-child(14), .word-medium span:nth-child(14) { transition-delay: 0.325s; }
+
+        .word.dimmed span,
+        .word-large.dimmed span,
+        .word-medium.dimmed span {
+            transition-delay: 0s !important;
+        }
+
+        /* Side by side row */
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3em;
+        }
+
+        .plus {
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 300;
+            color: #fff;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            transition-delay: 0.15s;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .row.visible .plus {
+            opacity: 0.5;
+            transform: scale(1);
+        }
+
+        /* Loading state */
+        .video-bg.loading::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: #000;
+            z-index: 1;
+            transition: opacity 0.8s ease-out;
+        }
+
+        .video-bg.loaded::before {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Full page preloader */
+        .preloader {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s ease;
+        }
+        .preloader.done { opacity: 0; pointer-events: none; }
+        .preloader-ring {
+            width: 20px; height: 20px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-top-color: rgba(255,255,255,0.5);
+            border-radius: 50%;
+            animation: prespin 0.8s linear infinite;
+        }
+        @keyframes prespin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="preloader" id="preloader"><div class="preloader-ring"></div></div>
+    <a href="../../" style="position:fixed;bottom:24px;right:24px;z-index:1000;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.08);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;text-decoration:none;color:#fff;transition:background 0.2s,transform 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)';this.style.transform='scale(1.05)'" onmouseout="this.style.background='rgba(255,255,255,0.08)';this.style.transform='scale(1)'" title="Back to experiments"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></a>
+
+    <!-- Video Background -->
+    <div class="video-bg loading" id="videoBg">
+        <video autoplay muted loop playsinline disablePictureInPicture>
+            <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/Video_Generation_With_Specific_Colors%20copy.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <div class="scroll-container">
+        <div class="sticky-wrapper">
+            <!-- Group 1: Delightfull, Usefull, Reliable -->
+            <div class="group" id="group1">
+                <div class="word" id="word1"></div>
+                <div class="word" id="word2"></div>
+                <div class="word" id="word3"></div>
+            </div>
+
+            <!-- Group 2: UI, GUI + CLI side by side -->
+            <div class="group" id="group2">
+                <div class="word-large" id="ui"></div>
+                <div class="row">
+                    <div class="word-medium" id="gui"></div>
+                    <span class="plus">+</span>
+                    <div class="word-medium" id="cli"></div>
+                </div>
+            </div>
+
+            <!-- Group 3: Dashboard, Documentation, Support -->
+            <div class="group" id="group3">
+                <div class="word-medium" id="dashboard"></div>
+                <div class="word-medium" id="documentation"></div>
+                <div class="word-medium" id="support"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Video load handling
+        const videoBg = document.getElementById('videoBg');
+        const video = videoBg.querySelector('video');
+        const preloader = document.getElementById('preloader');
+
+        function dismissLoader() {
+            videoBg.classList.remove('loading');
+            videoBg.classList.add('loaded');
+            preloader.classList.add('done');
+            setTimeout(() => preloader.remove(), 600);
+        }
+
+        if (video.readyState >= 3) {
+            dismissLoader();
+        } else {
+            video.addEventListener('canplaythrough', dismissLoader, { once: true });
+        }
+
+        // Fallback if video takes too long
+        setTimeout(dismissLoader, 6000);
+
+        function splitText(text) {
+            return text.split('').map(char => `<span>${char}</span>`).join('');
+        }
+
+        // Group 1
+        const word1 = document.getElementById('word1');
+        const word2 = document.getElementById('word2');
+        const word3 = document.getElementById('word3');
+        word1.innerHTML = splitText('Delightfull.');
+        word2.innerHTML = splitText('Usefull.');
+        word3.innerHTML = splitText('Reliable.');
+
+        // Group 2
+        const ui = document.getElementById('ui');
+        const gui = document.getElementById('gui');
+        const cli = document.getElementById('cli');
+        const guiCliRow = gui.parentElement;
+        ui.innerHTML = splitText('UI.');
+        gui.innerHTML = splitText('GUI');
+        cli.innerHTML = splitText('CLI');
+
+        // Group 3
+        const dashboard = document.getElementById('dashboard');
+        const documentation = document.getElementById('documentation');
+        const support = document.getElementById('support');
+        dashboard.innerHTML = splitText('Dashboard.');
+        documentation.innerHTML = splitText('Documentation.');
+        support.innerHTML = splitText('Support.');
+
+        const scrollContainer = document.querySelector('.scroll-container');
+        const group1 = document.getElementById('group1');
+        const group2 = document.getElementById('group2');
+        const group3 = document.getElementById('group3');
+
+        function handleScroll() {
+            const scrollY = window.scrollY;
+            const vh = window.innerHeight;
+            const totalScroll = scrollContainer.offsetHeight - vh;
+            const p = Math.min(Math.max(scrollY / totalScroll, 0), 1);
+
+            // ===== GROUP 1: 0% - 30% =====
+            if (p < 0.30) {
+                group1.classList.add('visible');
+                group1.classList.remove('exit');
+                group2.classList.remove('visible');
+                group3.classList.remove('visible');
+
+                word1.classList.add('visible');
+
+                if (p >= 0.05) {
+                    word2.classList.add('visible');
+                    word1.classList.add('dimmed');
+                } else {
+                    word2.classList.remove('visible');
+                    word1.classList.remove('dimmed');
+                }
+
+                if (p >= 0.12) {
+                    word3.classList.add('visible');
+                } else {
+                    word3.classList.remove('visible');
+                }
+            }
+
+            // ===== GROUP 2: 30% - 60% =====
+            else if (p >= 0.30 && p < 0.60) {
+                group1.classList.remove('visible');
+                group1.classList.add('exit');
+                group2.classList.add('visible');
+                group2.classList.remove('exit');
+                group3.classList.remove('visible');
+
+                ui.classList.add('visible');
+
+                if (p >= 0.42) {
+                    gui.classList.add('visible');
+                    cli.classList.add('visible');
+                    guiCliRow.classList.add('visible');
+                    ui.classList.add('dimmed');
+                } else {
+                    gui.classList.remove('visible');
+                    cli.classList.remove('visible');
+                    guiCliRow.classList.remove('visible');
+                    ui.classList.remove('dimmed');
+                }
+            }
+
+            // ===== GROUP 3: 60% - 100% =====
+            else if (p >= 0.60) {
+                group1.classList.remove('visible');
+                group2.classList.remove('visible');
+                group2.classList.add('exit');
+                group3.classList.add('visible');
+                group3.classList.remove('exit');
+
+                dashboard.classList.add('visible');
+
+                if (p >= 0.70) {
+                    documentation.classList.add('visible');
+                } else {
+                    documentation.classList.remove('visible');
+                }
+
+                if (p >= 0.80) {
+                    support.classList.add('visible');
+                } else {
+                    support.classList.remove('visible');
+                }
+            }
+        }
+
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    handleScroll();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }, { passive: true });
+
+        handleScroll();
+    </script>
+</body>
+</html>

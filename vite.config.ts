@@ -1,0 +1,20 @@
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import { resolve } from 'path'
+
+export default defineConfig({
+  base: '/MADvids/',
+  plugins: [react()],
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        delightfullVideo: resolve(__dirname, 'experiments/delightfull-video/index.html'),
+        autonomyDashboard: resolve(__dirname, 'experiments/autonomy-dashboard/index.html'),
+        hyperpodCinematic: resolve(__dirname, 'experiments/hyperpod-cinematic/index.html'),
+        hyperpodShowcase: resolve(__dirname, 'experiments/hyperpod-showcase/index.html'),
+        hyperpodGrid: resolve(__dirname, 'experiments/hyperpod-grid/index.html'),
+      },
+    },
+  },
+})

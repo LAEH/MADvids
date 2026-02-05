@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HyperPod — Cinematic</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="preload" as="video" href="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-dgfdf.mp4">
+    <script>
+        (function(){var t=localStorage.getItem('ddn-theme');if(t)document.documentElement.setAttribute('data-theme',t)})();
+    </script>
+    <style>
+        :root {
+            --bg: #000;
+            --fg: #fff;
+            --fg-muted: rgba(255,255,255,0.45);
+            --fg-dim: rgba(255,255,255,0.35);
+            --fg-faint: rgba(255,255,255,0.3);
+            --overlay: rgba(0,0,0,0.5);
+            --loader-bg: #000;
+            --loader-ring: rgba(255,255,255,0.1);
+            --loader-ring-top: rgba(255,255,255,0.5);
+            --pill-bg: rgba(255,255,255,0.06);
+            --pill-border: rgba(255,255,255,0.08);
+            --pill-color: rgba(255,255,255,0.5);
+            --progress: rgba(255,255,255,0.25);
+        }
+        [data-theme="light"] {
+            --bg: #fbfbfb;
+            --fg: #1d1d1f;
+            --fg-muted: rgba(29,29,31,0.5);
+            --fg-dim: rgba(29,29,31,0.4);
+            --fg-faint: rgba(29,29,31,0.3);
+            --overlay: rgba(255,255,255,0.45);
+            --loader-bg: #fbfbfb;
+            --loader-ring: rgba(0,0,0,0.08);
+            --loader-ring-top: rgba(0,0,0,0.4);
+            --pill-bg: rgba(0,0,0,0.04);
+            --pill-border: rgba(0,0,0,0.08);
+            --pill-color: rgba(0,0,0,0.4);
+            --progress: rgba(0,0,0,0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            overflow: hidden;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+        body.ready { overflow-x: hidden; overflow-y: auto; }
+
+        /* Loader */
+        .loader {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: var(--loader-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s ease;
+        }
+        .loader.done { opacity: 0; pointer-events: none; }
+        .loader-inner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--loader-ring);
+            border-top-color: var(--loader-ring-top);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Controls */
+        .controls {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 1000;
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        body.ready .controls { opacity: 1; transition-delay: 1s; }
+
+        .ctrl-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--pill-bg);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid var(--pill-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--pill-color);
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .ctrl-btn:hover { background: var(--pill-border); color: var(--fg); }
+        .ctrl-btn svg { width: 16px; height: 16px; }
+
+        /* Theme toggle icons */
+        .icon-sun, .icon-moon { display: none; }
+        [data-theme="dark"] .icon-sun { display: block; }
+        [data-theme="light"] .icon-moon { display: block; }
+
+        /* Video */
+        .video-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+        .video-bg video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .video-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--overlay);
+            transition: background 0.4s ease;
+        }
+
+        /* Scroll */
+        .scroll-space {
+            position: relative;
+            z-index: 1;
+            height: 500vh;
+        }
+        .frame {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Sections */
+        .section {
+            position: absolute;
+            text-align: center;
+            width: 100%;
+            padding: 0 24px;
+            opacity: 0;
+            transform: translateY(32px);
+            transition: opacity 0.7s cubic-bezier(0.25, 1, 0.5, 1), transform 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .section.active { opacity: 1; transform: translateY(0); }
+        .section.exit { opacity: 0; transform: translateY(-24px); }
+
+        .overline {
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+            color: var(--fg-dim);
+            margin-bottom: 16px;
+        }
+        .display {
+            font-size: clamp(48px, 9vw, 96px);
+            font-weight: 700;
+            letter-spacing: -0.035em;
+            line-height: 1;
+        }
+        .body-text {
+            font-size: clamp(17px, 2vw, 21px);
+            font-weight: 400;
+            line-height: 1.5;
+            color: var(--fg-muted);
+            max-width: 480px;
+            margin: 20px auto 0;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 80px;
+            margin-top: 48px;
+        }
+        .stat-value {
+            font-size: clamp(36px, 5vw, 56px);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+        .stat-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--fg-faint);
+            margin-top: 8px;
+            letter-spacing: 0.01em;
+        }
+
+        .progress {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 1px;
+            background: var(--progress);
+            z-index: 100;
+            will-change: width;
+        }
+    </style>
+</head>
+<body>
+    <div class="loader" id="loader"><div class="loader-inner"></div></div>
+
+    <div class="controls">
+        <button class="ctrl-btn" id="themeToggle" title="Toggle theme">
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <a class="ctrl-btn" href="../../" title="Back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        </a>
+    </div>
+
+    <div class="video-bg">
+        <video id="bgVideo" muted loop playsinline disablePictureInPicture>
+            <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-dgfdf.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <div class="progress" id="progress"></div>
+
+    <div class="scroll-space">
+        <div class="frame">
+            <div class="section" id="s0">
+                <div class="overline">DDN HyperPod</div>
+                <div class="display">Rethink<br>infrastructure.</div>
+                <div class="body-text">AI compute demands a new foundation. One that's as ambitious as your models.</div>
+            </div>
+            <div class="section" id="s1">
+                <div class="display">Infinite scale.</div>
+                <div class="body-text">From a single node to thousands. Elastic compute that expands with your workload, never against it.</div>
+            </div>
+            <div class="section" id="s2">
+                <div class="display">Zero friction.</div>
+                <div class="body-text">Deploy in minutes. No configuration overhead. No bottlenecks. Just performance, delivered.</div>
+            </div>
+            <div class="section" id="s3">
+                <div class="display">Built to perform.</div>
+                <div class="stats">
+                    <div>
+                        <div class="stat-value">400+</div>
+                        <div class="stat-label">GB/s throughput</div>
+                    </div>
+                    <div>
+                        <div class="stat-value">99.999%</div>
+                        <div class="stat-label">Availability</div>
+                    </div>
+                    <div>
+                        <div class="stat-value">&lt;1ms</div>
+                        <div class="stat-label">Latency</div>
+                    </div>
+                </div>
+            </div>
+            <div class="section" id="s4">
+                <div class="overline">DDN</div>
+                <div class="display">The future is now.</div>
+                <div class="body-text">Power your AI. Accelerate discovery. Transform everything.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme
+        const toggle = document.getElementById('themeToggle');
+        toggle.addEventListener('click', () => {
+            const html = document.documentElement;
+            const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('ddn-theme', next);
+        });
+
+        // Video preload
+        const video = document.getElementById('bgVideo');
+        const loader = document.getElementById('loader');
+        const progress = document.getElementById('progress');
+        const sections = Array.from(document.querySelectorAll('.section'));
+        const count = sections.length;
+
+        function start() {
+            video.play();
+            loader.classList.add('done');
+            document.body.classList.add('ready');
+            setTimeout(() => loader.remove(), 600);
+        }
+        if (video.readyState >= 3) start();
+        else video.addEventListener('canplaythrough', start, { once: true });
+        setTimeout(start, 6000);
+
+        function update() {
+            const scrollY = window.scrollY;
+            const vh = window.innerHeight;
+            const total = document.querySelector('.scroll-space').offsetHeight - vh;
+            const p = Math.min(Math.max(scrollY / total, 0), 1);
+            progress.style.width = (p * 100) + '%';
+            const size = 1 / count;
+            const idx = Math.min(Math.floor(p / size), count - 1);
+            sections.forEach((s, i) => {
+                s.classList.remove('active', 'exit');
+                if (i === idx) s.classList.add('active');
+                else if (i < idx) s.classList.add('exit');
+            });
+        }
+
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(() => { update(); ticking = false; });
+                ticking = true;
+            }
+        }, { passive: true });
+        update();
+    </script>
+</body>
+</html>

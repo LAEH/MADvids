@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HyperPod — Showcase</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        (function(){var t=localStorage.getItem('ddn-theme');if(t)document.documentElement.setAttribute('data-theme',t)})();
+    </script>
+    <style>
+        :root {
+            --bg: #000;
+            --fg: #fff;
+            --fg-muted: rgba(255,255,255,0.4);
+            --fg-dim: rgba(255,255,255,0.25);
+            --fg-faint: rgba(255,255,255,0.3);
+            --hero-overlay: linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.6) 100%);
+            --feature-overlay-l: linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.88) 40%, rgba(0,0,0,0.15) 100%);
+            --feature-overlay-r: linear-gradient(270deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.88) 40%, rgba(0,0,0,0.15) 100%);
+            --pill-bg: rgba(255,255,255,0.04);
+            --pill-border: rgba(255,255,255,0.06);
+            --pill-color: rgba(255,255,255,0.5);
+            --ctrl-bg: rgba(255,255,255,0.06);
+            --ctrl-border: rgba(255,255,255,0.08);
+            --ctrl-color: rgba(255,255,255,0.5);
+            --cue-color: rgba(255,255,255,0.3);
+            --loader-bg: #000;
+            --loader-ring: rgba(255,255,255,0.1);
+            --loader-ring-top: rgba(255,255,255,0.5);
+        }
+        [data-theme="light"] {
+            --bg: #fbfbfb;
+            --fg: #1d1d1f;
+            --fg-muted: rgba(29,29,31,0.5);
+            --fg-dim: rgba(29,29,31,0.25);
+            --fg-faint: rgba(29,29,31,0.3);
+            --hero-overlay: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.5) 100%);
+            --feature-overlay-l: linear-gradient(90deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.9) 40%, rgba(255,255,255,0.1) 100%);
+            --feature-overlay-r: linear-gradient(270deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.9) 40%, rgba(255,255,255,0.1) 100%);
+            --pill-bg: rgba(0,0,0,0.03);
+            --pill-border: rgba(0,0,0,0.06);
+            --pill-color: rgba(0,0,0,0.4);
+            --ctrl-bg: rgba(0,0,0,0.04);
+            --ctrl-border: rgba(0,0,0,0.08);
+            --ctrl-color: rgba(0,0,0,0.4);
+            --cue-color: rgba(0,0,0,0.2);
+            --loader-bg: #fbfbfb;
+            --loader-ring: rgba(0,0,0,0.08);
+            --loader-ring-top: rgba(0,0,0,0.4);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            overflow: hidden;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+        body.ready { overflow-x: hidden; overflow-y: auto; }
+
+        .loader {
+            position: fixed; inset: 0; z-index: 9999;
+            background: var(--loader-bg);
+            display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.6s ease;
+        }
+        .loader.done { opacity: 0; pointer-events: none; }
+        .loader-ring {
+            width: 20px; height: 20px;
+            border: 2px solid var(--loader-ring);
+            border-top-color: var(--loader-ring-top);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .controls {
+            position: fixed; bottom: 28px; right: 28px; z-index: 1000;
+            display: flex; gap: 8px; opacity: 0; transition: opacity 0.3s ease;
+        }
+        body.ready .controls { opacity: 1; transition-delay: 1s; }
+        .ctrl-btn {
+            width: 48px; height: 48px; border-radius: 50%;
+            background: var(--ctrl-bg); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+            border: 1px solid var(--ctrl-border);
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none; color: var(--ctrl-color); cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .ctrl-btn:hover { background: var(--ctrl-border); color: var(--fg); }
+        .ctrl-btn svg { width: 16px; height: 16px; }
+        .icon-sun, .icon-moon { display: none; }
+        [data-theme="dark"] .icon-sun { display: block; }
+        [data-theme="light"] .icon-moon { display: block; }
+
+        /* Hero */
+        .hero {
+            position: relative; height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            text-align: center; overflow: hidden;
+        }
+        .hero-video { position: absolute; inset: 0; }
+        .hero-video video { width: 100%; height: 100%; object-fit: cover; }
+        .hero-video::after {
+            content: ''; position: absolute; inset: 0;
+            background: var(--hero-overlay);
+            transition: background 0.4s ease;
+        }
+        .hero-content {
+            position: relative; z-index: 1;
+            opacity: 0; transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        body.ready .hero-content { opacity: 1; transform: translateY(0); }
+        .hero-overline {
+            font-size: 14px; font-weight: 500; letter-spacing: 0.04em;
+            color: var(--fg-muted); margin-bottom: 20px;
+        }
+        .hero h1 {
+            font-size: clamp(52px, 11vw, 120px); font-weight: 700;
+            letter-spacing: -0.04em; line-height: 0.92;
+        }
+        .hero-sub {
+            font-size: clamp(17px, 2vw, 21px); font-weight: 400;
+            color: var(--fg-muted); margin-top: 24px; line-height: 1.4;
+        }
+        .scroll-cue {
+            position: absolute; bottom: 48px; left: 50%;
+            transform: translateX(-50%); z-index: 1; opacity: 0;
+        }
+        body.ready .scroll-cue { opacity: 1; transition: opacity 0.8s 1.2s ease; }
+        .scroll-cue-line {
+            width: 1px; height: 48px; margin: 0 auto;
+            background: linear-gradient(to bottom, var(--cue-color), transparent);
+            animation: cue-pulse 2.5s ease infinite;
+        }
+        @keyframes cue-pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+        /* Features */
+        .feature {
+            position: relative; min-height: 100vh;
+            display: flex; align-items: center;
+        }
+        .feature-video { position: absolute; inset: 0; }
+        .feature-video video { width: 100%; height: 100%; object-fit: cover; }
+        .feature:nth-child(odd) .feature-video::after {
+            content: ''; position: absolute; inset: 0;
+            background: var(--feature-overlay-l);
+            transition: background 0.4s ease;
+        }
+        .feature:nth-child(even) .feature-video::after {
+            content: ''; position: absolute; inset: 0;
+            background: var(--feature-overlay-r);
+            transition: background 0.4s ease;
+        }
+        .feature-content {
+            position: relative; z-index: 1;
+            padding: 0 clamp(40px, 8vw, 120px);
+            max-width: 560px;
+            opacity: 0; transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .feature-content.visible { opacity: 1; transform: translateY(0); }
+        .feature:nth-child(even) .feature-content { margin-left: auto; }
+
+        .feature-num {
+            font-size: 13px; font-weight: 500;
+            color: var(--fg-dim); margin-bottom: 20px; letter-spacing: 0.02em;
+        }
+        .feature h2 {
+            font-size: clamp(32px, 5vw, 48px); font-weight: 700;
+            letter-spacing: -0.03em; line-height: 1.05; margin-bottom: 16px;
+        }
+        .feature p {
+            font-size: 17px; font-weight: 400; line-height: 1.65;
+            color: var(--fg-muted);
+        }
+        .metric-pill {
+            display: inline-flex; align-items: baseline; gap: 10px;
+            margin-top: 32px; padding: 14px 24px;
+            background: var(--pill-bg); border: 1px solid var(--pill-border);
+            border-radius: 100px; transition: background 0.3s, border-color 0.3s;
+        }
+        .metric-value { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+        .metric-unit { font-size: 13px; font-weight: 400; color: var(--fg-faint); }
+
+        /* Closer */
+        .closer {
+            height: 50vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            text-align: center; padding: 40px;
+            background: var(--bg); transition: background 0.4s ease;
+        }
+        .closer h2 {
+            font-size: clamp(36px, 6vw, 64px); font-weight: 700;
+            letter-spacing: -0.035em; line-height: 1.05;
+            opacity: 0; transform: translateY(24px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .closer h2.visible { opacity: 1; transform: translateY(0); }
+        .closer p {
+            font-size: 17px; color: var(--fg-faint); margin-top: 16px;
+            opacity: 0; transform: translateY(16px);
+            transition: opacity 0.8s 0.15s ease, transform 0.8s 0.15s ease;
+        }
+        .closer p.visible { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+    <div class="loader" id="loader"><div class="loader-ring"></div></div>
+
+    <div class="controls">
+        <button class="ctrl-btn" id="themeToggle" title="Toggle theme">
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <a class="ctrl-btn" href="../../" title="Back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        </a>
+    </div>
+
+    <div class="hero">
+        <div class="hero-video">
+            <video class="preload-video" autoplay muted loop playsinline disablePictureInPicture>
+                <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jhojeh.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div class="hero-content">
+            <div class="hero-overline">DDN HyperPod</div>
+            <h1>Unleash<br>everything.</h1>
+            <div class="hero-sub">AI infrastructure without limits.</div>
+        </div>
+        <div class="scroll-cue"><div class="scroll-cue-line"></div></div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-video">
+            <video class="preload-video" autoplay muted loop playsinline disablePictureInPicture>
+                <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-dgfdf.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div class="feature-content" data-reveal>
+            <div class="feature-num">01</div>
+            <h2>Massive parallel I/O.</h2>
+            <p>Purpose-built for AI training. Feed thousands of GPUs simultaneously without a single bottleneck.</p>
+            <div class="metric-pill"><span class="metric-value">400+</span><span class="metric-unit">GB/s sustained throughput</span></div>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-video">
+            <video class="preload-video" autoplay muted loop playsinline disablePictureInPicture>
+                <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-kjhxsa.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div class="feature-content" data-reveal>
+            <div class="feature-num">02</div>
+            <h2>Elastic and resilient.</h2>
+            <p>Scale from terabytes to exabytes on demand. Self-healing architecture that never stops.</p>
+            <div class="metric-pill"><span class="metric-value">99.999%</span><span class="metric-unit">availability</span></div>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="feature-video">
+            <video class="preload-video" autoplay muted loop playsinline disablePictureInPicture>
+                <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jhojeh.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div class="feature-content" data-reveal>
+            <div class="feature-num">03</div>
+            <h2>GPU-native storage.</h2>
+            <p>Direct data paths to GPU memory. Zero CPU overhead. Built for the NVIDIA ecosystem.</p>
+            <div class="metric-pill"><span class="metric-value">&lt;1ms</span><span class="metric-unit">end-to-end latency</span></div>
+        </div>
+    </div>
+
+    <div class="closer">
+        <h2 data-reveal>Ready to accelerate?</h2>
+        <p data-reveal>The future of AI infrastructure starts here.</p>
+    </div>
+
+    <script>
+        // Theme
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            const html = document.documentElement;
+            const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('ddn-theme', next);
+        });
+
+        // Preload
+        const videos = document.querySelectorAll('.preload-video');
+        const loader = document.getElementById('loader');
+        let loaded = 0;
+        function checkReady() { if (++loaded >= videos.length) launch(); }
+        function launch() {
+            loader.classList.add('done');
+            document.body.classList.add('ready');
+            setTimeout(() => loader.remove(), 600);
+        }
+        videos.forEach(v => {
+            if (v.readyState >= 3) { checkReady(); return; }
+            v.addEventListener('canplaythrough', checkReady, { once: true });
+        });
+        setTimeout(launch, 8000);
+
+        // Reveal
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.2 });
+        document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
