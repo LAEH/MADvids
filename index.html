@@ -64,16 +64,8 @@
             position: relative;
             isolation: isolate;
             overflow: hidden;
-            padding: 16vh 22vw;
-            margin: -16vh -22vw;
-        }
-        .title-container::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            z-index: 2;
-            pointer-events: none;
-            background: radial-gradient(ellipse at center, transparent 18%, rgba(242,242,247,0.4) 32%, #f2f2f7 52%);
+            padding: 20vh 25vw;
+            margin: -20vh -25vw;
         }
 
         .title-video {
@@ -91,6 +83,7 @@
             background: #f2f2f7;
             mix-blend-mode: screen;
             padding: 8px 0;
+            box-shadow: 0 0 0 100vmax #f2f2f7;
         }
 
         .title-mask h1 {
