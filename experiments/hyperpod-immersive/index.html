@@ -20,7 +20,6 @@
             --accent: rgba(120,160,255,0.7);
             --accent-glow: rgba(120,160,255,0.15);
             --overlay: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.45) 40%, rgba(0,0,0,0.75) 100%);
-            --grain-opacity: 0.035;
             --card-bg: rgba(255,255,255,0.03);
             --card-border: rgba(255,255,255,0.06);
             --ctrl-bg: rgba(255,255,255,0.06);
@@ -40,7 +39,6 @@
             --accent: rgba(60,100,220,0.8);
             --accent-glow: rgba(60,100,220,0.1);
             --overlay: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.4) 40%, rgba(255,255,255,0.65) 100%);
-            --grain-opacity: 0.02;
             --card-bg: rgba(0,0,0,0.02);
             --card-border: rgba(0,0,0,0.06);
             --ctrl-bg: rgba(0,0,0,0.04);
@@ -53,13 +51,13 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; scroll-behavior: smooth; }
+        html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         body {
             font-family: 'Inter', -apple-system, sans-serif;
             background: var(--bg);
             color: var(--fg);
             overflow: hidden;
-            transition: background 0.4s ease, color 0.4s ease;
+            transition: background 0.4s cubic-bezier(0.25, 1, 0.5, 1), color 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
         body.ready { overflow-x: hidden; overflow-y: auto; }
 
@@ -68,7 +66,7 @@
             position: fixed; inset: 0; z-index: 9999;
             background: var(--loader-bg);
             display: flex; align-items: center; justify-content: center;
-            transition: opacity 0.8s ease;
+            transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1);
         }
         .loader.done { opacity: 0; pointer-events: none; }
         .loader-ring {
@@ -80,19 +78,20 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Controls */
+        /* Controls — GPU-composited */
         .controls {
             position: fixed; bottom: 28px; right: 28px; z-index: 1000;
-            display: flex; gap: 8px; opacity: 0; transition: opacity 0.3s ease;
+            display: flex; gap: 8px; opacity: 0;
+            transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
-        body.ready .controls { opacity: 1; transition-delay: 1.2s; }
+        body.ready .controls { opacity: 1; transition-delay: 1s; }
         .ctrl-btn {
             width: 48px; height: 48px; border-radius: 50%;
-            background: var(--ctrl-bg); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+            background: var(--ctrl-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--ctrl-border);
             display: flex; align-items: center; justify-content: center;
             text-decoration: none; color: var(--ctrl-color); cursor: pointer;
-            transition: background 0.2s, color 0.2s;
+            transition: background 0.2s cubic-bezier(0.25, 1, 0.5, 1), color 0.2s cubic-bezier(0.25, 1, 0.5, 1);
         }
         .ctrl-btn:hover { background: var(--ctrl-border); color: var(--fg); }
         .ctrl-btn svg { width: 16px; height: 16px; }
@@ -100,28 +99,31 @@
         [data-theme="dark"] .icon-sun { display: block; }
         [data-theme="light"] .icon-moon { display: block; }
 
-        /* Video layer */
+        /* Video layer — promoted to own compositor layer */
         .video-layer {
             position: fixed; inset: 0; z-index: 0;
+            transform: translateZ(0);
         }
         .video-layer video {
             width: 100%; height: 100%; object-fit: cover;
             will-change: transform;
+            transform: translateZ(0);
         }
         .video-layer::after {
             content: ''; position: absolute; inset: 0;
             background: var(--overlay);
-            transition: background 0.4s ease;
+            transition: background 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        /* Film grain overlay */
+        /* Grain — lightweight CSS noise (no SVG filter) */
         .grain {
-            position: fixed; inset: 0; z-index: 1; pointer-events: none;
-            opacity: var(--grain-opacity);
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-            background-repeat: repeat;
-            background-size: 256px 256px;
+            position: fixed; inset: -50%; z-index: 1; pointer-events: none;
+            width: 200%; height: 200%;
+            opacity: 0.03;
+            background: repeating-conic-gradient(rgba(128,128,128,0.1) 0% 25%, transparent 0% 50%) 0 0 / 3px 3px;
+            animation: grain-shift 0.4s steps(2) infinite;
         }
+        @keyframes grain-shift { to { transform: translate(1.5px, -1.5px); } }
 
         /* Hero */
         .hero {
@@ -132,10 +134,10 @@
             text-align: center;
         }
         .hero-content {
-            opacity: 0; transform: translateY(30px) scale(0.98);
-            transition: opacity 1s cubic-bezier(0.25, 1, 0.5, 1), transform 1s cubic-bezier(0.25, 1, 0.5, 1);
+            opacity: 0; transform: translate3d(0, 30px, 0) scale(0.98);
+            transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        body.ready .hero-content { opacity: 1; transform: translateY(0) scale(1); }
+        body.ready .hero-content { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
         .hero-overline {
             font-size: 12px; font-weight: 600; letter-spacing: 0.14em;
             text-transform: uppercase; color: var(--accent);
@@ -171,7 +173,7 @@
             display: flex; flex-direction: column; align-items: center; gap: 12px;
             opacity: 0;
         }
-        body.ready .scroll-hint { opacity: 1; transition: opacity 1s 1.5s ease; }
+        body.ready .scroll-hint { opacity: 1; transition: opacity 0.8s 1.3s cubic-bezier(0.25, 1, 0.5, 1); }
         .scroll-hint span {
             font-size: 10px; font-weight: 600; letter-spacing: 0.16em;
             text-transform: uppercase; color: var(--fg-dim);
@@ -179,7 +181,7 @@
         .scroll-line {
             width: 1px; height: 40px;
             background: linear-gradient(to bottom, var(--fg-dim), transparent);
-            animation: pulse-line 2.5s ease infinite;
+            animation: pulse-line 2.5s cubic-bezier(0.45, 0, 0.55, 1) infinite;
         }
         @keyframes pulse-line { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
 
@@ -189,15 +191,15 @@
             padding-bottom: 200px;
         }
 
-        /* Feature strip */
+        /* Feature strip — GPU-only transitions */
         .strip {
             display: flex; align-items: center; justify-content: center;
             gap: clamp(40px, 6vw, 100px);
             padding: 100px clamp(24px, 5vw, 80px);
-            opacity: 0; transform: translateY(40px);
-            transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+            opacity: 0; transform: translate3d(0, 40px, 0);
+            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .strip.visible { opacity: 1; transform: translateY(0); }
+        .strip.visible { opacity: 1; transform: translate3d(0, 0, 0); }
         .strip-number {
             font-size: clamp(72px, 10vw, 120px);
             font-weight: 800;
@@ -226,10 +228,10 @@
             width: 80px; height: 1px;
             background: var(--divider);
             margin: 0 auto;
-            transition: background 0.4s ease;
+            transition: background 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        /* Metric cards */
+        /* Metric cards — reduced blur for mobile perf */
         .metrics {
             display: flex; justify-content: center; gap: 16px;
             padding: 100px 24px;
@@ -242,11 +244,11 @@
             padding: 36px 40px;
             text-align: center;
             min-width: 200px;
-            backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
-            opacity: 0; transform: translateY(24px);
-            transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1), transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), background 0.3s, border-color 0.3s;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            opacity: 0; transform: translate3d(0, 24px, 0);
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s, border-color 0.3s;
         }
-        .metric-card.visible { opacity: 1; transform: translateY(0); }
+        .metric-card.visible { opacity: 1; transform: translate3d(0, 0, 0); }
         .metric-value {
             font-size: clamp(36px, 5vw, 52px);
             font-weight: 800;
@@ -264,10 +266,10 @@
             text-align: center; padding: 120px 24px 80px;
         }
         .closer-inner {
-            opacity: 0; transform: translateY(24px);
-            transition: opacity 0.8s ease, transform 0.8s ease;
+            opacity: 0; transform: translate3d(0, 24px, 0);
+            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .closer-inner.visible { opacity: 1; transform: translateY(0); }
+        .closer-inner.visible { opacity: 1; transform: translate3d(0, 0, 0); }
         .closer h2 {
             font-size: clamp(36px, 7vw, 72px);
             font-weight: 800;
@@ -288,9 +290,20 @@
             box-shadow: 0 0 20px var(--accent-glow);
         }
 
+        /* Mobile */
         @media (max-width: 768px) {
             .strip { flex-direction: column; text-align: center; gap: 16px; padding: 80px 24px; }
             .metrics { flex-direction: column; align-items: center; }
+            .metric-card { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+            .ctrl-btn { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+            .grain { display: none; }
+            .hero-content { opacity: 1; transform: none; }
+            .strip, .metric-card, .closer-inner { opacity: 1; transform: none; }
         }
     </style>
 </head>
@@ -316,7 +329,7 @@
 
     <div class="hero">
         <div class="hero-content">
-            <div class="hero-overline">DDN HyperPod</div>
+            <div class="hero-overline">HyperPod</div>
             <h1>Beyond<br><span class="thin">the limits.</span></h1>
             <div class="hero-sub">Next-generation AI infrastructure that disappears, so your workloads can fly.</div>
         </div>
@@ -381,34 +394,38 @@
 
     <script>
         // Theme
-        document.getElementById('themeToggle').addEventListener('click', () => {
-            const html = document.documentElement;
-            const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            var html = document.documentElement;
+            var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             html.setAttribute('data-theme', next);
             localStorage.setItem('ddn-theme', next);
         });
 
         // Video & loader
-        const video = document.getElementById('bgVideo');
-        const loader = document.getElementById('loader');
+        var video = document.getElementById('bgVideo');
+        var loader = document.getElementById('loader');
+        var launched = false;
 
         function launch() {
+            if (launched) return;
+            launched = true;
             video.play();
             loader.classList.add('done');
             document.body.classList.add('ready');
-            setTimeout(() => loader.remove(), 800);
+            setTimeout(function() { loader.remove(); }, 700);
         }
         if (video.readyState >= 3) launch();
         else video.addEventListener('canplaythrough', launch, { once: true });
-        setTimeout(launch, 6000);
+        setTimeout(launch, 5000);
 
-        // Parallax video on scroll
-        let ticking = false;
-        window.addEventListener('scroll', () => {
+        // Parallax — compositor-only transform via translate3d
+        var ticking = false;
+        window.addEventListener('scroll', function() {
             if (!ticking) {
-                requestAnimationFrame(() => {
-                    const y = window.scrollY;
-                    video.style.transform = 'scale(' + (1 + y * 0.0002) + ') translateY(' + (y * -0.15) + 'px)';
+                requestAnimationFrame(function() {
+                    var y = window.scrollY;
+                    var s = 1 + y * 0.00015;
+                    video.style.transform = 'translate3d(0,' + (y * -0.12) + 'px,0) scale(' + s + ')';
                     ticking = false;
                 });
                 ticking = true;
@@ -416,15 +433,16 @@
         }, { passive: true });
 
         // Reveal observer
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(e => {
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) {
                 if (e.isIntersecting) {
-                    const d = parseInt(e.target.dataset.delay || '0');
-                    setTimeout(() => e.target.classList.add('visible'), d);
+                    var d = parseInt(e.target.dataset.delay || '0');
+                    setTimeout(function() { e.target.classList.add('visible'); }, d);
+                    observer.unobserve(e.target);
                 }
             });
-        }, { threshold: 0.15 });
-        document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
+        }, { threshold: 0.1 });
+        document.querySelectorAll('[data-reveal]').forEach(function(el) { observer.observe(el); });
     </script>
 </body>
 </html>
