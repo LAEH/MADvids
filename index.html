@@ -7,197 +7,399 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: #050508;
-            color: #e0e0e8;
-            min-height: 100dvh;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #f2f2f7;
+            color: #1a1a2e;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
             -webkit-text-size-adjust: 100%;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: clamp(48px, 8vw, 80px) max(16px, env(safe-area-inset-left, 16px)) clamp(60px, 10vw, 120px) max(16px, env(safe-area-inset-right, 16px));
+        /* ═══════════════════════════════════════
+           BRAND
+           ═══════════════════════════════════════ */
+        .brand {
+            position: fixed;
+            top: max(20px, env(safe-area-inset-top, 20px));
+            left: max(24px, env(safe-area-inset-left, 24px));
+            z-index: 100;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: rgba(26,26,46,0.35);
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.5);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255,255,255,0.7);
+            border-radius: 100px;
+            opacity: 0;
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1.8s forwards;
         }
 
-        .header {
-            margin-bottom: clamp(32px, 5vw, 60px);
+        /* ═══════════════════════════════════════
+           HERO
+           ═══════════════════════════════════════ */
+        .hero {
+            position: relative;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0 24px;
+            z-index: 1;
+            will-change: transform, opacity;
         }
-        .header h1 {
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            font-weight: 800;
-            letter-spacing: -0.03em;
-            color: #fff;
-            line-height: 1.1;
+
+        /* Video-textured title */
+        .title-container {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
         }
-        .header .subtitle {
-            font-size: clamp(0.9rem, 1.5vw, 1.05rem);
+
+        .title-video {
+            position: absolute;
+            inset: -10%;
+            width: 120%;
+            height: 120%;
+            object-fit: cover;
+            z-index: 0;
+        }
+
+        .title-mask {
+            position: relative;
+            z-index: 1;
+            background: #f2f2f7;
+            mix-blend-mode: screen;
+            padding: 8px 0;
+        }
+
+        .title-mask h1 {
+            font-size: clamp(52px, 12vw, 160px);
+            font-weight: 900;
+            letter-spacing: -0.045em;
+            line-height: 0.92;
+            color: #000;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .title-mask .line {
+            display: block;
+        }
+
+        .letter {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(50px) scale(0.94);
+            will-change: transform, opacity;
+        }
+        .letter.revealed {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Blend-mode fallback */
+        @supports not (mix-blend-mode: screen) {
+            .title-mask { background: transparent; mix-blend-mode: normal; }
+            .title-mask h1 { color: #1a1a2e; }
+            .title-video { display: none; }
+        }
+
+        .subtitle {
+            font-size: clamp(14px, 1.6vw, 17px);
             font-weight: 400;
-            color: rgba(255,255,255,0.3);
-            margin-top: 14px;
-            line-height: 1.55;
-            max-width: 520px;
+            color: rgba(26,26,46,0.35);
+            text-align: center;
+            max-width: 440px;
+            line-height: 1.65;
+            margin-top: clamp(28px, 4vw, 44px);
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .subtitle.revealed {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .scroll-cue {
+            position: absolute;
+            bottom: clamp(28px, 5vw, 48px);
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(26,26,46,0.15);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        .scroll-cue.visible {
+            opacity: 1;
+        }
+        .scroll-cue svg {
+            animation: float 2.8s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(7px); }
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* ═══════════════════════════════════════
+           EXPERIMENTS GRID
+           ═══════════════════════════════════════ */
+        .experiments {
+            position: relative;
+            z-index: 2;
+            padding: clamp(20px, 4vw, 40px) max(24px, env(safe-area-inset-left, 24px)) clamp(80px, 12vw, 160px);
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* Decorative orbs — give glass cards something to blur */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .orb-1 {
+            top: -80px;
+            left: -60px;
+            width: 480px;
+            height: 480px;
+            background: radial-gradient(circle, rgba(100,130,255,0.09) 0%, transparent 70%);
+        }
+        .orb-2 {
+            bottom: 40px;
+            right: -80px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255,120,170,0.07) 0%, transparent 70%);
+        }
+        .orb-3 {
+            top: 45%;
+            left: 30%;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(80,220,180,0.06) 0%, transparent 70%);
         }
 
         .grid {
+            position: relative;
+            z-index: 1;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
-            gap: clamp(12px, 2vw, 16px);
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+            gap: clamp(16px, 2.5vw, 24px);
         }
 
+        /* ═══════════════════════════════════════
+           GLASS CARD
+           ═══════════════════════════════════════ */
         .card {
-            position: relative;
             display: block;
             text-decoration: none;
             color: inherit;
-            border-radius: 12px;
-            overflow: hidden;
-            background: #0a0a10;
-            border: 1px solid rgba(255,255,255,0.06);
-            transition: border-color 0.35s cubic-bezier(0.25, 1, 0.5, 1),
-                        transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
-            will-change: transform;
+            border-radius: 20px;
+            padding: 8px;
+            background: rgba(255,255,255,0.55);
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid rgba(255,255,255,0.75);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.5),
+                0 0 0 0.5px rgba(0,0,0,0.03),
+                0 2px 8px rgba(0,0,0,0.03),
+                0 12px 40px rgba(0,0,0,0.04);
+            opacity: 0;
+            transform: translateY(36px);
+            will-change: transform, opacity;
+        }
+        .card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition:
+                opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .card:hover {
-            border-color: rgba(255,255,255,0.12);
-            transform: translateY(-2px);
+            transform: translateY(-4px) scale(1.008);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.5),
+                0 0 0 0.5px rgba(0,0,0,0.04),
+                0 4px 16px rgba(0,0,0,0.05),
+                0 24px 64px rgba(0,0,0,0.08);
+        }
+        .card.visible:hover {
+            transform: translateY(-4px) scale(1.008);
+            transition:
+                transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
+        /* Card preview — inset with its own radius */
         .card-preview {
             position: relative;
             width: 100%;
             aspect-ratio: 16 / 9;
             overflow: hidden;
-            background: #08080c;
+            border-radius: 13px;
+            background: rgba(26,26,46,0.04);
         }
-        /* Shimmer while video loads */
         .card-preview::before {
             content: '';
             position: absolute; inset: 0; z-index: 1;
             background: linear-gradient(
                 110deg,
                 transparent 30%,
-                rgba(255,255,255,0.03) 50%,
+                rgba(255,255,255,0.15) 50%,
                 transparent 70%
             );
             background-size: 200% 100%;
-            animation: shimmer 1.8s ease infinite;
+            animation: shimmer 2s ease infinite;
         }
-        .card-preview.loaded::before { opacity: 0; transition: opacity 0.4s; }
+        .card-preview.loaded::before { opacity: 0; transition: opacity 0.5s; }
+
         @keyframes shimmer {
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
         }
+
         .card-preview video {
             width: 100%;
             height: 100%;
             object-fit: cover;
             opacity: 0;
-            transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .card-preview video.playing {
-            opacity: 0.6;
-        }
-        .card:hover .card-preview video.playing {
-            opacity: 0.85;
-        }
-        .card-preview::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, transparent 50%, rgba(5,5,8,0.95) 100%);
-            pointer-events: none;
-        }
+        .card-preview video.playing { opacity: 1; }
 
         .card-preview.no-video {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #0c0c14 0%, #08080c 100%);
+            background: linear-gradient(135deg, rgba(26,26,46,0.03), rgba(26,26,46,0.07));
         }
         .card-preview.no-video .placeholder {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 900;
             letter-spacing: -0.04em;
-            color: rgba(255,255,255,0.04);
+            color: rgba(26,26,46,0.06);
         }
 
+        /* Card body */
         .card-body {
-            padding: clamp(16px, 3vw, 20px) clamp(16px, 3vw, 22px) clamp(18px, 3vw, 22px);
+            padding: clamp(14px, 2.5vw, 18px) clamp(14px, 2.5vw, 18px) clamp(16px, 2.5vw, 20px);
         }
         .card-body h2 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 6px;
-            letter-spacing: -0.01em;
+            font-size: 0.95rem;
+            font-weight: 650;
+            color: #1a1a2e;
+            letter-spacing: -0.015em;
+            margin-bottom: 5px;
         }
         .card-body p {
-            font-size: 0.8rem;
-            color: rgba(255,255,255,0.35);
+            font-size: 0.78rem;
+            color: rgba(26,26,46,0.4);
             line-height: 1.55;
         }
         .card-body .tags {
             display: flex;
             gap: 6px;
-            margin-top: 14px;
+            margin-top: 12px;
         }
         .card-body .tag-pill {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.6rem;
-            color: rgba(255,255,255,0.25);
-            background: rgba(255,255,255,0.04);
-            padding: 3px 8px;
-            border-radius: 4px;
+            font-size: 0.56rem;
+            color: rgba(26,26,46,0.3);
+            background: rgba(26,26,46,0.04);
+            padding: 4px 10px;
+            border-radius: 6px;
             letter-spacing: 0.02em;
         }
 
-        /* Staggered entrance */
-        .card {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        .card.visible {
-            opacity: 1;
-            transform: translateY(0);
-            transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1),
-                        transform 0.6s cubic-bezier(0.25, 1, 0.5, 1),
-                        border-color 0.35s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-        .card.visible:hover {
-            transform: translateY(-2px);
-        }
-
-        /* Hover only for pointer devices */
+        /* ═══════════════════════════════════════
+           RESPONSIVE
+           ═══════════════════════════════════════ */
         @media (hover: none) {
-            .card:hover { transform: none; border-color: rgba(255,255,255,0.06); }
-            .card.visible:hover { transform: none; }
-            .card-preview video.playing { opacity: 0.7; }
+            .card:hover,
+            .card.visible:hover {
+                transform: none;
+                box-shadow:
+                    inset 0 1px 0 rgba(255,255,255,0.5),
+                    0 0 0 0.5px rgba(0,0,0,0.03),
+                    0 2px 8px rgba(0,0,0,0.03),
+                    0 12px 40px rgba(0,0,0,0.04);
+            }
         }
 
-        /* Safe area bottom padding for home-bar devices */
+        @media (max-width: 480px) {
+            .hero { padding: 0 16px; }
+            .experiments { padding-left: 16px; padding-right: 16px; }
+            .title-mask h1 { font-size: clamp(40px, 13vw, 64px); }
+        }
+
         @supports (padding-bottom: env(safe-area-inset-bottom)) {
-            .container { padding-bottom: max(clamp(60px, 10vw, 120px), env(safe-area-inset-bottom)); }
+            .experiments { padding-bottom: max(clamp(80px, 12vw, 160px), env(safe-area-inset-bottom)); }
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .card { opacity: 1; transform: none; transition: none; }
-            .card-preview video { opacity: 0.6; transition: none; }
+            .letter { opacity: 1; transform: none; }
+            .letter.revealed { transition: none; }
+            .subtitle { opacity: 1; transform: none; }
+            .subtitle.revealed { transition: none; }
+            .brand { opacity: 1; animation: none; }
+            .card { opacity: 1; transform: none; }
+            .card.visible { transition: none; }
             .card-preview::before { animation: none; }
+            .scroll-cue svg { animation: none; }
+            .hero { will-change: auto; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Video Experiences</h1>
-            <p class="subtitle">Experiments in building immersive web experiences with video — exploring scroll-driven animation, parallax depth, cinematic typography, and interactive layouts.</p>
+    <div class="brand">MADvids</div>
+
+    <section class="hero" id="hero">
+        <div class="title-container">
+            <video class="title-video" muted autoplay loop playsinline disablePictureInPicture preload="auto">
+                <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/Video_Generation_With_Specific_Colors%20copy.mp4" type="video/mp4">
+            </video>
+            <div class="title-mask">
+                <h1 id="heroTitle">
+                    <span class="line">Video</span>
+                    <span class="line">Experiences</span>
+                </h1>
+            </div>
         </div>
+        <p class="subtitle" id="heroSubtitle">
+            Where cinematic video meets precision web engineering — scroll animation, parallax, interactive layouts. 60fps. Always.
+        </p>
+        <div class="scroll-cue" id="scrollCue">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9l6 6 6-6"/>
+            </svg>
+        </div>
+    </section>
+
+    <section class="experiments">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
 
         <div class="grid">
             <a class="card" href="experiments/hyperpod-cinematic/index.html">
@@ -271,7 +473,7 @@
                     </video>
                 </div>
                 <div class="card-body">
-                    <h2>Delightfull Video</h2>
+                    <h2>Delightful Video</h2>
                     <p>Scroll-driven typography animation with video background and staggered letter reveals.</p>
                     <div class="tags">
                         <span class="tag-pill">typography</span>
@@ -294,10 +496,109 @@
                 </div>
             </a>
         </div>
-    </div>
+    </section>
 
     <script>
-        // Intersection-based lazy video playback — only decode videos in viewport
+        /* ═══ 1. LETTER-BY-LETTER REVEAL ═══
+           Split title lines into individual <span> letters.
+           Each letter transitions in with a staggered delay.
+           Uses class-toggle transitions (not CSS animation) so
+           will-change can be cleaned up after reveal completes. */
+
+        var lines = document.querySelectorAll('#heroTitle .line');
+        var allLetters = [];
+        var globalIndex = 0;
+
+        lines.forEach(function(line, lineIdx) {
+            var text = line.textContent;
+            line.textContent = '';
+            var lineDelay = lineIdx * 120;
+            for (var i = 0; i < text.length; i++) {
+                var span = document.createElement('span');
+                span.className = 'letter';
+                span.textContent = text[i] === ' ' ? '\u00A0' : text[i];
+                span.dataset.delay = String(lineDelay + i * 28 + 200);
+                line.appendChild(span);
+                allLetters.push(span);
+            }
+        });
+
+        /* Trigger reveals after a short initial delay */
+        requestAnimationFrame(function() {
+            allLetters.forEach(function(span) {
+                var delay = parseInt(span.dataset.delay);
+                setTimeout(function() {
+                    span.classList.add('revealed');
+                }, delay);
+            });
+
+            /* Subtitle reveal after title letters are mostly in */
+            var subtitleDelay = 200 + (allLetters.length * 28) + 120 + 200;
+            setTimeout(function() {
+                document.getElementById('heroSubtitle').classList.add('revealed');
+            }, subtitleDelay);
+
+            /* Scroll cue after subtitle */
+            setTimeout(function() {
+                document.getElementById('scrollCue').classList.add('visible');
+            }, subtitleDelay + 600);
+
+            /* Clean up will-change after all animations settle */
+            setTimeout(function() {
+                allLetters.forEach(function(s) { s.style.willChange = 'auto'; });
+            }, subtitleDelay + 1200);
+        });
+
+        /* ═══ 2. HERO PARALLAX ON SCROLL ═══
+           Compositor-only: transform + opacity via translate3d.
+           Throttled to one rAF per frame for guaranteed 60fps. */
+
+        var hero = document.getElementById('hero');
+        var scrollCue = document.getElementById('scrollCue');
+        var heroTicking = false;
+
+        window.addEventListener('scroll', function() {
+            if (!heroTicking) {
+                requestAnimationFrame(function() {
+                    var y = window.scrollY;
+                    var vh = window.innerHeight;
+                    var p = Math.min(y / (vh * 0.7), 1);
+                    hero.style.transform = 'translate3d(0,' + (y * 0.35) + 'px,0)';
+                    hero.style.opacity = String(1 - p);
+                    if (y > 60 && scrollCue.classList.contains('visible')) {
+                        scrollCue.classList.remove('visible');
+                    }
+                    heroTicking = false;
+                });
+                heroTicking = true;
+            }
+        }, { passive: true });
+
+        /* ═══ 3. CARD STAGGER REVEAL ═══
+           IntersectionObserver triggers class-based transitions.
+           Stagger delay by card index for a cascade effect. */
+
+        var cardObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) {
+                if (e.isIntersecting) {
+                    var idx = parseInt(e.target.dataset.idx || '0');
+                    setTimeout(function() {
+                        e.target.classList.add('visible');
+                    }, idx * 90);
+                    cardObserver.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.08 });
+
+        document.querySelectorAll('.card').forEach(function(c, i) {
+            c.dataset.idx = String(i);
+            cardObserver.observe(c);
+        });
+
+        /* ═══ 4. LAZY VIDEO PLAYBACK ═══
+           Only decode videos in/near the viewport.
+           Play on intersect, pause when out. */
+
         var videoObserver = new IntersectionObserver(function(entries) {
             entries.forEach(function(e) {
                 var v = e.target;
@@ -311,17 +612,18 @@
                     v.classList.remove('playing');
                 }
             });
-        }, { rootMargin: '100px' });
+        }, { rootMargin: '120px' });
 
         document.querySelectorAll('.card-preview video').forEach(function(v) {
-            // Mark loaded on metadata/data ready
             v.addEventListener('loadeddata', function() {
                 v.closest('.card-preview').classList.add('loaded');
             }, { once: true });
             videoObserver.observe(v);
         });
 
-        // Prefetch experiment page on hover — warm the browser cache
+        /* ═══ 5. PREFETCH ON HOVER ═══
+           Warm the browser cache for instant navigation. */
+
         var prefetched = {};
         document.querySelectorAll('.card').forEach(function(card) {
             card.addEventListener('mouseenter', function() {
@@ -333,22 +635,6 @@
                 link.href = href;
                 document.head.appendChild(link);
             }, { once: true });
-        });
-
-        // Staggered card entrance
-        var cardObserver = new IntersectionObserver(function(entries) {
-            entries.forEach(function(e) {
-                if (e.isIntersecting) {
-                    var idx = parseInt(e.target.dataset.idx || '0');
-                    setTimeout(function() { e.target.classList.add('visible'); }, idx * 80);
-                    cardObserver.unobserve(e.target);
-                }
-            });
-        }, { threshold: 0.05 });
-
-        document.querySelectorAll('.card').forEach(function(c, i) {
-            c.dataset.idx = i;
-            cardObserver.observe(c);
         });
     </script>
 </body>
