@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chromatic Shift</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="preload" as="video" href="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-kjhxsa.mp4">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+        }
+        body.ready { overflow-x: hidden; overflow-y: auto; }
+
+        /* ═══ LOADER ═══ */
+        .loader {
+            position: fixed; inset: 0; z-index: 9999;
+            background: #000;
+            display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.6s ease;
+        }
+        .loader.done { opacity: 0; pointer-events: none; }
+        .loader-ring {
+            width: 22px; height: 22px;
+            border: 2px solid rgba(255,255,255,0.08);
+            border-top-color: rgba(255,255,255,0.45);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ═══ NAV ═══ */
+        .nav-bar {
+            position: fixed;
+            top: max(20px, env(safe-area-inset-top, 20px));
+            left: max(20px, env(safe-area-inset-left, 20px));
+            z-index: 1000;
+            display: flex; align-items: center;
+            padding: 4px;
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 100px;
+            opacity: 0; transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        body.ready .nav-bar { opacity: 1; transition-delay: 0.8s; }
+        .nav-btn {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: transparent; border: none;
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none; color: rgba(255,255,255,0.45); cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .nav-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .nav-btn svg { width: 15px; height: 15px; }
+        @media (pointer: coarse) {
+            .nav-btn { width: 44px; height: 44px; }
+            .nav-bar { padding: 4px 5px; }
+        }
+
+        /* ═══ VIDEO BG ═══ */
+        .video-bg { position: fixed; inset: 0; z-index: 0; }
+        .video-bg video { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Dark base for readability */
+        .base-overlay {
+            position: absolute; inset: 0; z-index: 1;
+            background: rgba(0,0,0,0.3);
+        }
+
+        /* Color grade — single element, color interpolated via JS */
+        .color-overlay {
+            position: absolute; inset: 0; z-index: 2;
+            mix-blend-mode: color;
+            opacity: 0;
+        }
+
+        /* Vignette */
+        .vignette {
+            position: absolute; inset: 0; z-index: 3;
+            background: radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.55) 100%);
+            pointer-events: none;
+        }
+
+        /* Film grain — lightweight CSS */
+        .grain {
+            position: absolute; inset: -50%; z-index: 4;
+            width: 200%; height: 200%;
+            background: repeating-conic-gradient(transparent 0 0.0001%, rgba(255,255,255,0.007) 0 0.0002%) 50% 50% / 200px 200px;
+            opacity: 0.6;
+            animation: drift 0.5s steps(4) infinite;
+            pointer-events: none;
+        }
+        @keyframes drift {
+            0% { transform: translate(0,0); }
+            25% { transform: translate(-5%,-5%); }
+            50% { transform: translate(5%,2%); }
+            75% { transform: translate(-2%,5%); }
+        }
+
+        /* ═══ SCROLL LAYOUT ═══ */
+        .scroll-space { position: relative; z-index: 10; height: 700dvh; }
+        .frame {
+            position: sticky; top: 0;
+            height: 100dvh;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* ═══ SECTIONS ═══ */
+        .section {
+            position: absolute;
+            text-align: center;
+            width: 100%;
+            padding: 0 24px;
+            opacity: 0;
+            transform: translateY(36px) scale(0.96);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .section.active { opacity: 1; transform: translateY(0) scale(1); }
+        .section.exit   { opacity: 0; transform: translateY(-28px) scale(1.03); }
+
+        .section .overline {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.3);
+            margin-bottom: 18px;
+        }
+        .section .display {
+            font-size: clamp(52px, 11vw, 120px);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 0.92;
+            text-shadow: 0 4px 60px rgba(0,0,0,0.4);
+        }
+        .section .body-text {
+            font-size: clamp(14px, 1.8vw, 18px);
+            font-weight: 300;
+            line-height: 1.65;
+            color: rgba(255,255,255,0.45);
+            max-width: 400px;
+            margin: 24px auto 0;
+        }
+
+        /* Color swatch pill */
+        .swatch {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 32px;
+            padding: 6px 16px 6px 6px;
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 100px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            color: rgba(255,255,255,0.35);
+            text-transform: uppercase;
+        }
+        .swatch-dot {
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.12);
+            flex-shrink: 0;
+        }
+
+        /* ═══ PROGRESS ═══ */
+        .progress-bar {
+            position: fixed;
+            bottom: env(safe-area-inset-bottom, 0);
+            left: 0;
+            height: 2px;
+            background: rgba(255,255,255,0.2);
+            z-index: 100;
+            will-change: width;
+        }
+
+        /* ═══ DOT NAV ═══ */
+        .dots {
+            position: fixed;
+            right: max(20px, env(safe-area-inset-right, 20px));
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            opacity: 0; transition: opacity 0.5s;
+        }
+        body.ready .dots { opacity: 1; transition-delay: 1.2s; }
+        .dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.12);
+            transition: background 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .dot.active {
+            background: rgba(255,255,255,0.7);
+            transform: scale(1.6);
+        }
+
+        /* ═══ RESPONSIVE ═══ */
+        @media (max-width: 480px) {
+            .section { padding: 0 max(16px, env(safe-area-inset-left, 16px)); }
+            .dots { display: none; }
+        }
+        @media (max-width: 768px) { .grain { display: none; } }
+        @media (prefers-reduced-motion: reduce) {
+            .section { opacity: 1; transform: none; transition: none; }
+            .grain { display: none; }
+            .loader-ring { animation: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader" id="loader"><div class="loader-ring"></div></div>
+
+    <nav class="nav-bar">
+        <a class="nav-btn" href="../../" title="Home">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/>
+                <polyline points="9 21 9 13 15 13 15 21"/>
+            </svg>
+        </a>
+    </nav>
+
+    <div class="video-bg">
+        <video id="bgVideo" muted loop playsinline disablePictureInPicture>
+            <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-kjhxsa.mp4" type="video/mp4">
+        </video>
+        <div class="base-overlay"></div>
+        <div class="color-overlay" id="colorOverlay"></div>
+        <div class="vignette"></div>
+        <div class="grain"></div>
+    </div>
+
+    <div class="progress-bar" id="progressBar"></div>
+
+    <div class="dots" id="dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+
+    <div class="scroll-space">
+        <div class="frame">
+            <div class="section" id="s0">
+                <div class="overline">Chromatic Shift</div>
+                <div class="display">Same frame.<br>New mood.</div>
+                <div class="body-text">One video. Five color grades. Each transforms the emotional register of every pixel on screen.</div>
+            </div>
+            <div class="section" id="s1">
+                <div class="display">Golden<br>Hour</div>
+                <div class="body-text">When light bends warm, every shadow tells a richer story.</div>
+                <div class="swatch"><span class="swatch-dot" style="background:#ffa030"></span>Amber &middot; Color Blend</div>
+            </div>
+            <div class="section" id="s2">
+                <div class="display">Deep<br>Blue</div>
+                <div class="body-text">Cool surfaces conceal infinite depth. Every frame holds a secret.</div>
+                <div class="swatch"><span class="swatch-dot" style="background:#20c0d0"></span>Teal &middot; Color Blend</div>
+            </div>
+            <div class="section" id="s3">
+                <div class="display">Electric<br>Dusk</div>
+                <div class="body-text">Between daylight and neon. The liminal frequency where everything shifts.</div>
+                <div class="swatch"><span class="swatch-dot" style="background:#a030f0"></span>Violet &middot; Color Blend</div>
+            </div>
+            <div class="section" id="s4">
+                <div class="display">Vivid</div>
+                <div class="body-text">Nature's most assertive wavelength, amplified past recognition.</div>
+                <div class="swatch"><span class="swatch-dot" style="background:#28dc8c"></span>Emerald &middot; Color Blend</div>
+            </div>
+            <div class="section" id="s5">
+                <div class="display">After-<br>glow</div>
+                <div class="body-text">The last color before dark. The one that stays with you longest.</div>
+                <div class="swatch"><span class="swatch-dot" style="background:#ff5078"></span>Coral &middot; Color Blend</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ═══ HSL INTERPOLATION ═══
+           Gives vibrant intermediate colors instead of muddy RGB blends. */
+
+        function rgbToHsl(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            var mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+            var h, s, l = (mx + mn) / 2;
+            if (mx === mn) {
+                h = s = 0;
+            } else {
+                var d = mx - mn;
+                s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
+                if (mx === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+                else if (mx === g) h = ((b - r) / d + 2) / 6;
+                else h = ((r - g) / d + 4) / 6;
+            }
+            return [h * 360, s * 100, l * 100];
+        }
+
+        function lerpAngle(a, b, t) {
+            var diff = ((b - a + 540) % 360) - 180;
+            return (a + diff * t + 360) % 360;
+        }
+
+        /* ═══ COLOR PALETTE ═══ */
+
+        var PALETTE = [
+            null,                              // 0: raw — no grade
+            rgbToHsl(255, 160, 48),            // 1: amber
+            rgbToHsl(32, 192, 210),            // 2: teal
+            rgbToHsl(160, 48, 240),            // 3: violet
+            rgbToHsl(40, 220, 140),            // 4: emerald
+            rgbToHsl(255, 80, 120)             // 5: coral
+        ];
+
+        /* ═══ BOOT ═══ */
+
+        var video = document.getElementById('bgVideo');
+        var loader = document.getElementById('loader');
+        var colorOverlay = document.getElementById('colorOverlay');
+        var progressBar = document.getElementById('progressBar');
+        var sections = [];
+        for (var i = 0; i < 6; i++) sections.push(document.getElementById('s' + i));
+        var dots = document.querySelectorAll('.dot');
+
+        function start() {
+            video.play();
+            loader.classList.add('done');
+            document.body.classList.add('ready');
+            setTimeout(function() { loader.remove(); }, 600);
+        }
+        if (video.readyState >= 3) start();
+        else video.addEventListener('canplaythrough', start, { once: true });
+        setTimeout(start, 5000);
+
+        /* ═══ SCROLL HANDLER ═══
+           Single rAF-throttled handler. Compositor-friendly:
+           - progress bar: width (layout but trivial)
+           - color overlay: backgroundColor + opacity
+           - sections: class toggles trigger CSS transitions
+           - dots: class toggles */
+
+        var ticking = false;
+
+        function update() {
+            var y = window.scrollY;
+            var vh = window.innerHeight;
+            var total = document.querySelector('.scroll-space').offsetHeight - vh;
+            var p = Math.min(Math.max(y / total, 0), 1);
+
+            /* Progress */
+            progressBar.style.width = (p * 100) + '%';
+
+            /* Active section (hard cut — CSS handles smooth transitions) */
+            var count = 6;
+            var segSize = 1 / count;
+            var idx = Math.min(Math.floor(p / segSize), count - 1);
+
+            for (var i = 0; i < count; i++) {
+                sections[i].classList.remove('active', 'exit');
+                if (i === idx) sections[i].classList.add('active');
+                else if (i < idx) sections[i].classList.add('exit');
+            }
+
+            /* Dots */
+            for (var d = 0; d < dots.length; d++) {
+                dots[d].classList.toggle('active', d === idx);
+            }
+
+            /* Color interpolation — continuous HSL blend across scroll */
+            var colorPos = p * (count - 1); // 0 → 5
+            var lo = Math.floor(colorPos);
+            var hi = Math.min(lo + 1, count - 1);
+            var t = colorPos - lo;
+
+            var cLo = PALETTE[lo];
+            var cHi = PALETTE[hi];
+
+            if (!cLo && !cHi) {
+                colorOverlay.style.opacity = '0';
+            } else if (!cLo) {
+                /* Fade from raw into first color */
+                colorOverlay.style.opacity = String(t * 0.85);
+                colorOverlay.style.backgroundColor = 'hsl(' + cHi[0] + ',' + cHi[1] + '%,' + cHi[2] + '%)';
+            } else if (!cHi) {
+                colorOverlay.style.opacity = '0.85';
+                colorOverlay.style.backgroundColor = 'hsl(' + cLo[0] + ',' + cLo[1] + '%,' + cLo[2] + '%)';
+            } else {
+                /* HSL interpolation with hue angle wrapping */
+                var h = lerpAngle(cLo[0], cHi[0], t);
+                var s = cLo[1] + (cHi[1] - cLo[1]) * t;
+                var l = cLo[2] + (cHi[2] - cLo[2]) * t;
+                colorOverlay.style.opacity = '0.85';
+                colorOverlay.style.backgroundColor = 'hsl(' + h + ',' + s + '%,' + l + '%)';
+            }
+        }
+
+        window.addEventListener('scroll', function() {
+            if (!ticking) {
+                requestAnimationFrame(function() { update(); ticking = false; });
+                ticking = true;
+            }
+        }, { passive: true });
+
+        update();
+    </script>
+</body>
+</html>
