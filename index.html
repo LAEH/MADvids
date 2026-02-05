@@ -497,7 +497,7 @@
 
             <a class="card" href="experiments/hyperpod-immersive/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="auto">
+                    <video muted loop playsinline disablePictureInPicture preload="none">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jfdgyie.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -513,7 +513,7 @@
 
             <a class="card" href="experiments/delightfull-video/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="auto">
+                    <video muted loop playsinline disablePictureInPicture preload="none">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/Video_Generation_With_Specific_Colors%20copy.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -529,7 +529,7 @@
 
             <a class="card" href="experiments/chromatic-shift/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="auto">
+                    <video muted loop playsinline disablePictureInPicture preload="none">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-kjhxsa.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -545,7 +545,7 @@
 
             <a class="card" href="experiments/mesh-flow/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="auto">
+                    <video muted loop playsinline disablePictureInPicture preload="none">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jhojeh.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -561,7 +561,7 @@
 
             <a class="card" href="experiments/lumina/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="auto">
+                    <video muted loop playsinline disablePictureInPicture preload="none">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/claude-pretty-ugvuda.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -604,7 +604,7 @@
         /* Track loading milestones */
         var loadState = { fonts: false, heroVideo: false, cardVideos: 0 };
         var cardVideos = document.querySelectorAll('.card-preview video');
-        var targetCards = Math.min(cardVideos.length, 4); /* first 4 cards */
+        var targetCards = Math.min(cardVideos.length, 3); /* first row (3 cards) */
 
         function updateProgress() {
             var total = 2 + targetCards; /* fonts + hero + N cards */
@@ -799,11 +799,28 @@
             }).catch(function() {});
         }
 
+        /* Smooth loop: fade out near end, fade back in at start */
+        function initLoopFade(v) {
+            var fadeZone = 0.4; /* seconds before end to start fading */
+            v.addEventListener('timeupdate', function() {
+                if (!v.duration) return;
+                var remaining = v.duration - v.currentTime;
+                if (remaining < fadeZone) {
+                    v.style.opacity = String(remaining / fadeZone);
+                } else if (v.currentTime < fadeZone) {
+                    v.style.opacity = String(Math.min(v.currentTime / fadeZone, 1));
+                } else if (v.style.opacity !== '1' && v.style.opacity !== '') {
+                    v.style.opacity = '1';
+                }
+            });
+        }
+
         document.querySelectorAll('.card-preview video').forEach(function(v) {
             v.addEventListener('loadeddata', function() {
                 v.closest('.card-preview').classList.add('loaded');
                 if (videosInView.has(v)) tryPlay(v);
             }, { once: true });
+            initLoopFade(v);
             videoObserver.observe(v);
         });
 
