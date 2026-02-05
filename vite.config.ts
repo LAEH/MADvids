@@ -18,7 +18,6 @@ export default defineConfig({
         chromaticShift: resolve(__dirname, 'experiments/chromatic-shift/index.html'),
         meshFlow: resolve(__dirname, 'experiments/mesh-flow/index.html'),
         lumina: resolve(__dirname, 'experiments/lumina/index.html'),
-        fluidVerse: resolve(__dirname, 'experiments/fluid-verse/index.html'),
       },
     },
   },
