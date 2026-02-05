@@ -78,7 +78,7 @@
 
         /* Nav bar — glass pill, top-left */
         .nav-bar {
-            position: fixed; top: 20px; left: 20px; z-index: 1000;
+            position: fixed; top: max(20px, env(safe-area-inset-top, 20px)); left: max(20px, env(safe-area-inset-left, 20px)); z-index: 1000;
             display: flex; align-items: center; gap: 2px;
             padding: 4px;
             background: var(--pill-bg);
@@ -99,6 +99,10 @@
         .nav-btn svg { width: 15px; height: 15px; }
         .nav-sep { width: 1px; height: 16px; background: var(--pill-border); margin: 0 2px; }
 
+        @media (pointer: coarse) {
+            .nav-btn { width: 44px; height: 44px; }
+            .nav-bar { padding: 4px 5px; }
+        }
         /* Theme toggle icons */
         .icon-sun, .icon-moon { display: none; }
         [data-theme="dark"] .icon-sun { display: block; }
@@ -127,12 +131,12 @@
         .scroll-space {
             position: relative;
             z-index: 1;
-            height: 500vh;
+            height: 500dvh;
         }
         .frame {
             position: sticky;
             top: 0;
-            height: 100vh;
+            height: 100dvh;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -176,8 +180,9 @@
         .stats {
             display: flex;
             justify-content: center;
-            gap: 80px;
-            margin-top: 48px;
+            gap: clamp(24px, 6vw, 80px);
+            margin-top: clamp(24px, 4vw, 48px);
+            flex-wrap: wrap;
         }
         .stat-value {
             font-size: clamp(36px, 5vw, 56px);
@@ -195,12 +200,19 @@
 
         .progress {
             position: fixed;
-            bottom: 0;
+            bottom: env(safe-area-inset-bottom, 0);
             left: 0;
-            height: 1px;
+            height: 2px;
             background: var(--progress);
             z-index: 100;
             will-change: width;
+        }
+
+        @media (max-width: 480px) {
+            .section { padding: 0 max(16px, env(safe-area-inset-left, 16px)); }
+            .display { font-size: clamp(36px, 10vw, 64px); }
+            .stats { gap: 20px; }
+            .stat-value { font-size: clamp(28px, 7vw, 44px); }
         }
     </style>
 </head>

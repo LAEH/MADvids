@@ -81,7 +81,7 @@
 
         /* Nav bar — glass pill, top-left */
         .nav-bar {
-            position: fixed; top: 20px; left: 20px; z-index: 1000;
+            position: fixed; top: max(20px, env(safe-area-inset-top, 20px)); left: max(20px, env(safe-area-inset-left, 20px)); z-index: 1000;
             display: flex; align-items: center; gap: 2px;
             padding: 4px;
             background: var(--ctrl-bg);
@@ -101,13 +101,17 @@
         .nav-btn:hover { background: var(--ctrl-border); color: var(--fg); }
         .nav-btn svg { width: 15px; height: 15px; }
         .nav-sep { width: 1px; height: 16px; background: var(--ctrl-border); margin: 0 2px; }
+        @media (pointer: coarse) {
+            .nav-btn { width: 44px; height: 44px; }
+            .nav-bar { padding: 4px 5px; }
+        }
         .icon-sun, .icon-moon { display: none; }
         [data-theme="dark"] .icon-sun { display: block; }
         [data-theme="light"] .icon-moon { display: block; }
 
         /* Hero */
         .hero {
-            position: relative; height: 100vh;
+            position: relative; height: 100dvh;
             display: flex; align-items: center; justify-content: center;
             text-align: center; overflow: hidden;
         }
@@ -150,7 +154,7 @@
 
         /* Features */
         .feature {
-            position: relative; min-height: 100vh;
+            position: relative; min-height: 100dvh;
             display: flex; align-items: center;
         }
         .feature-video { position: absolute; inset: 0; }
@@ -167,7 +171,7 @@
         }
         .feature-content {
             position: relative; z-index: 1;
-            padding: 0 clamp(40px, 8vw, 120px);
+            padding: 0 clamp(20px, 5vw, 120px);
             max-width: 560px;
             opacity: 0; transform: translateY(40px);
             transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
@@ -216,6 +220,17 @@
             transition: opacity 0.8s 0.15s ease, transform 0.8s 0.15s ease;
         }
         .closer p.visible { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 640px) {
+            .hero h1 { font-size: clamp(36px, 10vw, 72px); }
+            .feature-content { padding: 0 max(20px, env(safe-area-inset-left, 20px)); }
+            .feature:nth-child(even) .feature-content { margin-left: 0; }
+            .feature h2 { font-size: clamp(24px, 6vw, 36px); }
+            .feature p { font-size: 15px; }
+            .metric-pill { padding: 12px 18px; margin-top: 24px; }
+            .metric-value { font-size: 20px; }
+            .closer { height: auto; padding: 60px max(20px, env(safe-area-inset-left, 20px)); }
+        }
     </style>
 </head>
 <body>

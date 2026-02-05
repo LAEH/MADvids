@@ -15,17 +15,18 @@
             font-family: 'Inter', sans-serif;
             background: #050508;
             color: #e0e0e8;
-            min-height: 100vh;
+            min-height: 100dvh;
+            -webkit-text-size-adjust: 100%;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 80px 32px 120px;
+            padding: clamp(48px, 8vw, 80px) max(16px, env(safe-area-inset-left, 16px)) clamp(60px, 10vw, 120px) max(16px, env(safe-area-inset-right, 16px));
         }
 
         .header {
-            margin-bottom: 60px;
+            margin-bottom: clamp(32px, 5vw, 60px);
         }
         .header h1 {
             font-size: clamp(2rem, 5vw, 3.5rem);
@@ -45,8 +46,8 @@
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+            gap: clamp(12px, 2vw, 16px);
         }
 
         .card {
@@ -127,7 +128,7 @@
         }
 
         .card-body {
-            padding: 20px 22px 22px;
+            padding: clamp(16px, 3vw, 20px) clamp(16px, 3vw, 22px) clamp(18px, 3vw, 22px);
         }
         .card-body h2 {
             font-size: 1rem;
@@ -172,9 +173,22 @@
             transform: translateY(-2px);
         }
 
+        /* Hover only for pointer devices */
+        @media (hover: none) {
+            .card:hover { transform: none; border-color: rgba(255,255,255,0.06); }
+            .card.visible:hover { transform: none; }
+            .card-preview video.playing { opacity: 0.7; }
+        }
+
+        /* Safe area bottom padding for home-bar devices */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .container { padding-bottom: max(clamp(60px, 10vw, 120px), env(safe-area-inset-bottom)); }
+        }
+
         @media (prefers-reduced-motion: reduce) {
             .card { opacity: 1; transform: none; transition: none; }
             .card-preview video { opacity: 0.6; transition: none; }
+            .card-preview::before { animation: none; }
         }
     </style>
 </head>
