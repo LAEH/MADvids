@@ -419,6 +419,18 @@
         }, { passive: true });
 
         handleScroll();
+
+        /* Smooth loop fade */
+        (function() {
+            var fade = 0.5;
+            video.addEventListener('timeupdate', function() {
+                if (!video.duration) return;
+                var rem = video.duration - video.currentTime;
+                if (rem < fade) video.style.opacity = rem / fade;
+                else if (video.currentTime < fade) video.style.opacity = Math.min(video.currentTime / fade, 1);
+                else if (video.style.opacity !== '') video.style.opacity = '';
+            });
+        })();
     </script>
 </body>
 </html>

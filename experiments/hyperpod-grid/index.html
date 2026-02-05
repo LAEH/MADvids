@@ -307,43 +307,47 @@
     <div class="grid-wrap">
         <div class="grid-label">Featured</div>
         <div class="bento">
-            <div class="cell g1" data-reveal data-delay="0">
+            <div class="cell g1" data-reveal data-delay="0" data-speed="1">
                 <video class="preload-video" autoplay muted loop playsinline disablePictureInPicture>
                     <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-dgfdf.mp4" type="video/mp4">
                 </video>
                 <div class="cell-label">Parallel I/O Architecture</div>
-                <div class="cell-meta">Live</div>
+                <div class="cell-meta">1x</div>
             </div>
-            <div class="cell g2" data-reveal data-delay="80">
+            <div class="cell g2" data-reveal data-delay="80" data-speed="0.5">
                 <video class="preload-video" autoplay muted loop playsinline disablePictureInPicture>
                     <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jhojeh.mp4" type="video/mp4">
                 </video>
                 <div class="cell-label">GPU Direct Storage</div>
+                <div class="cell-meta">0.5x</div>
             </div>
-            <div class="cell g3" data-reveal data-delay="160">
+            <div class="cell g3" data-reveal data-delay="160" data-speed="0.25">
                 <video class="preload-video" autoplay muted loop playsinline disablePictureInPicture>
                     <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-kjhxsa.mp4" type="video/mp4">
                 </video>
                 <div class="cell-label">Elastic Scaling</div>
+                <div class="cell-meta">0.25x</div>
             </div>
-            <div class="cell g4" data-reveal data-delay="240">
+            <div class="cell g4" data-reveal data-delay="240" data-speed="0.1">
                 <video class="preload-video" autoplay muted loop playsinline disablePictureInPicture>
                     <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jhojeh.mp4" type="video/mp4">
                 </video>
                 <div class="cell-label">Data Pipeline</div>
+                <div class="cell-meta">0.1x</div>
             </div>
-            <div class="cell g5" data-reveal data-delay="320">
+            <div class="cell g5" data-reveal data-delay="320" data-speed="0.75">
                 <video class="preload-video" autoplay muted loop playsinline disablePictureInPicture>
                     <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-dgfdf.mp4" type="video/mp4">
                 </video>
                 <div class="cell-label">Multi-Cluster Orchestration</div>
-                <div class="cell-meta">New</div>
+                <div class="cell-meta">0.75x</div>
             </div>
-            <div class="cell g6" data-reveal data-delay="400">
+            <div class="cell g6" data-reveal data-delay="400" data-speed="0.5">
                 <video class="preload-video" autoplay muted loop playsinline disablePictureInPicture>
                     <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-kjhxsa.mp4" type="video/mp4">
                 </video>
                 <div class="cell-label">Fault Tolerance</div>
+                <div class="cell-meta">0.5x</div>
             </div>
         </div>
     </div>
@@ -425,6 +429,26 @@
             });
         }, { threshold: 0.1 });
         document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
+
+        /* Playback speed per cell */
+        document.querySelectorAll('[data-speed]').forEach(function(cell) {
+            var v = cell.querySelector('video');
+            if (v) v.playbackRate = parseFloat(cell.dataset.speed);
+        });
+
+        /* Smooth loop fade on all videos */
+        (function() {
+            var fade = 0.5;
+            videos.forEach(function(v) {
+                v.addEventListener('timeupdate', function() {
+                    if (!v.duration) return;
+                    var rem = v.duration - v.currentTime;
+                    if (rem < fade) v.style.opacity = rem / fade;
+                    else if (v.currentTime < fade) v.style.opacity = Math.min(v.currentTime / fade, 1);
+                    else if (v.style.opacity !== '') v.style.opacity = '';
+                });
+            });
+        })();
     </script>
 </body>
 </html>

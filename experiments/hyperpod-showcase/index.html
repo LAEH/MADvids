@@ -352,6 +352,20 @@
             entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
         }, { threshold: 0.2 });
         document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
+
+        /* Smooth loop fade on all videos */
+        (function() {
+            var fade = 0.5;
+            videos.forEach(function(v) {
+                v.addEventListener('timeupdate', function() {
+                    if (!v.duration) return;
+                    var rem = v.duration - v.currentTime;
+                    if (rem < fade) v.style.opacity = rem / fade;
+                    else if (v.currentTime < fade) v.style.opacity = Math.min(v.currentTime / fade, 1);
+                    else if (v.style.opacity !== '') v.style.opacity = '';
+                });
+            });
+        })();
     </script>
 </body>
 </html>
