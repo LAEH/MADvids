@@ -73,9 +73,9 @@ const SLIDES: Slide[] = [
   {
     id: 1,
     title: "ENTERPRISE AI",
-    highlight: "HYPERPOD",
-    subtitle: "DDN INFINIA DATA INTELLIGENCE PLATFORM",
-    quote: "What enterprises demand, HyperPod delivers —",
+    highlight: "STORAGE",
+    subtitle: "INFINIA DATA INTELLIGENCE PLATFORM",
+    quote: "What enterprises demand, delivered —",
     quoteHighlight: "instantly.",
     tags: ["2 PB/RU", "SUB-MS LATENCY", "100K+ AI CALLS/SEC"],
     modules: [
@@ -100,7 +100,7 @@ const SLIDES: Slide[] = [
     title: "AUTONOMOUS",
     highlight: "VEHICLES",
     subtitle: "REAL-TIME AI FOR AUTOMOTIVE OEMs",
-    quote: "6 of the top 10 automotive OEMs trust DDN —",
+    quote: "6 of the top 10 automotive OEMs trust us —",
     quoteHighlight: "you should too.",
     tags: ["10 PB+ FLEETS", "REAL-TIME SYNC", "NVIDIA PREFERRED"],
     modules: [
@@ -317,7 +317,7 @@ function VisionOverlay({ module, onClose }: { module: Module; onClose: () => voi
         <div className="flex items-start justify-between mb-4">
           <div>
             <div className="text-[10px] font-semibold tracking-[0.2em] text-gray-500 mb-1">
-              DDN HYPERPOD
+              AUTONOMY
             </div>
             <h2 className={`text-xl font-bold ${c.text}`}>
               {module.label}
@@ -435,7 +435,7 @@ export default function App() {
         {/* ═══════════ TOP LEFT LOGO ═══════════ */}
         <div className="absolute top-4 left-4">
           <div className="w-12 h-12 rounded-full border-2 border-yellow-500/50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
-            <img src="/ddn-logo.png" alt="DDN" className="w-7 h-7 object-contain" />
+            <img src="/ddn-logo.png" alt="Logo" className="w-7 h-7 object-contain" />
           </div>
         </div>
 
@@ -549,7 +549,7 @@ export default function App() {
             <div className="hidden sm:flex items-center gap-2 text-[9px] text-gray-500">
               <span>POWERED BY</span>
               <span className="text-white/20">|</span>
-              <span className="text-red-500 font-bold">DDN</span>
+              <span className="text-red-500 font-bold">MADvids</span>
               <span className="text-gray-600">+</span>
               <span className="text-emerald-500 font-bold">NVIDIA</span>
             </div>
