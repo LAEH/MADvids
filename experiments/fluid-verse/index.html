@@ -21,12 +21,17 @@
             user-select: none;
         }
 
-        canvas {
-            width: 100vw;
-            height: 100vh;
-            display: block;
+        canvas { width: 100vw; height: 100vh; display: block; }
+
+        video#bgVideo {
+            position: fixed;
+            top: 0; left: 0;
+            width: 1px; height: 1px;
+            opacity: 0;
+            pointer-events: none;
         }
 
+        /* ─── Glass Nav ─── */
         .glass-nav {
             position: fixed;
             top: max(16px, env(safe-area-inset-top, 16px));
@@ -51,7 +56,6 @@
             text-decoration: none;
             font-size: 13px;
             font-weight: 500;
-            cursor: pointer;
             transition: all 0.3s ease;
             font-family: inherit;
         }
@@ -62,6 +66,7 @@
             color: #fff;
         }
 
+        /* ─── Controls ─── */
         .controls-panel {
             position: fixed;
             bottom: max(16px, env(safe-area-inset-bottom, 16px));
@@ -69,50 +74,86 @@
             transform: translateX(-50%);
             z-index: 100;
             display: flex;
-            gap: 6px;
+            gap: 4px;
             align-items: center;
-            padding: 6px;
-            background: rgba(0, 0, 0, 0.35);
+            padding: 5px;
+            background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(24px) saturate(180%);
             -webkit-backdrop-filter: blur(24px) saturate(180%);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
+            border-radius: 14px;
         }
 
-        .ctrl-btn {
+        .mode-group {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 38px;
-            height: 38px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            gap: 2px;
+            padding: 2px;
+            background: rgba(255, 255, 255, 0.04);
             border-radius: 10px;
-            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .mode-btn {
+            padding: 8px 14px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 12px;
+            font-weight: 500;
+            font-family: inherit;
             cursor: pointer;
             transition: all 0.25s ease;
-            font-size: 15px;
-            font-family: inherit;
+            letter-spacing: 0.01em;
+            white-space: nowrap;
         }
 
-        .ctrl-btn:hover {
-            background: rgba(255, 255, 255, 0.12);
-            color: rgba(255, 255, 255, 0.9);
-        }
+        .mode-btn:hover { color: rgba(255, 255, 255, 0.7); }
 
-        .ctrl-btn.active {
-            background: rgba(255, 255, 255, 0.16);
-            border-color: rgba(255, 255, 255, 0.2);
+        .mode-btn.active {
+            background: rgba(255, 255, 255, 0.14);
             color: #fff;
         }
 
+        .divider {
+            width: 1px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0 4px;
+        }
+
+        .ctrl-btn {
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 11px;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .ctrl-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .ctrl-btn.active {
+            background: rgba(255, 255, 255, 0.14);
+            border-color: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+
+        /* ─── Hint ─── */
         .hint {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             color: rgba(255, 255, 255, 0.5);
-            font-size: clamp(14px, 2.5vw, 18px);
+            font-size: clamp(13px, 2.2vw, 17px);
             font-weight: 300;
             letter-spacing: 3px;
             pointer-events: none;
@@ -134,14 +175,17 @@
         .title-overlay h1 {
             font-size: 11px;
             font-weight: 300;
-            color: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.15);
             letter-spacing: 4px;
             text-transform: uppercase;
         }
 
         @media (max-width: 768px) {
             .glass-nav { top: 12px; left: 12px; }
-            .controls-panel { bottom: 12px; }
+            .controls-panel { bottom: 12px; gap: 3px; padding: 4px; }
+            .mode-btn { padding: 7px 10px; font-size: 11px; }
+            .ctrl-btn { padding: 7px 10px; font-size: 10px; }
+            .divider { margin: 0 2px; }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -152,17 +196,26 @@
 <body>
     <canvas id="fluid"></canvas>
 
+    <video id="bgVideo" muted autoplay loop playsinline preload="auto" crossorigin="anonymous">
+        <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-kjhxsa.mp4" type="video/mp4">
+    </video>
+
     <nav class="glass-nav">
         <a href="/MADvids/">&#8592; Back</a>
     </nav>
 
-    <div class="hint" id="hint">Move to paint with light</div>
+    <div class="hint" id="hint">Drag across the video</div>
 
     <div class="controls-panel">
-        <button class="ctrl-btn" id="btnReset" title="Reset fluid">&#8634;</button>
-        <button class="ctrl-btn active" id="btnBloom" title="Toggle bloom">&#10022;</button>
-        <button class="ctrl-btn" id="btnBurst" title="Color burst">&#9673;</button>
-        <button class="ctrl-btn" id="btnPalette" title="Next palette">&#9680;</button>
+        <div class="mode-group">
+            <button class="mode-btn active" data-mode="liquid">Liquid</button>
+            <button class="mode-btn" data-mode="prism">Prism</button>
+            <button class="mode-btn" data-mode="ink">Ink</button>
+        </div>
+        <div class="divider"></div>
+        <button class="ctrl-btn active" id="btnBloom">Bloom</button>
+        <button class="ctrl-btn" id="btnBurst">Burst</button>
+        <button class="ctrl-btn" id="btnReset">Reset</button>
     </div>
 
     <div class="title-overlay">
@@ -192,8 +245,10 @@
         BLOOM_INTENSITY: 0.7,
         BLOOM_THRESHOLD: 0.6,
         BLOOM_SOFT_KNEE: 0.7,
-        AUTO_SPLAT_INTERVAL: 600,
-        PALETTE: 0
+        AUTO_SPLAT_INTERVAL: 800,
+        PALETTE: 0,
+        MODE: 'liquid',
+        DISTORTION: 0.00025
     };
 
     var PALETTES = [
@@ -203,8 +258,6 @@
         [[1,0.3,0.1],[1,0.5,0],[0.9,0.1,0.3],[1,0.7,0],[0.6,0,0.4]],
         [[1,0,0.8],[0,1,0.8],[0.8,1,0],[0,0.5,1],[1,0,0.3]]
     ];
-
-    var PALETTE_NAMES = ['Rainbow', 'Murakami', 'Ocean', 'Sunset', 'Neon'];
 
     /* ═══════════════════════════════════════════════════════
        WEBGL CONTEXT
@@ -217,13 +270,12 @@
     });
 
     if (!gl) {
-        document.body.innerHTML = '<p style="color:#fff;text-align:center;margin-top:45vh;font-family:Inter,sans-serif;font-size:16px">WebGL 2 is required for this experiment.</p>';
+        document.body.innerHTML = '<p style="color:#fff;text-align:center;margin-top:45vh;font-family:Inter,sans-serif">WebGL 2 is required.</p>';
         throw new Error('WebGL2 not available');
     }
 
     gl.getExtension('EXT_color_buffer_float');
     var supportLinear = gl.getExtension('OES_texture_float_linear');
-
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
     var texType = gl.HALF_FLOAT;
@@ -231,13 +283,8 @@
     var formatRG   = { internalFormat: gl.RG16F,   format: gl.RG };
     var formatR    = { internalFormat: gl.R16F,     format: gl.RED };
 
-    /* Test render target support and fallback */
-    if (!supportRT(formatR.internalFormat, formatR.format)) {
-        formatR = formatRG;
-    }
-    if (!supportRT(formatRG.internalFormat, formatRG.format)) {
-        formatRG = formatRGBA;
-    }
+    if (!supportRT(formatR.internalFormat, formatR.format)) formatR = formatRG;
+    if (!supportRT(formatRG.internalFormat, formatRG.format)) formatRG = formatRGBA;
 
     function supportRT(intFmt, fmt) {
         var t = gl.createTexture();
@@ -255,6 +302,36 @@
         gl.deleteTexture(t);
         return ok;
     }
+
+    /* ═══════════════════════════════════════════════════════
+       VIDEO TEXTURE
+       ═══════════════════════════════════════════════════════ */
+
+    var video = document.getElementById('bgVideo');
+    var videoReady = false;
+    var videoTexture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, videoTexture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+        new Uint8Array([0, 0, 0, 255]));
+
+    function updateVideoTexture() {
+        if (!videoReady || video.readyState < video.HAVE_CURRENT_DATA) return;
+        gl.bindTexture(gl.TEXTURE_2D, videoTexture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
+    }
+
+    function attachVideoTexture(unit) {
+        gl.activeTexture(gl.TEXTURE0 + unit);
+        gl.bindTexture(gl.TEXTURE_2D, videoTexture);
+        return unit;
+    }
+
+    video.addEventListener('playing', function() { videoReady = true; });
+    video.play().catch(function() {});
 
     /* ═══════════════════════════════════════════════════════
        SHADER HELPERS
@@ -289,19 +366,17 @@
         return u;
     }
 
-    function Program(vertSrc, fragSrc) {
+    function ShaderProgram(vertSrc, fragSrc) {
         this.vs = compileShader(gl.VERTEX_SHADER, vertSrc);
         this.fs = compileShader(gl.FRAGMENT_SHADER, fragSrc);
         this.prog = createProgram(this.vs, this.fs);
         this.uniforms = getUniforms(this.prog);
     }
 
-    Program.prototype.bind = function() {
-        gl.useProgram(this.prog);
-    };
+    ShaderProgram.prototype.bind = function() { gl.useProgram(this.prog); };
 
     /* ═══════════════════════════════════════════════════════
-       GEOMETRY (fullscreen triangle)
+       GEOMETRY
        ═══════════════════════════════════════════════════════ */
 
     var quadVAO = gl.createVertexArray();
@@ -342,12 +417,10 @@
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.texImage2D(gl.TEXTURE_2D, 0, intFmt, w, h, 0, fmt, type, null);
-
         var fbo = gl.createFramebuffer();
         gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
         return {
             texture: texture, fbo: fbo, width: w, height: h,
             attach: function(unit) {
@@ -363,15 +436,9 @@
         var fbo2 = createFBO(w, h, intFmt, fmt, type, filter);
         return {
             width: w, height: h,
-            texelSizeX: 1.0 / w,
-            texelSizeY: 1.0 / h,
-            read: fbo1,
-            write: fbo2,
-            swap: function() {
-                var tmp = this.read;
-                this.read = this.write;
-                this.write = tmp;
-            }
+            texelSizeX: 1.0 / w, texelSizeY: 1.0 / h,
+            read: fbo1, write: fbo2,
+            swap: function() { var t = this.read; this.read = this.write; this.write = t; }
         };
     }
 
@@ -387,10 +454,8 @@
         if (target.width === w && target.height === h) return target;
         target.read = resizeFBO(target.read, w, h, intFmt, fmt, type, filter);
         target.write = createFBO(w, h, intFmt, fmt, type, filter);
-        target.width = w;
-        target.height = h;
-        target.texelSizeX = 1.0 / w;
-        target.texelSizeY = 1.0 / h;
+        target.width = w; target.height = h;
+        target.texelSizeX = 1.0 / w; target.texelSizeY = 1.0 / h;
         return target;
     }
 
@@ -413,6 +478,22 @@ void main(){\n\
     gl_Position = vec4(aPosition, 0.0, 1.0);\n\
 }';
 
+    var bloomBlurVert = '#version 300 es\n\
+precision highp float;\n\
+layout(location=0) in vec2 aPosition;\n\
+out vec2 vUv;\n\
+out vec2 vL, vR;\n\
+uniform vec2 texelSize;\n\
+void main(){\n\
+    vUv = aPosition * 0.5 + 0.5;\n\
+    float offset = 1.33333;\n\
+    vL = vUv - texelSize * offset;\n\
+    vR = vUv + texelSize * offset;\n\
+    gl_Position = vec4(aPosition, 0.0, 1.0);\n\
+}';
+
+    /* ── Simulation shaders ── */
+
     var copyFrag = '#version 300 es\n\
 precision mediump float;\n\
 in vec2 vUv;\n\
@@ -426,9 +507,7 @@ in vec2 vUv;\n\
 uniform sampler2D uTexture;\n\
 uniform float value;\n\
 out vec4 fragColor;\n\
-void main(){\n\
-    fragColor = value * texture(uTexture, vUv);\n\
-}';
+void main(){ fragColor = value * texture(uTexture, vUv); }';
 
     var splatFrag = '#version 300 es\n\
 precision highp float;\n\
@@ -474,8 +553,7 @@ void main(){\n\
     float R = texture(uVelocity, vR).x;\n\
     float T = texture(uVelocity, vT).y;\n\
     float B = texture(uVelocity, vB).y;\n\
-    float div = 0.5 * (R - L + T - B);\n\
-    fragColor = vec4(div, 0.0, 0.0, 1.0);\n\
+    fragColor = vec4(0.5 * (R - L + T - B), 0.0, 0.0, 1.0);\n\
 }';
 
     var curlFrag = '#version 300 es\n\
@@ -489,8 +567,7 @@ void main(){\n\
     float R = texture(uVelocity, vR).y;\n\
     float T = texture(uVelocity, vT).x;\n\
     float B = texture(uVelocity, vB).x;\n\
-    float vorticity = R - L - T + B;\n\
-    fragColor = vec4(0.5 * vorticity, 0.0, 0.0, 1.0);\n\
+    fragColor = vec4(0.5 * (R - L - T + B), 0.0, 0.0, 1.0);\n\
 }';
 
     var vorticityFrag = '#version 300 es\n\
@@ -512,10 +589,8 @@ void main(){\n\
     force /= length(force) + 0.0001;\n\
     force *= curl * C;\n\
     force.y *= -1.0;\n\
-    vec2 velocity = texture(uVelocity, vUv).xy;\n\
-    velocity += force * dt;\n\
-    velocity = min(max(velocity, -1000.0), 1000.0);\n\
-    fragColor = vec4(velocity, 0.0, 1.0);\n\
+    vec2 vel = texture(uVelocity, vUv).xy + force * dt;\n\
+    fragColor = vec4(clamp(vel, -1000.0, 1000.0), 0.0, 1.0);\n\
 }';
 
     var pressureFrag = '#version 300 es\n\
@@ -530,9 +605,8 @@ void main(){\n\
     float R = texture(uPressure, vR).x;\n\
     float T = texture(uPressure, vT).x;\n\
     float B = texture(uPressure, vB).x;\n\
-    float divergence = texture(uDivergence, vUv).x;\n\
-    float pressure = (L + R + B + T - divergence) * 0.25;\n\
-    fragColor = vec4(pressure, 0.0, 0.0, 1.0);\n\
+    float div = texture(uDivergence, vUv).x;\n\
+    fragColor = vec4((L + R + B + T - div) * 0.25, 0.0, 0.0, 1.0);\n\
 }';
 
     var gradSubFrag = '#version 300 es\n\
@@ -547,43 +621,11 @@ void main(){\n\
     float R = texture(uPressure, vR).x;\n\
     float T = texture(uPressure, vT).x;\n\
     float B = texture(uPressure, vB).x;\n\
-    vec2 velocity = texture(uVelocity, vUv).xy;\n\
-    velocity.xy -= vec2(R - L, T - B);\n\
-    fragColor = vec4(velocity, 0.0, 1.0);\n\
+    vec2 vel = texture(uVelocity, vUv).xy - vec2(R - L, T - B);\n\
+    fragColor = vec4(vel, 0.0, 1.0);\n\
 }';
 
-    var displayFrag = '#version 300 es\n\
-precision highp float;\n\
-in vec2 vUv;\n\
-uniform sampler2D uTexture;\n\
-out vec4 fragColor;\n\
-void main(){\n\
-    vec3 c = texture(uTexture, vUv).rgb;\n\
-    /* Subtle shading: darken edges slightly */\n\
-    float vignette = 1.0 - 0.3 * length(vUv - 0.5);\n\
-    c *= vignette;\n\
-    fragColor = vec4(c, 1.0);\n\
-}';
-
-    var displayBloomFrag = '#version 300 es\n\
-precision highp float;\n\
-in vec2 vUv;\n\
-uniform sampler2D uTexture;\n\
-uniform sampler2D uBloom;\n\
-uniform float bloomIntensity;\n\
-out vec4 fragColor;\n\
-void main(){\n\
-    vec3 c = texture(uTexture, vUv).rgb;\n\
-    vec3 bloom = texture(uBloom, vUv).rgb;\n\
-    c += bloom * bloomIntensity;\n\
-    /* Filmic tonemap (ACES approximation) */\n\
-    float a = 2.51, b = 0.03, cc = 2.43, d = 0.59, e = 0.14;\n\
-    c = clamp((c*(a*c+b))/(c*(cc*c+d)+e), 0.0, 1.0);\n\
-    /* Subtle vignette */\n\
-    float vig = 1.0 - 0.25 * length(vUv - 0.5);\n\
-    c *= vig;\n\
-    fragColor = vec4(c, 1.0);\n\
-}';
+    /* ── Bloom shaders ── */
 
     var bloomPrefilterFrag = '#version 300 es\n\
 precision mediump float;\n\
@@ -608,56 +650,99 @@ in vec2 vL, vR;\n\
 uniform sampler2D uTexture;\n\
 out vec4 fragColor;\n\
 void main(){\n\
-    vec4 sum = vec4(0.0);\n\
-    sum += texture(uTexture, vL) * 0.25;\n\
-    sum += texture(uTexture, vUv) * 0.5;\n\
-    sum += texture(uTexture, vR) * 0.25;\n\
-    fragColor = sum;\n\
+    fragColor = texture(uTexture, vL)*0.25 + texture(uTexture, vUv)*0.5 + texture(uTexture, vR)*0.25;\n\
 }';
 
-    var bloomFinalFrag = '#version 300 es\n\
-precision mediump float;\n\
+    /* ── Display shaders (3 modes) ── */
+
+    /* LIQUID: video distorted by velocity + dye overlay + bloom */
+    var displayLiquidFrag = '#version 300 es\n\
+precision highp float;\n\
 in vec2 vUv;\n\
-uniform sampler2D uTexture;\n\
-uniform float intensity;\n\
+uniform sampler2D uDye;\n\
+uniform sampler2D uVelocity;\n\
+uniform sampler2D uVideo;\n\
+uniform sampler2D uBloom;\n\
+uniform float bloomIntensity;\n\
+uniform float distortion;\n\
 out vec4 fragColor;\n\
 void main(){\n\
-    fragColor = intensity * texture(uTexture, vUv);\n\
+    vec2 vel = texture(uVelocity, vUv).xy;\n\
+    vec2 vidUv = vec2(vUv.x, 1.0 - vUv.y);\n\
+    vec2 distUv = vidUv + vel * distortion;\n\
+    vec3 vid = texture(uVideo, distUv).rgb;\n\
+    vec3 dye = texture(uDye, vUv).rgb;\n\
+    vec3 bloom = texture(uBloom, vUv).rgb;\n\
+    float dyeStr = length(dye);\n\
+    vec3 c = vid * (1.0 - dyeStr * 0.35) + dye * 0.8 + bloom * bloomIntensity;\n\
+    float a=2.51, b=0.03, d=2.43, e=0.59, f=0.14;\n\
+    c = clamp((c*(a*c+b))/(c*(d*c+e)+f), 0.0, 1.0);\n\
+    c *= 1.0 - 0.2 * length(vUv - 0.5);\n\
+    fragColor = vec4(c, 1.0);\n\
 }';
 
-    /* Bloom uses separate vertex shader for directional blur */
-    var bloomBlurVert = '#version 300 es\n\
+    /* PRISM: chromatic aberration driven by velocity + bloom */
+    var displayPrismFrag = '#version 300 es\n\
 precision highp float;\n\
-layout(location=0) in vec2 aPosition;\n\
-out vec2 vUv;\n\
-out vec2 vL, vR;\n\
-uniform vec2 texelSize;\n\
+in vec2 vUv;\n\
+uniform sampler2D uDye;\n\
+uniform sampler2D uVelocity;\n\
+uniform sampler2D uVideo;\n\
+uniform sampler2D uBloom;\n\
+uniform float bloomIntensity;\n\
+uniform float distortion;\n\
+out vec4 fragColor;\n\
 void main(){\n\
-    vUv = aPosition * 0.5 + 0.5;\n\
-    float offset = 1.33333;\n\
-    vL = vUv - texelSize * offset;\n\
-    vR = vUv + texelSize * offset;\n\
-    gl_Position = vec4(aPosition, 0.0, 1.0);\n\
+    vec2 vel = texture(uVelocity, vUv).xy;\n\
+    vec2 vidUv = vec2(vUv.x, 1.0 - vUv.y);\n\
+    float r = texture(uVideo, vidUv + vel * distortion * 1.5).r;\n\
+    float g = texture(uVideo, vidUv + vel * distortion * 0.6).g;\n\
+    float b = texture(uVideo, vidUv + vel * distortion * 0.1).b;\n\
+    vec3 dye = texture(uDye, vUv).rgb;\n\
+    vec3 bloom = texture(uBloom, vUv).rgb;\n\
+    vec3 c = vec3(r, g, b) + dye * 0.5 + bloom * bloomIntensity;\n\
+    float a=2.51, bb=0.03, d=2.43, e=0.59, f=0.14;\n\
+    c = clamp((c*(a*c+bb))/(c*(d*c+e)+f), 0.0, 1.0);\n\
+    c *= 1.0 - 0.2 * length(vUv - 0.5);\n\
+    fragColor = vec4(c, 1.0);\n\
+}';
+
+    /* INK: pure dye + bloom (no video) */
+    var displayInkFrag = '#version 300 es\n\
+precision highp float;\n\
+in vec2 vUv;\n\
+uniform sampler2D uDye;\n\
+uniform sampler2D uBloom;\n\
+uniform float bloomIntensity;\n\
+out vec4 fragColor;\n\
+void main(){\n\
+    vec3 c = texture(uDye, vUv).rgb;\n\
+    vec3 bloom = texture(uBloom, vUv).rgb;\n\
+    c += bloom * bloomIntensity;\n\
+    float a=2.51, b=0.03, d=2.43, e=0.59, f=0.14;\n\
+    c = clamp((c*(a*c+b))/(c*(d*c+e)+f), 0.0, 1.0);\n\
+    c *= 1.0 - 0.25 * length(vUv - 0.5);\n\
+    fragColor = vec4(c, 1.0);\n\
 }';
 
     /* ═══════════════════════════════════════════════════════
        COMPILE PROGRAMS
        ═══════════════════════════════════════════════════════ */
 
-    var copyProg           = new Program(baseVert, copyFrag);
-    var clearProg          = new Program(baseVert, clearFrag);
-    var splatProg          = new Program(baseVert, splatFrag);
-    var advectionProg      = new Program(baseVert, advectionFrag);
-    var divergenceProg     = new Program(baseVert, divergenceFrag);
-    var curlProg           = new Program(baseVert, curlFrag);
-    var vorticityProg      = new Program(baseVert, vorticityFrag);
-    var pressureProg       = new Program(baseVert, pressureFrag);
-    var gradSubProg        = new Program(baseVert, gradSubFrag);
-    var displayProg        = new Program(baseVert, displayFrag);
-    var displayBloomProg   = new Program(baseVert, displayBloomFrag);
-    var bloomPrefilterProg = new Program(baseVert, bloomPrefilterFrag);
-    var bloomBlurProg      = new Program(bloomBlurVert, bloomBlurFrag);
-    var bloomFinalProg     = new Program(baseVert, bloomFinalFrag);
+    var copyProg           = new ShaderProgram(baseVert, copyFrag);
+    var clearProg          = new ShaderProgram(baseVert, clearFrag);
+    var splatProg          = new ShaderProgram(baseVert, splatFrag);
+    var advectionProg      = new ShaderProgram(baseVert, advectionFrag);
+    var divergenceProg     = new ShaderProgram(baseVert, divergenceFrag);
+    var curlProg           = new ShaderProgram(baseVert, curlFrag);
+    var vorticityProg      = new ShaderProgram(baseVert, vorticityFrag);
+    var pressureProg       = new ShaderProgram(baseVert, pressureFrag);
+    var gradSubProg        = new ShaderProgram(baseVert, gradSubFrag);
+    var bloomPrefilterProg = new ShaderProgram(baseVert, bloomPrefilterFrag);
+    var bloomBlurProg      = new ShaderProgram(bloomBlurVert, bloomBlurFrag);
+    var displayLiquidProg  = new ShaderProgram(baseVert, displayLiquidFrag);
+    var displayPrismProg   = new ShaderProgram(baseVert, displayPrismFrag);
+    var displayInkProg     = new ShaderProgram(baseVert, displayInkFrag);
 
     /* ═══════════════════════════════════════════════════════
        INIT FRAMEBUFFERS
@@ -669,44 +754,32 @@ void main(){\n\
     function getResolution(resolution) {
         var aspect = gl.drawingBufferWidth / gl.drawingBufferHeight;
         if (aspect < 1) aspect = 1.0 / aspect;
-        var min = Math.round(resolution);
-        var max = Math.round(resolution * aspect);
-        if (gl.drawingBufferWidth > gl.drawingBufferHeight)
-            return { width: max, height: min };
-        else
-            return { width: min, height: max };
+        var mn = Math.round(resolution);
+        var mx = Math.round(resolution * aspect);
+        return gl.drawingBufferWidth > gl.drawingBufferHeight
+            ? { width: mx, height: mn }
+            : { width: mn, height: mx };
     }
 
     function initFramebuffers() {
         var simRes = getResolution(config.SIM_RESOLUTION);
         var dyeRes = getResolution(config.DYE_RESOLUTION);
-
-        var simFilter = supportLinear ? gl.LINEAR : gl.NEAREST;
-        var dyeFilter = supportLinear ? gl.LINEAR : gl.NEAREST;
+        var simF = supportLinear ? gl.LINEAR : gl.NEAREST;
+        var dyeF = supportLinear ? gl.LINEAR : gl.NEAREST;
 
         if (!dye) {
-            dye = createDoubleFBO(dyeRes.width, dyeRes.height,
-                formatRGBA.internalFormat, formatRGBA.format, texType, dyeFilter);
+            dye = createDoubleFBO(dyeRes.width, dyeRes.height, formatRGBA.internalFormat, formatRGBA.format, texType, dyeF);
         } else {
-            dye = resizeDoubleFBO(dye, dyeRes.width, dyeRes.height,
-                formatRGBA.internalFormat, formatRGBA.format, texType, dyeFilter);
+            dye = resizeDoubleFBO(dye, dyeRes.width, dyeRes.height, formatRGBA.internalFormat, formatRGBA.format, texType, dyeF);
         }
-
         if (!velocity) {
-            velocity = createDoubleFBO(simRes.width, simRes.height,
-                formatRG.internalFormat, formatRG.format, texType, simFilter);
+            velocity = createDoubleFBO(simRes.width, simRes.height, formatRG.internalFormat, formatRG.format, texType, simF);
         } else {
-            velocity = resizeDoubleFBO(velocity, simRes.width, simRes.height,
-                formatRG.internalFormat, formatRG.format, texType, simFilter);
+            velocity = resizeDoubleFBO(velocity, simRes.width, simRes.height, formatRG.internalFormat, formatRG.format, texType, simF);
         }
-
-        divergence = createFBO(simRes.width, simRes.height,
-            formatR.internalFormat, formatR.format, texType, gl.NEAREST);
-        curl = createFBO(simRes.width, simRes.height,
-            formatR.internalFormat, formatR.format, texType, gl.NEAREST);
-        pressure = createDoubleFBO(simRes.width, simRes.height,
-            formatR.internalFormat, formatR.format, texType, gl.NEAREST);
-
+        divergence = createFBO(simRes.width, simRes.height, formatR.internalFormat, formatR.format, texType, gl.NEAREST);
+        curl = createFBO(simRes.width, simRes.height, formatR.internalFormat, formatR.format, texType, gl.NEAREST);
+        pressure = createDoubleFBO(simRes.width, simRes.height, formatR.internalFormat, formatR.format, texType, gl.NEAREST);
         initBloomFBOs();
     }
 
@@ -718,27 +791,23 @@ void main(){\n\
             var w = res.width >> (i + 1);
             var h = res.height >> (i + 1);
             if (w < 2 || h < 2) break;
-            bloomFBOs.push(createFBO(w, h,
-                formatRGBA.internalFormat, formatRGBA.format, texType, filter));
+            bloomFBOs.push(createFBO(w, h, formatRGBA.internalFormat, formatRGBA.format, texType, filter));
         }
     }
 
     initFramebuffers();
 
     /* ═══════════════════════════════════════════════════════
-       RESIZE HANDLING
+       RESIZE
        ═══════════════════════════════════════════════════════ */
 
     function resizeCanvas() {
-        var w = window.innerWidth;
-        var h = window.innerHeight;
+        var w = window.innerWidth, h = window.innerHeight;
         if (canvas.width !== w || canvas.height !== h) {
-            canvas.width = w;
-            canvas.height = h;
+            canvas.width = w; canvas.height = h;
             initFramebuffers();
         }
     }
-
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas, { passive: true });
 
@@ -749,13 +818,11 @@ void main(){\n\
     function step(dt) {
         gl.disable(gl.BLEND);
 
-        /* Curl */
         curlProg.bind();
         gl.uniform2f(curlProg.uniforms.texelSize, velocity.texelSizeX, velocity.texelSizeY);
         gl.uniform1i(curlProg.uniforms.uVelocity, velocity.read.attach(0));
         blit(curl);
 
-        /* Vorticity confinement */
         vorticityProg.bind();
         gl.uniform2f(vorticityProg.uniforms.texelSize, velocity.texelSizeX, velocity.texelSizeY);
         gl.uniform1i(vorticityProg.uniforms.uVelocity, velocity.read.attach(0));
@@ -765,20 +832,17 @@ void main(){\n\
         blit(velocity.write);
         velocity.swap();
 
-        /* Divergence */
         divergenceProg.bind();
         gl.uniform2f(divergenceProg.uniforms.texelSize, velocity.texelSizeX, velocity.texelSizeY);
         gl.uniform1i(divergenceProg.uniforms.uVelocity, velocity.read.attach(0));
         blit(divergence);
 
-        /* Clear pressure */
         clearProg.bind();
         gl.uniform1i(clearProg.uniforms.uTexture, pressure.read.attach(0));
         gl.uniform1f(clearProg.uniforms.value, config.PRESSURE);
         blit(pressure.write);
         pressure.swap();
 
-        /* Pressure solve (Jacobi iterations) */
         pressureProg.bind();
         gl.uniform2f(pressureProg.uniforms.texelSize, velocity.texelSizeX, velocity.texelSizeY);
         gl.uniform1i(pressureProg.uniforms.uDivergence, divergence.attach(0));
@@ -788,7 +852,6 @@ void main(){\n\
             pressure.swap();
         }
 
-        /* Gradient subtraction */
         gradSubProg.bind();
         gl.uniform2f(gradSubProg.uniforms.texelSize, velocity.texelSizeX, velocity.texelSizeY);
         gl.uniform1i(gradSubProg.uniforms.uPressure, pressure.read.attach(0));
@@ -796,7 +859,6 @@ void main(){\n\
         blit(velocity.write);
         velocity.swap();
 
-        /* Advect velocity */
         advectionProg.bind();
         gl.uniform2f(advectionProg.uniforms.texelSize, velocity.texelSizeX, velocity.texelSizeY);
         gl.uniform1i(advectionProg.uniforms.uVelocity, velocity.read.attach(0));
@@ -806,7 +868,6 @@ void main(){\n\
         blit(velocity.write);
         velocity.swap();
 
-        /* Advect dye */
         gl.uniform2f(advectionProg.uniforms.texelSize, dye.texelSizeX, dye.texelSizeY);
         gl.uniform1i(advectionProg.uniforms.uVelocity, velocity.read.attach(0));
         gl.uniform1i(advectionProg.uniforms.uSource, dye.read.attach(1));
@@ -821,40 +882,30 @@ void main(){\n\
 
     function applyBloom(source) {
         if (bloomFBOs.length < 2) return;
-
         var last = bloomFBOs[0];
-
-        /* Prefilter: threshold bright areas */
         var knee = config.BLOOM_THRESHOLD * config.BLOOM_SOFT_KNEE + 0.0001;
-        var curve0 = config.BLOOM_THRESHOLD - knee;
-        var curve1 = knee * 2.0;
-        var curve2 = 0.25 / knee;
 
         bloomPrefilterProg.bind();
         gl.uniform1i(bloomPrefilterProg.uniforms.uTexture, source.attach(0));
-        gl.uniform3f(bloomPrefilterProg.uniforms.curve, curve0, curve1, curve2);
+        gl.uniform3f(bloomPrefilterProg.uniforms.curve,
+            config.BLOOM_THRESHOLD - knee, knee * 2.0, 0.25 / knee);
         gl.uniform1f(bloomPrefilterProg.uniforms.threshold, config.BLOOM_THRESHOLD);
         blit(last);
 
-        /* Progressive downscale + blur */
         bloomBlurProg.bind();
         for (var i = 1; i < bloomFBOs.length; i++) {
             var dest = bloomFBOs[i];
-            /* Horizontal pass */
             gl.uniform2f(bloomBlurProg.uniforms.texelSize, 1.0 / last.width, 0.0);
             gl.uniform1i(bloomBlurProg.uniforms.uTexture, last.attach(0));
             blit(dest);
-            /* Vertical pass (use same dest, ping-pong would be better but this is fast enough) */
             gl.uniform2f(bloomBlurProg.uniforms.texelSize, 0.0, 1.0 / dest.height);
             gl.uniform1i(bloomBlurProg.uniforms.uTexture, dest.attach(0));
             blit(dest);
             last = dest;
         }
 
-        /* Progressive upscale + accumulate */
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.ONE, gl.ONE);
-
         for (var i = bloomFBOs.length - 2; i >= 0; i--) {
             var dest = bloomFBOs[i];
             gl.uniform2f(bloomBlurProg.uniforms.texelSize, 1.0 / last.width, 0.0);
@@ -862,7 +913,6 @@ void main(){\n\
             blit(dest);
             last = dest;
         }
-
         gl.disable(gl.BLEND);
     }
 
@@ -871,15 +921,33 @@ void main(){\n\
        ═══════════════════════════════════════════════════════ */
 
     function render() {
-        if (config.BLOOM) {
-            applyBloom(dye.read);
-            displayBloomProg.bind();
-            gl.uniform1i(displayBloomProg.uniforms.uTexture, dye.read.attach(0));
-            gl.uniform1i(displayBloomProg.uniforms.uBloom, bloomFBOs[0].attach(1));
-            gl.uniform1f(displayBloomProg.uniforms.bloomIntensity, config.BLOOM_INTENSITY);
+        var bloomI = config.BLOOM ? config.BLOOM_INTENSITY : 0.0;
+        if (config.BLOOM) applyBloom(dye.read);
+
+        updateVideoTexture();
+
+        var mode = config.MODE;
+        if (mode === 'liquid') {
+            displayLiquidProg.bind();
+            gl.uniform1i(displayLiquidProg.uniforms.uDye, dye.read.attach(0));
+            gl.uniform1i(displayLiquidProg.uniforms.uVelocity, velocity.read.attach(1));
+            gl.uniform1i(displayLiquidProg.uniforms.uVideo, attachVideoTexture(2));
+            gl.uniform1i(displayLiquidProg.uniforms.uBloom, bloomFBOs.length > 0 ? bloomFBOs[0].attach(3) : dye.read.attach(3));
+            gl.uniform1f(displayLiquidProg.uniforms.bloomIntensity, bloomI);
+            gl.uniform1f(displayLiquidProg.uniforms.distortion, config.DISTORTION);
+        } else if (mode === 'prism') {
+            displayPrismProg.bind();
+            gl.uniform1i(displayPrismProg.uniforms.uDye, dye.read.attach(0));
+            gl.uniform1i(displayPrismProg.uniforms.uVelocity, velocity.read.attach(1));
+            gl.uniform1i(displayPrismProg.uniforms.uVideo, attachVideoTexture(2));
+            gl.uniform1i(displayPrismProg.uniforms.uBloom, bloomFBOs.length > 0 ? bloomFBOs[0].attach(3) : dye.read.attach(3));
+            gl.uniform1f(displayPrismProg.uniforms.bloomIntensity, bloomI);
+            gl.uniform1f(displayPrismProg.uniforms.distortion, config.DISTORTION);
         } else {
-            displayProg.bind();
-            gl.uniform1i(displayProg.uniforms.uTexture, dye.read.attach(0));
+            displayInkProg.bind();
+            gl.uniform1i(displayInkProg.uniforms.uDye, dye.read.attach(0));
+            gl.uniform1i(displayInkProg.uniforms.uBloom, bloomFBOs.length > 0 ? bloomFBOs[0].attach(1) : dye.read.attach(1));
+            gl.uniform1f(displayInkProg.uniforms.bloomIntensity, bloomI);
         }
         blit(null);
     }
@@ -904,45 +972,35 @@ void main(){\n\
         dye.swap();
     }
 
-    function correctRadius(radius) {
-        var aspect = canvas.width / canvas.height;
-        if (aspect > 1) radius *= aspect;
-        return radius;
+    function correctRadius(r) {
+        var a = canvas.width / canvas.height;
+        return a > 1 ? r * a : r;
     }
 
     function generateColor() {
-        var palette = PALETTES[config.PALETTE];
-        if (palette) {
-            var c = palette[Math.floor(Math.random() * palette.length)];
+        var p = PALETTES[config.PALETTE];
+        if (p) {
+            var c = p[Math.floor(Math.random() * p.length)];
             return { r: c[0] * 0.15, g: c[1] * 0.15, b: c[2] * 0.15 };
         }
         var c = HSVtoRGB(Math.random(), 1.0, 1.0);
-        c.r *= 0.15;
-        c.g *= 0.15;
-        c.b *= 0.15;
-        return c;
+        return { r: c.r * 0.15, g: c.g * 0.15, b: c.b * 0.15 };
     }
 
     function HSVtoRGB(h, s, v) {
-        var i = Math.floor(h * 6);
-        var f = h * 6 - i;
-        var p = v * (1 - s);
-        var q = v * (1 - f * s);
-        var t = v * (1 - (1 - f) * s);
+        var i = Math.floor(h * 6), f = h * 6 - i;
+        var p = v * (1 - s), q = v * (1 - f * s), t = v * (1 - (1 - f) * s);
         var r, g, b;
         switch (i % 6) {
-            case 0: r=v; g=t; b=p; break;
-            case 1: r=q; g=v; b=p; break;
-            case 2: r=p; g=v; b=t; break;
-            case 3: r=p; g=q; b=v; break;
-            case 4: r=t; g=p; b=v; break;
-            case 5: r=v; g=p; b=q; break;
+            case 0: r=v;g=t;b=p; break; case 1: r=q;g=v;b=p; break;
+            case 2: r=p;g=v;b=t; break; case 3: r=p;g=q;b=v; break;
+            case 4: r=t;g=p;b=v; break; case 5: r=v;g=p;b=q; break;
         }
         return { r: r, g: g, b: b };
     }
 
     /* ═══════════════════════════════════════════════════════
-       INPUT HANDLING
+       INPUT
        ═══════════════════════════════════════════════════════ */
 
     var pointers = [];
@@ -954,73 +1012,47 @@ void main(){\n\
         this.texX = 0; this.texY = 0;
         this.prevTexX = 0; this.prevTexY = 0;
         this.deltaX = 0; this.deltaY = 0;
-        this.down = false;
-        this.moved = false;
+        this.down = false; this.moved = false;
         this.color = generateColor();
     }
-
     pointers.push(new Pointer());
 
     function getPointerById(id) {
-        for (var i = 0; i < pointers.length; i++) {
+        for (var i = 0; i < pointers.length; i++)
             if (pointers[i].id === id) return pointers[i];
-        }
         return null;
     }
 
-    function updatePointerDown(ptr, id, posX, posY) {
-        ptr.id = id;
-        ptr.down = true;
-        ptr.moved = false;
-        ptr.texX = posX / canvas.width;
-        ptr.texY = 1.0 - posY / canvas.height;
-        ptr.prevTexX = ptr.texX;
-        ptr.prevTexY = ptr.texY;
+    function ptrDown(ptr, id, x, y) {
+        ptr.id = id; ptr.down = true; ptr.moved = false;
+        ptr.texX = x / canvas.width; ptr.texY = 1.0 - y / canvas.height;
+        ptr.prevTexX = ptr.texX; ptr.prevTexY = ptr.texY;
         ptr.color = generateColor();
     }
 
-    function updatePointerMove(ptr, posX, posY) {
-        ptr.prevTexX = ptr.texX;
-        ptr.prevTexY = ptr.texY;
-        ptr.texX = posX / canvas.width;
-        ptr.texY = 1.0 - posY / canvas.height;
-        ptr.deltaX = correctDelta(ptr.texX - ptr.prevTexX);
-        ptr.deltaY = correctDelta(ptr.texY - ptr.prevTexY);
+    function ptrMove(ptr, x, y) {
+        ptr.prevTexX = ptr.texX; ptr.prevTexY = ptr.texY;
+        ptr.texX = x / canvas.width; ptr.texY = 1.0 - y / canvas.height;
+        ptr.deltaX = ptr.texX - ptr.prevTexX;
+        ptr.deltaY = ptr.texY - ptr.prevTexY;
         ptr.moved = Math.abs(ptr.deltaX) > 0 || Math.abs(ptr.deltaY) > 0;
-
-        if (!hintDismissed && ptr.moved) {
-            hintDismissed = true;
-            hintEl.classList.add('hidden');
-        }
+        if (!hintDismissed && ptr.moved) { hintDismissed = true; hintEl.classList.add('hidden'); }
     }
 
-    function correctDelta(delta) {
-        return delta;
-    }
-
-    /* Mouse events */
-    canvas.addEventListener('mousedown', function(e) {
-        updatePointerDown(pointers[0], -1, e.offsetX, e.offsetY);
-    });
+    canvas.addEventListener('mousedown', function(e) { ptrDown(pointers[0], -1, e.offsetX, e.offsetY); });
     canvas.addEventListener('mousemove', function(e) {
         pointers[0].down = (e.buttons & 1) !== 0;
-        updatePointerMove(pointers[0], e.offsetX, e.offsetY);
+        ptrMove(pointers[0], e.offsetX, e.offsetY);
     });
-    canvas.addEventListener('mouseup', function() {
-        pointers[0].down = false;
-    });
+    canvas.addEventListener('mouseup', function() { pointers[0].down = false; });
 
-    /* Touch events */
     canvas.addEventListener('touchstart', function(e) {
         e.preventDefault();
         for (var i = 0; i < e.changedTouches.length; i++) {
             var t = e.changedTouches[i];
             var ptr = getPointerById(t.identifier);
-            if (!ptr) {
-                ptr = new Pointer();
-                pointers.push(ptr);
-            }
-            updatePointerDown(ptr, t.identifier, t.clientX, t.clientY);
+            if (!ptr) { ptr = new Pointer(); pointers.push(ptr); }
+            ptrDown(ptr, t.identifier, t.clientX, t.clientY);
         }
     }, { passive: false });
 
@@ -1029,7 +1061,7 @@ void main(){\n\
         for (var i = 0; i < e.changedTouches.length; i++) {
             var t = e.changedTouches[i];
             var ptr = getPointerById(t.identifier);
-            if (ptr) updatePointerMove(ptr, t.clientX, t.clientY);
+            if (ptr) ptrMove(ptr, t.clientX, t.clientY);
         }
     }, { passive: false });
 
@@ -1041,62 +1073,43 @@ void main(){\n\
     });
 
     /* ═══════════════════════════════════════════════════════
-       AUTO-SPLAT (ATTRACT MODE)
+       AUTO-SPLAT
        ═══════════════════════════════════════════════════════ */
 
-    var autoSplatTimer = 0;
-    var attractTime = 0;
+    var autoSplatTimer = 0, attractTime = 0;
 
     function autoSplat(dt) {
         autoSplatTimer += dt;
         attractTime += dt;
-
         if (autoSplatTimer < config.AUTO_SPLAT_INTERVAL / 1000) return;
         autoSplatTimer = 0;
 
-        /* Lissajous curve positions for organic movement */
         var t = attractTime;
         var x = 0.5 + 0.35 * Math.sin(t * 0.7 + 1.2);
         var y = 0.5 + 0.35 * Math.cos(t * 0.5 + 0.8);
-        var dx = 500 * Math.cos(t * 1.3);
-        var dy = 500 * Math.sin(t * 0.9);
-        var color = generateColor();
-        splat(x, y, dx, dy, color);
+        splat(x, y, 500 * Math.cos(t * 1.3), 500 * Math.sin(t * 0.9), generateColor());
 
-        /* Occasional burst: multiple splats in a ring */
-        if (Math.random() < 0.15) {
-            var cx = 0.3 + Math.random() * 0.4;
-            var cy = 0.3 + Math.random() * 0.4;
-            var count = 5 + Math.floor(Math.random() * 7);
-            for (var i = 0; i < count; i++) {
-                var angle = (i / count) * Math.PI * 2;
+        if (Math.random() < 0.12) {
+            var cx = 0.3 + Math.random() * 0.4, cy = 0.3 + Math.random() * 0.4;
+            var n = 5 + Math.floor(Math.random() * 7);
+            for (var i = 0; i < n; i++) {
+                var a = (i / n) * Math.PI * 2;
                 var r = 0.03 + Math.random() * 0.06;
-                var bx = cx + Math.cos(angle) * r;
-                var by = cy + Math.sin(angle) * r;
-                var bdx = Math.cos(angle) * 1200;
-                var bdy = Math.sin(angle) * 1200;
-                splat(bx, by, bdx, bdy, generateColor());
+                splat(cx + Math.cos(a) * r, cy + Math.sin(a) * r,
+                    Math.cos(a) * 1200, Math.sin(a) * 1200, generateColor());
             }
         }
     }
 
-    /* ═══════════════════════════════════════════════════════
-       COLOR BURST (manual trigger)
-       ═══════════════════════════════════════════════════════ */
-
     function triggerBurst() {
-        var cx = 0.3 + Math.random() * 0.4;
-        var cy = 0.3 + Math.random() * 0.4;
-        var count = 8 + Math.floor(Math.random() * 8);
-        for (var i = 0; i < count; i++) {
-            var angle = (i / count) * Math.PI * 2 + Math.random() * 0.3;
+        var cx = 0.3 + Math.random() * 0.4, cy = 0.3 + Math.random() * 0.4;
+        var n = 8 + Math.floor(Math.random() * 8);
+        for (var i = 0; i < n; i++) {
+            var a = (i / n) * Math.PI * 2 + Math.random() * 0.3;
             var r = 0.04 + Math.random() * 0.08;
-            var bx = cx + Math.cos(angle) * r;
-            var by = cy + Math.sin(angle) * r;
-            var force = 800 + Math.random() * 1600;
-            var bdx = Math.cos(angle) * force;
-            var bdy = Math.sin(angle) * force;
-            splat(bx, by, bdx, bdy, generateColor());
+            var f = 800 + Math.random() * 1600;
+            splat(cx + Math.cos(a) * r, cy + Math.sin(a) * r,
+                Math.cos(a) * f, Math.sin(a) * f, generateColor());
         }
     }
 
@@ -1109,43 +1122,31 @@ void main(){\n\
     function frame(now) {
         var dt = Math.min((now - lastTime) / 1000, 0.016667);
         lastTime = now;
-
         resizeCanvas();
 
-        /* Process pointer input */
         for (var i = 0; i < pointers.length; i++) {
             var p = pointers[i];
             if (p.moved) {
                 p.moved = false;
-                var force = config.SPLAT_FORCE;
-                splat(p.texX, p.texY, p.deltaX * force, p.deltaY * force, p.color);
+                splat(p.texX, p.texY, p.deltaX * config.SPLAT_FORCE, p.deltaY * config.SPLAT_FORCE, p.color);
             }
-            if (p.down) {
-                p.color = generateColor();
-            }
+            if (p.down) p.color = generateColor();
         }
 
-        /* Auto-splat attract mode */
         autoSplat(dt);
-
-        /* Simulation step */
         step(dt);
-
-        /* Render */
         render();
-
         requestAnimationFrame(frame);
     }
 
-    /* Initial splash of color */
-    (function initialSplash() {
-        var count = 5 + Math.floor(Math.random() * 5);
-        for (var i = 0; i < count; i++) {
-            var x = 0.15 + Math.random() * 0.7;
-            var y = 0.15 + Math.random() * 0.7;
-            var angle = Math.random() * Math.PI * 2;
-            var force = 400 + Math.random() * 800;
-            splat(x, y, Math.cos(angle) * force, Math.sin(angle) * force, generateColor());
+    /* Initial splash */
+    (function() {
+        var n = 5 + Math.floor(Math.random() * 5);
+        for (var i = 0; i < n; i++) {
+            var a = Math.random() * Math.PI * 2;
+            var f = 400 + Math.random() * 800;
+            splat(0.15 + Math.random() * 0.7, 0.15 + Math.random() * 0.7,
+                Math.cos(a) * f, Math.sin(a) * f, generateColor());
         }
     })();
 
@@ -1155,57 +1156,46 @@ void main(){\n\
        UI CONTROLS
        ═══════════════════════════════════════════════════════ */
 
-    document.getElementById('btnReset').addEventListener('click', function() {
-        /* Clear all framebuffers */
-        gl.bindFramebuffer(gl.FRAMEBUFFER, dye.read.fbo);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, dye.write.fbo);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, velocity.read.fbo);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, velocity.write.fbo);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, pressure.read.fbo);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, pressure.write.fbo);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    /* Mode buttons */
+    var modeBtns = document.querySelectorAll('.mode-btn');
+    modeBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            modeBtns.forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            config.MODE = btn.dataset.mode;
+        });
     });
 
+    /* Bloom toggle */
     var btnBloom = document.getElementById('btnBloom');
     btnBloom.addEventListener('click', function() {
         config.BLOOM = !config.BLOOM;
         btnBloom.classList.toggle('active', config.BLOOM);
     });
 
-    document.getElementById('btnBurst').addEventListener('click', function() {
-        triggerBurst();
+    /* Burst */
+    document.getElementById('btnBurst').addEventListener('click', triggerBurst);
+
+    /* Reset */
+    document.getElementById('btnReset').addEventListener('click', function() {
+        [dye.read, dye.write, velocity.read, velocity.write, pressure.read, pressure.write].forEach(function(fb) {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, fb.fbo);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+        });
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     });
 
-    var btnPalette = document.getElementById('btnPalette');
-    btnPalette.addEventListener('click', function() {
-        config.PALETTE = (config.PALETTE + 1) % PALETTES.length;
-        btnPalette.title = PALETTE_NAMES[config.PALETTE] || 'Rainbow';
-    });
-
-    /* Keyboard shortcuts */
+    /* Keyboard */
     document.addEventListener('keydown', function(e) {
-        if (e.key === ' ' || e.code === 'Space') {
-            e.preventDefault();
-            triggerBurst();
-        }
-        if (e.key === 'r' || e.key === 'R') {
-            document.getElementById('btnReset').click();
-        }
-        if (e.key === 'b' || e.key === 'B') {
-            btnBloom.click();
-        }
-        if (e.key === 'p' || e.key === 'P') {
-            btnPalette.click();
-        }
+        if (e.key === ' ') { e.preventDefault(); triggerBurst(); }
+        if (e.key === 'r') document.getElementById('btnReset').click();
+        if (e.key === 'b') btnBloom.click();
+        if (e.key === '1') modeBtns[0].click();
+        if (e.key === '2') modeBtns[1].click();
+        if (e.key === '3') modeBtns[2].click();
     });
 
-    /* prefers-reduced-motion: disable auto-splat */
+    /* Reduced motion */
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         config.AUTO_SPLAT_INTERVAL = 99999999;
     }
