@@ -305,11 +305,17 @@
         else video.addEventListener('canplaythrough', start, { once: true });
         setTimeout(start, 6000);
 
+        const scrollSpaceEl = document.querySelector('.scroll-space');
+        let cachedVH = window.innerHeight;
+        let cachedTotal = scrollSpaceEl.offsetHeight - cachedVH;
+        window.addEventListener('resize', () => {
+            cachedVH = window.innerHeight;
+            cachedTotal = scrollSpaceEl.offsetHeight - cachedVH;
+        }, { passive: true });
+
         function update() {
             const scrollY = window.scrollY;
-            const vh = window.innerHeight;
-            const total = document.querySelector('.scroll-space').offsetHeight - vh;
-            const p = Math.min(Math.max(scrollY / total, 0), 1);
+            const p = Math.min(Math.max(scrollY / cachedTotal, 0), 1);
             progress.style.width = (p * 100) + '%';
             const size = 1 / count;
             const idx = Math.min(Math.floor(p / size), count - 1);

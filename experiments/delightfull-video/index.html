@@ -325,11 +325,16 @@
         const group2 = document.getElementById('group2');
         const group3 = document.getElementById('group3');
 
+        let cachedVH = window.innerHeight;
+        let cachedTotal = scrollContainer.offsetHeight - cachedVH;
+        window.addEventListener('resize', () => {
+            cachedVH = window.innerHeight;
+            cachedTotal = scrollContainer.offsetHeight - cachedVH;
+        }, { passive: true });
+
         function handleScroll() {
             const scrollY = window.scrollY;
-            const vh = window.innerHeight;
-            const totalScroll = scrollContainer.offsetHeight - vh;
-            const p = Math.min(Math.max(scrollY / totalScroll, 0), 1);
+            const p = Math.min(Math.max(scrollY / cachedTotal, 0), 1);
 
             // ===== GROUP 1: 0% - 30% =====
             if (p < 0.30) {

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MADvids — Experiments</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="dns-prefetch" href="https://storage.googleapis.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -63,13 +64,23 @@
             position: relative;
             isolation: isolate;
             overflow: hidden;
+            padding: 12vh 18vw;
+            margin: -12vh -18vw;
+        }
+        .title-container::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+            background: radial-gradient(ellipse at center, transparent 35%, #f2f2f7 70%);
         }
 
         .title-video {
             position: absolute;
-            inset: -10%;
-            width: 120%;
-            height: 120%;
+            inset: 0;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
             z-index: 0;
         }
@@ -167,6 +178,8 @@
             padding: clamp(20px, 4vw, 40px) max(24px, env(safe-area-inset-left, 24px)) clamp(80px, 12vw, 160px);
             max-width: 1300px;
             margin: 0 auto;
+            content-visibility: auto;
+            contain-intrinsic-size: auto 800px;
         }
 
         /* Decorative orbs — give glass cards something to blur */
@@ -227,6 +240,7 @@
             opacity: 0;
             transform: translateY(36px);
             will-change: transform, opacity;
+            contain: layout style paint;
         }
         .card.visible {
             opacity: 1;
@@ -498,6 +512,54 @@
                 </div>
             </a>
 
+            <a class="card" href="experiments/mesh-flow/index.html">
+                <div class="card-preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata">
+                        <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jhojeh.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="card-body">
+                    <h2>Mesh Flow</h2>
+                    <p>Floating gradient blobs with screen blending, scroll-driven parallax, and ambient sine-wave drift over video.</p>
+                    <div class="tags">
+                        <span class="tag-pill">gradients</span>
+                        <span class="tag-pill">blend-mode</span>
+                    </div>
+                </div>
+            </a>
+
+            <a class="card" href="experiments/lumina/index.html">
+                <div class="card-preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata">
+                        <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/claude-pretty-ugvuda.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="card-body">
+                    <h2>Lumina</h2>
+                    <p>Interactive light story — collect luminous particles to unlock a poetic narrative. Gamified with combos and achievements.</p>
+                    <div class="tags">
+                        <span class="tag-pill">interactive</span>
+                        <span class="tag-pill">canvas</span>
+                        <span class="tag-pill">game</span>
+                    </div>
+                </div>
+            </a>
+
+            <a class="card" href="experiments/fluid-verse/index.html">
+                <div class="card-preview no-video">
+                    <span class="placeholder">WebGL</span>
+                </div>
+                <div class="card-body">
+                    <h2>Fluid Verse</h2>
+                    <p>Real-time GPU fluid dynamics — Navier-Stokes simulation with bloom, vorticity, and interactive light painting.</p>
+                    <div class="tags">
+                        <span class="tag-pill">webgl</span>
+                        <span class="tag-pill">physics</span>
+                        <span class="tag-pill">interactive</span>
+                    </div>
+                </div>
+            </a>
+
             <a class="card" href="experiments/autonomy-dashboard/index.html">
                 <div class="card-preview no-video">
                     <span class="placeholder">Dashboard</span>
@@ -572,13 +634,17 @@
         var hero = document.getElementById('hero');
         var scrollCue = document.getElementById('scrollCue');
         var heroTicking = false;
+        var cachedVH = window.innerHeight;
+
+        window.addEventListener('resize', function() {
+            cachedVH = window.innerHeight;
+        }, { passive: true });
 
         window.addEventListener('scroll', function() {
             if (!heroTicking) {
                 requestAnimationFrame(function() {
                     var y = window.scrollY;
-                    var vh = window.innerHeight;
-                    var p = Math.min(y / (vh * 0.7), 1);
+                    var p = Math.min(y / (cachedVH * 0.7), 1);
                     hero.style.transform = 'translate3d(0,' + (y * 0.35) + 'px,0)';
                     hero.style.opacity = String(1 - p);
                     if (y > 60 && scrollCue.classList.contains('visible')) {
@@ -652,6 +718,37 @@
                 document.head.appendChild(link);
             }, { once: true });
         });
+
+        /* ═══ 6. VIDEO MEMORY MANAGEMENT ═══
+           Far-observer releases video decoders when cards are
+           well outside the viewport, restores src when approaching. */
+
+        var farObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) {
+                var v = e.target.querySelector('video');
+                if (!v) return;
+                if (!e.isIntersecting) {
+                    v.pause();
+                    v.removeAttribute('src');
+                    v.load();
+                    v.classList.remove('playing');
+                } else if (!v.getAttribute('src')) {
+                    var source = v.querySelector('source');
+                    if (source) {
+                        v.src = source.getAttribute('src');
+                    }
+                }
+            });
+        }, { rootMargin: '600px' });
+
+        document.querySelectorAll('.card-preview').forEach(function(cp) {
+            farObserver.observe(cp);
+        });
+
+        /* ═══ 7. SERVICE WORKER ═══ */
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/MADvids/sw.js').catch(function() {});
+        }
     </script>
 </body>
 </html>

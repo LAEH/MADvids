@@ -90,20 +90,11 @@
             pointer-events: none;
         }
 
-        /* Film grain — lightweight CSS */
-        .grain {
-            position: absolute; inset: -50%; z-index: 4;
-            width: 200%; height: 200%;
-            background: repeating-conic-gradient(transparent 0 0.0001%, rgba(255,255,255,0.007) 0 0.0002%) 50% 50% / 200px 200px;
-            opacity: 0.6;
-            animation: drift 0.5s steps(4) infinite;
+        /* Film grain — WebGL canvas replaces oversized CSS element */
+        .grain-canvas {
+            position: absolute; inset: 0; z-index: 4;
+            width: 100%; height: 100%;
             pointer-events: none;
-        }
-        @keyframes drift {
-            0% { transform: translate(0,0); }
-            25% { transform: translate(-5%,-5%); }
-            50% { transform: translate(5%,2%); }
-            75% { transform: translate(-2%,5%); }
         }
 
         /* ═══ SCROLL LAYOUT ═══ */
@@ -217,10 +208,10 @@
             .section { padding: 0 max(16px, env(safe-area-inset-left, 16px)); }
             .dots { display: none; }
         }
-        @media (max-width: 768px) { .grain { display: none; } }
+        @media (max-width: 768px) { .grain-canvas { display: none; } }
         @media (prefers-reduced-motion: reduce) {
             .section { opacity: 1; transform: none; transition: none; }
-            .grain { display: none; }
+            .grain-canvas { display: none; }
             .loader-ring { animation: none; }
         }
     </style>
@@ -244,7 +235,7 @@
         <div class="base-overlay"></div>
         <div class="color-overlay" id="colorOverlay"></div>
         <div class="vignette"></div>
-        <div class="grain"></div>
+        <canvas class="grain-canvas" id="grainCanvas"></canvas>
     </div>
 
     <div class="progress-bar" id="progressBar"></div>
@@ -357,12 +348,18 @@
            - dots: class toggles */
 
         var ticking = false;
+        var cachedVH = window.innerHeight;
+        var scrollSpace = document.querySelector('.scroll-space');
+        var cachedTotal = scrollSpace.offsetHeight - cachedVH;
+
+        window.addEventListener('resize', function() {
+            cachedVH = window.innerHeight;
+            cachedTotal = scrollSpace.offsetHeight - cachedVH;
+        }, { passive: true });
 
         function update() {
             var y = window.scrollY;
-            var vh = window.innerHeight;
-            var total = document.querySelector('.scroll-space').offsetHeight - vh;
-            var p = Math.min(Math.max(y / total, 0), 1);
+            var p = Math.min(Math.max(y / cachedTotal, 0), 1);
 
             /* Progress */
             progressBar.style.width = (p * 100) + '%';
@@ -419,6 +416,86 @@
         }, { passive: true });
 
         update();
+
+        /* ═══ WEBGL GRAIN SHADER ═══
+           Replaces the oversized CSS grain element with a GPU-computed
+           per-pixel noise pattern. Single draw call per frame,
+           no oversized elements in memory. */
+
+        (function() {
+            var canvas = document.getElementById('grainCanvas');
+            if (!canvas) return;
+            var gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false });
+            if (!gl) return;
+
+            var VS = 'attribute vec2 a;void main(){gl_Position=vec4(a,0,1);}';
+            var FS = [
+                'precision mediump float;',
+                'uniform float uTime;',
+                'uniform vec2 uRes;',
+                'float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
+                'void main(){',
+                '  vec2 uv=gl_FragCoord.xy/uRes;',
+                '  float n=hash(floor(gl_FragCoord.xy)+uTime*137.0);',
+                '  gl_FragColor=vec4(vec3(n),0.045);',
+                '}'
+            ].join('\n');
+
+            function compile(type, src) {
+                var s = gl.createShader(type);
+                gl.shaderSource(s, src);
+                gl.compileShader(s);
+                return s;
+            }
+
+            var prog = gl.createProgram();
+            gl.attachShader(prog, compile(gl.VERTEX_SHADER, VS));
+            gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FS));
+            gl.linkProgram(prog);
+            gl.useProgram(prog);
+
+            var buf = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+            var aLoc = gl.getAttribLocation(prog, 'a');
+            gl.enableVertexAttribArray(aLoc);
+            gl.vertexAttribPointer(aLoc, 2, gl.FLOAT, false, 0, 0);
+
+            var uTime = gl.getUniformLocation(prog, 'uTime');
+            var uRes = gl.getUniformLocation(prog, 'uRes');
+
+            var dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+            function resize() {
+                var w = canvas.clientWidth;
+                var h = canvas.clientHeight;
+                /* Render at half resolution for performance */
+                canvas.width = w * dpr * 0.5;
+                canvas.height = h * dpr * 0.5;
+                gl.viewport(0, 0, canvas.width, canvas.height);
+                gl.uniform2f(uRes, canvas.width, canvas.height);
+            }
+            resize();
+            window.addEventListener('resize', resize, { passive: true });
+
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+            var grainHidden = window.matchMedia('(max-width: 768px), (prefers-reduced-motion: reduce)').matches;
+            window.matchMedia('(max-width: 768px), (prefers-reduced-motion: reduce)').addEventListener('change', function(e) {
+                grainHidden = e.matches;
+            });
+
+            function grainLoop(t) {
+                if (!grainHidden) {
+                    gl.uniform1f(uTime, t * 0.001);
+                    gl.clear(gl.COLOR_BUFFER_BIT);
+                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+                }
+                requestAnimationFrame(grainLoop);
+            }
+            requestAnimationFrame(grainLoop);
+        })();
     </script>
 </body>
 </html>

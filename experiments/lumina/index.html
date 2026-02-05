@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Lumina</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow: hidden; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #000;
+            color: #fff;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-text-size-adjust: 100%;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* ═══ VIDEO ═══ */
+        .video-layer {
+            position: fixed; inset: 0; z-index: 0;
+            overflow: hidden;
+        }
+        .video-layer video {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+
+        /* ═══ OVERLAYS ═══ */
+        .dark-overlay {
+            position: fixed; inset: 0; z-index: 1;
+            background: #000; opacity: 0.45;
+            pointer-events: none;
+            transition: opacity 2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #canvas {
+            position: fixed; inset: 0; z-index: 2;
+            pointer-events: none;
+        }
+        .vignette {
+            position: fixed; inset: 0; z-index: 3;
+            background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.6) 100%);
+            pointer-events: none;
+        }
+
+        /* ═══ CHAPTERS ═══ */
+        .chapter {
+            position: fixed; inset: 0; z-index: 5;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            text-align: center;
+            padding: 0 max(24px, env(safe-area-inset-left, 24px));
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(30px) scale(0.97);
+            transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .chapter.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        .chapter.exit {
+            opacity: 0;
+            transform: translateY(-24px) scale(1.02);
+        }
+
+        .chapter-overline {
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.25);
+            margin-bottom: 20px;
+        }
+
+        .chapter-display {
+            font-size: clamp(64px, 15vw, 200px);
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            line-height: 0.88;
+            background: linear-gradient(160deg, #fff 20%, rgba(255,255,255,0.5) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .chapter-num {
+            font-size: clamp(11px, 1.2vw, 13px);
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            color: rgba(255,255,255,0.2);
+            margin-bottom: 18px;
+        }
+
+        .chapter-title {
+            font-size: clamp(44px, 9vw, 100px);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            line-height: 0.95;
+            background: linear-gradient(160deg, #fff 20%, rgba(255,255,255,0.55) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 24px;
+        }
+
+        .chapter-text {
+            font-size: clamp(14px, 1.6vw, 18px);
+            font-weight: 300;
+            line-height: 1.75;
+            color: rgba(255,255,255,0.4);
+            max-width: 440px;
+        }
+
+        .chapter-instruction {
+            margin-top: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            color: rgba(255,255,255,0.25);
+            animation: pulse-instruction 2.5s ease-in-out infinite;
+        }
+        @keyframes pulse-instruction {
+            0%, 100% { opacity: 0.25; }
+            50% { opacity: 0.55; }
+        }
+
+        .chapter-final {
+            font-size: clamp(11px, 1vw, 13px);
+            font-weight: 400;
+            color: rgba(255,255,255,0.18);
+            margin-top: 32px;
+            letter-spacing: 0.04em;
+        }
+
+        /* ═══ HUD ═══ */
+        .hud {
+            position: fixed;
+            top: max(20px, env(safe-area-inset-top, 20px));
+            right: max(20px, env(safe-area-inset-right, 20px));
+            z-index: 10;
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 18px 8px 12px;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 100px;
+            transform: translateY(-10px);
+            opacity: 0;
+            transition: opacity 0.6s, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .hud.visible { opacity: 1; transform: translateY(0); }
+
+        .lumen-icon {
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,200,80,0.9), rgba(255,200,80,0));
+        }
+        .lumen-value {
+            font-size: 15px; font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: rgba(255,255,255,0.85);
+            min-width: 18px;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .lumen-value.bump { transform: scale(1.35); }
+        .lumen-label {
+            font-size: 8px; font-weight: 600;
+            letter-spacing: 0.14em;
+            color: rgba(255,255,255,0.2);
+            text-transform: uppercase;
+        }
+
+        /* ═══ TOASTS ═══ */
+        .toast-container {
+            position: fixed;
+            top: max(70px, calc(env(safe-area-inset-top, 0px) + 64px));
+            right: max(20px, env(safe-area-inset-right, 20px));
+            z-index: 20;
+            display: flex; flex-direction: column; gap: 8px;
+            pointer-events: none;
+        }
+        .toast {
+            padding: 10px 18px;
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            transform: translateX(130%);
+            opacity: 0;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                        opacity 0.6s;
+        }
+        .toast.show { transform: translateX(0); opacity: 1; }
+        .toast-title {
+            font-size: 12px; font-weight: 700;
+            color: rgba(255,200,80,0.9);
+            letter-spacing: -0.01em;
+        }
+        .toast-desc {
+            font-size: 10px; font-weight: 400;
+            color: rgba(255,255,255,0.3);
+            margin-top: 2px;
+        }
+
+        /* ═══ PROGRESS ═══ */
+        .progress-track {
+            position: fixed;
+            bottom: env(safe-area-inset-bottom, 0);
+            left: 0; right: 0;
+            height: 2px;
+            background: rgba(255,255,255,0.03);
+            z-index: 10;
+        }
+        .progress-fill {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, rgba(255,200,80,0.4), rgba(255,80,160,0.4));
+            transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* ═══ BACK ═══ */
+        .back-btn {
+            position: fixed;
+            bottom: max(20px, env(safe-area-inset-bottom, 20px));
+            right: max(20px, env(safe-area-inset-right, 20px));
+            z-index: 100;
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.08);
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none; color: #fff;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.12); transform: scale(1.05); }
+
+        /* ═══ RESPONSIVE ═══ */
+        @media (max-width: 480px) {
+            .chapter { padding: 0 20px; }
+            .chapter-text { max-width: 320px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .chapter { transition: opacity 0.3s; }
+            .chapter-instruction { animation: none; opacity: 0.4; }
+        }
+    </style>
+</head>
+<body>
+    <div class="video-layer">
+        <video id="bgVideo" muted autoplay loop playsinline disablePictureInPicture preload="auto">
+            <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/claude-pretty-ugvuda.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <div class="dark-overlay" id="darkOverlay"></div>
+    <canvas id="canvas"></canvas>
+    <div class="vignette"></div>
+
+    <!-- ═══ STORY CHAPTERS ═══ -->
+    <div class="chapter active" id="c0">
+        <p class="chapter-overline">An interactive light experience</p>
+        <h1 class="chapter-display">Lumina</h1>
+        <p class="chapter-instruction" id="instruction">Tap the light</p>
+    </div>
+
+    <div class="chapter" id="c1">
+        <p class="chapter-num">I &mdash; Genesis</p>
+        <h2 class="chapter-title">Before<br>Light</h2>
+        <p class="chapter-text">Before light, there was only longing &mdash;<br>a universe holding its breath in perfect dark.</p>
+    </div>
+
+    <div class="chapter" id="c2">
+        <p class="chapter-num">II &mdash; Refraction</p>
+        <h2 class="chapter-title">The Longer<br>Path</h2>
+        <p class="chapter-text">The first photon didn't travel straight.<br>It wandered. It bent. It chose the longer,<br>more beautiful path.</p>
+    </div>
+
+    <div class="chapter" id="c3">
+        <p class="chapter-num">III &mdash; Chromatic</p>
+        <h2 class="chapter-title">Everything<br>At Once</h2>
+        <p class="chapter-text">Color was born the moment light learned<br>it didn't have to be one thing.<br>It could be everything &mdash; all at once.</p>
+    </div>
+
+    <div class="chapter" id="c4">
+        <p class="chapter-num">IV &mdash; Confluence</p>
+        <h2 class="chapter-title">New Light<br>Was Born</h2>
+        <p class="chapter-text">Where two frequencies met, they didn't compete.<br>They danced. And in that resonance &mdash;<br>new light was born.</p>
+    </div>
+
+    <div class="chapter" id="c5">
+        <p class="chapter-num">V &mdash; Luminous</p>
+        <h2 class="chapter-title">You Are<br>The Light</h2>
+        <p class="chapter-text">You were never searching for the light.<br>You were the light &mdash;<br>forgetting, then remembering.</p>
+    </div>
+
+    <div class="chapter" id="c6">
+        <h2 class="chapter-title" style="font-size:clamp(52px,12vw,140px)">&infin;</h2>
+        <p class="chapter-text">The void exhaled. And every photon<br>you gathered now lives in the dark<br>as a promise that it was never empty.</p>
+        <p class="chapter-final">Lumina complete</p>
+    </div>
+
+    <!-- ═══ HUD ═══ -->
+    <div class="hud" id="hud">
+        <div class="lumen-icon"></div>
+        <span class="lumen-value" id="lumenValue">0</span>
+        <span class="lumen-label">lumens</span>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <a class="back-btn" href="../../" title="Back to experiments">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    </a>
+
+    <script>
+    (function() {
+        'use strict';
+
+        /* ═══════════════════════════════════════
+           CONFIG
+           ═══════════════════════════════════════ */
+
+        var THRESHOLDS = [0, 3, 10, 22, 40, 65, 100];
+
+        var ACHIEVEMENTS = [
+            { at: 1,   title: 'First Light',   desc: 'Your first lumen' },
+            { at: 10,  title: 'Spark',          desc: '10 lumens gathered' },
+            { at: 25,  title: 'Glow',           desc: 'The void notices you' },
+            { at: 50,  title: 'Radiance',       desc: 'Shadows retreat' },
+            { at: 75,  title: 'Luminous',       desc: 'Light remembers' },
+            { at: 100, title: 'Transcendent',   desc: 'You became the light' }
+        ];
+
+        var COLORS = [
+            [255, 70, 150],   // magenta
+            [70, 130, 255],   // cobalt
+            [255, 195, 70],   // gold
+            [70, 255, 195],   // teal
+            [200, 140, 255],  // lavender
+            [255, 130, 90]    // coral
+        ];
+
+        /* ═══════════════════════════════════════
+           STATE
+           ═══════════════════════════════════════ */
+
+        var lumens = 0;
+        var activeChapter = 0;
+        var combo = 0;
+        var lastCollectTime = 0;
+        var mx = -500, my = -500;
+        var W, H;
+        var maxOrbs = 8;
+        var spawnInterval = 1600;
+        var spawnTimer = 0;
+
+        /* ═══════════════════════════════════════
+           DOM
+           ═══════════════════════════════════════ */
+
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d');
+        var darkOverlay = document.getElementById('darkOverlay');
+        var lumenValueEl = document.getElementById('lumenValue');
+        var hudEl = document.getElementById('hud');
+        var toastContainer = document.getElementById('toastContainer');
+        var progressFill = document.getElementById('progressFill');
+        var instructionEl = document.getElementById('instruction');
+        var chapters = [];
+        for (var i = 0; i <= 6; i++) chapters.push(document.getElementById('c' + i));
+
+        /* ═══════════════════════════════════════
+           CANVAS SETUP
+           ═══════════════════════════════════════ */
+
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        function resize() {
+            W = window.innerWidth;
+            H = window.innerHeight;
+            canvas.width = W * dpr;
+            canvas.height = H * dpr;
+            canvas.style.width = W + 'px';
+            canvas.style.height = H + 'px';
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        resize();
+        window.addEventListener('resize', resize, { passive: true });
+
+        /* ═══════════════════════════════════════
+           GLOW TEXTURES (pre-rendered)
+           ═══════════════════════════════════════ */
+
+        function makeGlow(r, g, b, rad) {
+            var c = document.createElement('canvas');
+            c.width = c.height = rad * 2;
+            var x = c.getContext('2d');
+            var gr = x.createRadialGradient(rad, rad, 0, rad, rad, rad);
+            gr.addColorStop(0, 'rgba(' + r + ',' + g + ',' + b + ',1)');
+            gr.addColorStop(0.2, 'rgba(' + r + ',' + g + ',' + b + ',0.5)');
+            gr.addColorStop(0.5, 'rgba(' + r + ',' + g + ',' + b + ',0.12)');
+            gr.addColorStop(1, 'rgba(' + r + ',' + g + ',' + b + ',0)');
+            x.fillStyle = gr;
+            x.fillRect(0, 0, c.width, c.height);
+            return c;
+        }
+
+        var glows = COLORS.map(function(c) { return makeGlow(c[0], c[1], c[2], 80); });
+        var cursorGlow = makeGlow(255, 255, 255, 80);
+
+        /* ═══════════════════════════════════════
+           PARTICLES
+           ═══════════════════════════════════════ */
+
+        /* — Ambient — */
+        var ambients = [];
+        for (var i = 0; i < 40; i++) {
+            ambients.push({
+                x: Math.random() * 2000,
+                y: Math.random() * 2000,
+                vx: (Math.random() - 0.5) * 0.25,
+                vy: (Math.random() - 0.5) * 0.25,
+                r: 0.8 + Math.random() * 1.8,
+                a: 0.08 + Math.random() * 0.15,
+                phase: Math.random() * 6.28
+            });
+        }
+
+        /* — Collectible Orbs — */
+        var orbs = [];
+
+        function spawnOrb() {
+            if (orbs.length >= maxOrbs) return;
+            var side = Math.floor(Math.random() * 4);
+            var o = {
+                x: 0, y: 0, vx: 0, vy: 0,
+                radius: 10 + Math.random() * 10,
+                ci: Math.floor(Math.random() * COLORS.length),
+                phase: Math.random() * 6.28,
+                alive: true,
+                collecting: false,
+                ct: 0, tx: 0, ty: 0
+            };
+            var speed = 0.25 + Math.random() * 0.45;
+            var drift = (Math.random() - 0.5) * 0.3;
+            if (side === 0)      { o.x = -40; o.y = Math.random() * H; o.vx = speed; o.vy = drift; }
+            else if (side === 1) { o.x = W + 40; o.y = Math.random() * H; o.vx = -speed; o.vy = drift; }
+            else if (side === 2) { o.x = Math.random() * W; o.y = -40; o.vx = drift; o.vy = speed; }
+            else                 { o.x = Math.random() * W; o.y = H + 40; o.vx = drift; o.vy = -speed; }
+            orbs.push(o);
+        }
+
+        for (var i = 0; i < 5; i++) spawnOrb();
+
+        /* — Burst particles — */
+        var bursts = [];
+
+        function emitBurst(x, y, ci) {
+            var n = 7 + Math.floor(Math.random() * 5);
+            for (var i = 0; i < n; i++) {
+                var angle = (6.28 / n) * i + Math.random() * 0.4;
+                var speed = 1.5 + Math.random() * 3.5;
+                bursts.push({
+                    x: x, y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    r: 1.5 + Math.random() * 3,
+                    alpha: 1, ci: ci
+                });
+            }
+        }
+
+        /* — Pulse rings — */
+        var pulses = [];
+
+        /* — Floating score texts — */
+        var floats = [];
+
+        /* ═══════════════════════════════════════
+           INPUT
+           ═══════════════════════════════════════ */
+
+        document.addEventListener('mousemove', function(e) {
+            mx = e.clientX; my = e.clientY;
+        }, { passive: true });
+
+        document.addEventListener('touchmove', function(e) {
+            if (e.touches.length) { mx = e.touches[0].clientX; my = e.touches[0].clientY; }
+        }, { passive: true });
+
+        document.addEventListener('touchstart', function(e) {
+            if (e.touches.length) {
+                mx = e.touches[0].clientX;
+                my = e.touches[0].clientY;
+                doPulse(mx, my);
+            }
+        }, { passive: true });
+
+        document.addEventListener('click', function(e) {
+            doPulse(e.clientX, e.clientY);
+        });
+
+        function doPulse(px, py) {
+            pulses.push({ x: px, y: py, radius: 0, alpha: 0.45 });
+            for (var i = 0; i < orbs.length; i++) {
+                var o = orbs[i];
+                if (o.collecting || !o.alive) continue;
+                var dx = px - o.x, dy = py - o.y;
+                if (Math.sqrt(dx * dx + dy * dy) < 110) {
+                    collectOrb(o, px, py);
+                }
+            }
+        }
+
+        function collectOrb(o, px, py) {
+            o.collecting = true;
+            o.tx = px; o.ty = py; o.ct = 0;
+
+            var now = performance.now();
+            if (now - lastCollectTime < 2500) { combo++; }
+            else { combo = 1; }
+            lastCollectTime = now;
+
+            var points = combo;
+            var ci = o.ci;
+            var ox = o;
+
+            setTimeout(function() {
+                if (!ox.alive) return;
+                emitBurst(ox.x, ox.y, ci);
+                ox.alive = false;
+                lumens += points;
+                onLumensChange();
+                floats.push({
+                    x: ox.x, y: ox.y,
+                    text: '+' + points,
+                    alpha: 1.2, vy: -0.7
+                });
+            }, 220);
+        }
+
+        /* ═══════════════════════════════════════
+           GAME STATE
+           ═══════════════════════════════════════ */
+
+        function onLumensChange() {
+            lumenValueEl.textContent = lumens;
+            lumenValueEl.classList.add('bump');
+            setTimeout(function() { lumenValueEl.classList.remove('bump'); }, 200);
+
+            if (lumens >= 1) {
+                hudEl.classList.add('visible');
+                instructionEl.style.display = 'none';
+            }
+
+            /* Dark overlay fades with collection */
+            var overlayAlpha = Math.max(0.04, 0.45 - (lumens / 100) * 0.41);
+            darkOverlay.style.opacity = overlayAlpha;
+
+            /* Difficulty scaling */
+            if (lumens >= 50)      { maxOrbs = 14; spawnInterval = 700; }
+            else if (lumens >= 25) { maxOrbs = 11; spawnInterval = 1100; }
+            else if (lumens >= 10) { maxOrbs = 9;  spawnInterval = 1400; }
+
+            updateProgress();
+            checkChapters();
+            checkAchievements();
+        }
+
+        function updateProgress() {
+            var next = activeChapter + 1;
+            if (next >= THRESHOLDS.length) { progressFill.style.width = '100%'; return; }
+            var lo = THRESHOLDS[activeChapter];
+            var hi = THRESHOLDS[next];
+            var p = Math.min((lumens - lo) / (hi - lo), 1);
+            progressFill.style.width = (p * 100) + '%';
+        }
+
+        function checkChapters() {
+            for (var i = THRESHOLDS.length - 1; i >= 0; i--) {
+                if (lumens >= THRESHOLDS[i] && i > activeChapter) {
+                    transitionTo(i);
+                    break;
+                }
+            }
+        }
+
+        function transitionTo(idx) {
+            if (idx === activeChapter) return;
+            var prev = chapters[activeChapter];
+            prev.classList.remove('active');
+            prev.classList.add('exit');
+            var captured = idx;
+            activeChapter = idx;
+            setTimeout(function() {
+                prev.classList.remove('exit');
+                chapters[captured].classList.add('active');
+                updateProgress();
+            }, 650);
+        }
+
+        function checkAchievements() {
+            for (var i = 0; i < ACHIEVEMENTS.length; i++) {
+                var a = ACHIEVEMENTS[i];
+                if (lumens >= a.at && !a.shown) {
+                    a.shown = true;
+                    showToast(a.title, a.desc);
+                }
+            }
+        }
+
+        function showToast(title, desc) {
+            var el = document.createElement('div');
+            el.className = 'toast';
+            el.innerHTML = '<div class="toast-title">' + title + '</div><div class="toast-desc">' + desc + '</div>';
+            toastContainer.appendChild(el);
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() { el.classList.add('show'); });
+            });
+            setTimeout(function() {
+                el.classList.remove('show');
+                setTimeout(function() { el.remove(); }, 600);
+            }, 3500);
+        }
+
+        /* ═══════════════════════════════════════
+           RENDER LOOP
+           ═══════════════════════════════════════ */
+
+        var lastTime = performance.now();
+
+        function frame(now) {
+            var dt = Math.min(now - lastTime, 50);
+            lastTime = now;
+
+            ctx.clearRect(0, 0, W, H);
+
+            /* — Spawn orbs — */
+            spawnTimer += dt;
+            if (spawnTimer > spawnInterval) { spawnOrb(); spawnTimer = 0; }
+
+            /* — Cursor glow — */
+            ctx.globalCompositeOperation = 'lighter';
+            if (mx > 0 && my > 0) {
+                var gs = 35 + lumens * 0.15;
+                ctx.globalAlpha = 0.08 + Math.min(lumens * 0.001, 0.07);
+                ctx.drawImage(cursorGlow, mx - gs, my - gs, gs * 2, gs * 2);
+                ctx.globalAlpha = 1;
+            }
+
+            /* — Ambient particles — */
+            for (var i = 0; i < ambients.length; i++) {
+                var a = ambients[i];
+                a.x += a.vx; a.y += a.vy;
+                a.phase += 0.008;
+                if (a.x < -10) a.x = W + 10;
+                if (a.x > W + 10) a.x = -10;
+                if (a.y < -10) a.y = H + 10;
+                if (a.y > H + 10) a.y = -10;
+                ctx.globalAlpha = a.a * (0.6 + 0.4 * Math.sin(a.phase));
+                ctx.beginPath();
+                ctx.arc(a.x, a.y, a.r, 0, 6.28);
+                ctx.fillStyle = '#fff';
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+
+            /* — Collectible orbs — */
+            for (var i = orbs.length - 1; i >= 0; i--) {
+                var o = orbs[i];
+                if (!o.alive) { orbs.splice(i, 1); continue; }
+
+                if (o.collecting) {
+                    o.x += (o.tx - o.x) * 0.14;
+                    o.y += (o.ty - o.y) * 0.14;
+                    o.ct += dt;
+                } else {
+                    /* Cursor attraction */
+                    var dx = mx - o.x, dy = my - o.y;
+                    var dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 220 && dist > 1) {
+                        var force = 60 / (dist * dist) * 0.45;
+                        o.vx += (dx / dist) * force;
+                        o.vy += (dy / dist) * force;
+                    }
+                    o.vx *= 0.985; o.vy *= 0.985;
+                    o.x += o.vx; o.y += o.vy;
+
+                    if (o.x < -70) o.x = W + 70;
+                    if (o.x > W + 70) o.x = -70;
+                    if (o.y < -70) o.y = H + 70;
+                    if (o.y > H + 70) o.y = -70;
+                }
+
+                var pulse = 1 + 0.18 * Math.sin(now * 0.003 + o.phase);
+                var dr = o.radius * pulse;
+                var tex = glows[o.ci];
+                ctx.globalAlpha = o.collecting ? Math.max(0, 1 - o.ct / 220) : 0.85;
+                ctx.drawImage(tex, o.x - dr * 2.5, o.y - dr * 2.5, dr * 5, dr * 5);
+                /* Core dot */
+                ctx.globalAlpha = (o.collecting ? Math.max(0, 1 - o.ct / 180) : 1) * 0.9;
+                ctx.beginPath();
+                ctx.arc(o.x, o.y, dr * 0.35, 0, 6.28);
+                ctx.fillStyle = 'rgba(' + COLORS[o.ci][0] + ',' + COLORS[o.ci][1] + ',' + COLORS[o.ci][2] + ',1)';
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+
+            /* — Burst particles — */
+            for (var i = bursts.length - 1; i >= 0; i--) {
+                var b = bursts[i];
+                b.x += b.vx; b.y += b.vy;
+                b.vx *= 0.955; b.vy *= 0.955;
+                b.alpha -= 0.018;
+                if (b.alpha <= 0) { bursts.splice(i, 1); continue; }
+                ctx.globalAlpha = b.alpha;
+                var tex = glows[b.ci];
+                ctx.drawImage(tex, b.x - b.r * 2.5, b.y - b.r * 2.5, b.r * 5, b.r * 5);
+            }
+            ctx.globalAlpha = 1;
+
+            /* — Pulse rings — */
+            for (var i = pulses.length - 1; i >= 0; i--) {
+                var p = pulses[i];
+                p.radius += 2.5;
+                p.alpha -= 0.008;
+                if (p.alpha <= 0) { pulses.splice(i, 1); continue; }
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, 6.28);
+                ctx.strokeStyle = 'rgba(255,255,255,' + p.alpha + ')';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                ctx.globalCompositeOperation = 'lighter';
+            }
+
+            /* — Floating score texts — */
+            ctx.globalCompositeOperation = 'source-over';
+            for (var i = floats.length - 1; i >= 0; i--) {
+                var f = floats[i];
+                f.y += f.vy;
+                f.alpha -= 0.012;
+                if (f.alpha <= 0) { floats.splice(i, 1); continue; }
+                ctx.globalAlpha = Math.min(f.alpha, 1);
+                ctx.font = '700 15px Inter, sans-serif';
+                ctx.fillStyle = '#fff';
+                ctx.textAlign = 'center';
+                ctx.fillText(f.text, f.x, f.y);
+            }
+
+            /* — Combo indicator — */
+            if (combo > 1 && now - lastCollectTime < 2500) {
+                var ca = Math.min(1, (2500 - (now - lastCollectTime)) / 800);
+                ctx.globalAlpha = ca * 0.75;
+                ctx.font = '800 13px Inter, sans-serif';
+                ctx.fillStyle = 'rgba(255,200,80,1)';
+                ctx.textAlign = 'center';
+                ctx.fillText('\u00d7' + combo, mx + 22, my - 22);
+
+                /* Combo ring */
+                var ringProgress = 1 - (now - lastCollectTime) / 2500;
+                ctx.globalAlpha = ca * 0.25;
+                ctx.beginPath();
+                ctx.arc(mx, my, 20, -1.57, -1.57 + ringProgress * 6.28);
+                ctx.strokeStyle = 'rgba(255,200,80,1)';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            }
+
+            ctx.globalAlpha = 1;
+            ctx.globalCompositeOperation = 'source-over';
+
+            requestAnimationFrame(frame);
+        }
+
+        /* ═══════════════════════════════════════
+           INIT
+           ═══════════════════════════════════════ */
+
+        chapters[0].classList.add('active');
+        requestAnimationFrame(frame);
+
+    })();
+    </script>
+</body>
+</html>

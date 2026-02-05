@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mesh Flow</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        /* ═══════════════════════════════════════
+           VIDEO LAYER
+           ═══════════════════════════════════════ */
+        .video-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+        .video-layer video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* ═══════════════════════════════════════
+           MESH GRADIENT OVERLAY
+           ═══════════════════════════════════════ */
+        .mesh-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            mix-blend-mode: screen;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            will-change: transform;
+        }
+
+        .blob-1 {
+            width: 60vmax;
+            height: 60vmax;
+            top: -15%;
+            left: -10%;
+            background: radial-gradient(circle at center, rgba(255, 50, 120, 0.55) 0%, transparent 70%);
+            filter: blur(60px);
+        }
+        .blob-2 {
+            width: 50vmax;
+            height: 50vmax;
+            top: 20%;
+            right: -15%;
+            background: radial-gradient(circle at center, rgba(50, 120, 255, 0.50) 0%, transparent 70%);
+            filter: blur(70px);
+        }
+        .blob-3 {
+            width: 55vmax;
+            height: 55vmax;
+            bottom: -10%;
+            left: 15%;
+            background: radial-gradient(circle at center, rgba(50, 255, 160, 0.45) 0%, transparent 70%);
+            filter: blur(65px);
+        }
+        .blob-4 {
+            width: 45vmax;
+            height: 45vmax;
+            top: 50%;
+            left: -20%;
+            background: radial-gradient(circle at center, rgba(180, 80, 255, 0.50) 0%, transparent 70%);
+            filter: blur(55px);
+        }
+        .blob-5 {
+            width: 40vmax;
+            height: 40vmax;
+            bottom: 10%;
+            right: -5%;
+            background: radial-gradient(circle at center, rgba(255, 200, 50, 0.45) 0%, transparent 70%);
+            filter: blur(60px);
+        }
+
+        /* ═══════════════════════════════════════
+           VIGNETTE
+           ═══════════════════════════════════════ */
+        .vignette {
+            position: fixed;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+            background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.5) 100%);
+        }
+
+        /* ═══════════════════════════════════════
+           CONTENT SECTIONS
+           ═══════════════════════════════════════ */
+        .scroll-container {
+            position: relative;
+            z-index: 3;
+        }
+
+        .section {
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px max(24px, env(safe-area-inset-left, 24px));
+        }
+
+        .section-content {
+            text-align: center;
+            max-width: 680px;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .section-content.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-overline {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: clamp(36px, 7vw, 80px);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            line-height: 1.0;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-body {
+            font-size: clamp(14px, 1.5vw, 17px);
+            font-weight: 300;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.5);
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        /* ═══════════════════════════════════════
+           DOT NAV
+           ═══════════════════════════════════════ */
+        .dot-nav {
+            position: fixed;
+            right: max(20px, env(safe-area-inset-right, 20px));
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            transition: background 0.4s, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .dot.active {
+            background: rgba(255,255,255,0.8);
+            transform: scale(1.3);
+        }
+
+        /* ═══════════════════════════════════════
+           BACK BUTTON
+           ═══════════════════════════════════════ */
+        .back-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 100;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #fff;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .back-btn:hover {
+            background: rgba(255,255,255,0.15);
+            transform: scale(1.05);
+        }
+
+        /* ═══════════════════════════════════════
+           RESPONSIVE + REDUCED MOTION
+           ═══════════════════════════════════════ */
+        @media (prefers-reduced-motion: reduce) {
+            .blob { will-change: auto; filter: blur(60px); }
+            .section-content { opacity: 1; transform: none; transition: none; }
+        }
+
+        @media (max-width: 480px) {
+            .dot-nav { right: 12px; gap: 10px; }
+            .dot { width: 6px; height: 6px; }
+            .section { padding-left: 16px; padding-right: 16px; }
+        }
+
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .back-btn { bottom: max(24px, env(safe-area-inset-bottom)); }
+        }
+    </style>
+</head>
+<body>
+    <div class="video-layer">
+        <video muted autoplay loop playsinline disablePictureInPicture preload="auto">
+            <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jhojeh.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <div class="mesh-layer" id="meshLayer">
+        <div class="blob blob-1" id="b1"></div>
+        <div class="blob blob-2" id="b2"></div>
+        <div class="blob blob-3" id="b3"></div>
+        <div class="blob blob-4" id="b4"></div>
+        <div class="blob blob-5" id="b5"></div>
+    </div>
+
+    <div class="vignette"></div>
+
+    <nav class="dot-nav" id="dotNav">
+        <button class="dot active" data-i="0"></button>
+        <button class="dot" data-i="1"></button>
+        <button class="dot" data-i="2"></button>
+        <button class="dot" data-i="3"></button>
+        <button class="dot" data-i="4"></button>
+    </nav>
+
+    <a class="back-btn" href="../../" title="Back to experiments">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    </a>
+
+    <div class="scroll-container">
+        <section class="section">
+            <div class="section-content" data-s="0">
+                <p class="section-overline">Mesh Flow</p>
+                <h2 class="section-title">Living<br>Gradients</h2>
+                <p class="section-body">Organic gradient blobs drift and blend over cinematic footage — a canvas of light and color in perpetual motion.</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-content" data-s="1">
+                <p class="section-overline">Layer 01</p>
+                <h2 class="section-title">Chromatic<br>Bloom</h2>
+                <p class="section-body">Five independent gradient fields blur and overlap, creating emergent color harmonies that shift with every scroll position.</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-content" data-s="2">
+                <p class="section-overline">Layer 02</p>
+                <h2 class="section-title">Depth<br>Through Light</h2>
+                <p class="section-body">Screen blending lifts shadow detail while gradient glow adds volumetric dimension to the underlying footage.</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-content" data-s="3">
+                <p class="section-overline">Layer 03</p>
+                <h2 class="section-title">Parallax<br>Drift</h2>
+                <p class="section-body">Each blob responds to scroll at its own pace — a layered parallax field that builds spatial depth and organic motion.</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-content" data-s="4">
+                <p class="section-overline">Mesh Flow</p>
+                <h2 class="section-title">60fps.<br>Always.</h2>
+                <p class="section-body">Compositor-only transforms. No layout thrash, no paint storms. Every frame rendered on the GPU at native refresh rate.</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        /* ═══ 1. SCROLL-DRIVEN BLOB PARALLAX + AMBIENT DRIFT ═══
+           Continuous rAF loop drives ambient sine-wave motion.
+           Scroll position is read from a variable updated by the
+           passive scroll listener — no layout reads in the loop. */
+
+        var blobs = [
+            { el: document.getElementById('b1'), scrollRate: 0.08, driftX: 30, driftY: 20, phase: 0, freq: 0.0004 },
+            { el: document.getElementById('b2'), scrollRate: -0.06, driftX: -25, driftY: 25, phase: 1.2, freq: 0.00035 },
+            { el: document.getElementById('b3'), scrollRate: 0.10, driftX: 20, driftY: -30, phase: 2.4, freq: 0.00045 },
+            { el: document.getElementById('b4'), scrollRate: -0.04, driftX: -35, driftY: 15, phase: 3.6, freq: 0.0003 },
+            { el: document.getElementById('b5'), scrollRate: 0.07, driftX: 25, driftY: -20, phase: 4.8, freq: 0.0005 }
+        ];
+
+        var currentScrollY = 0;
+        var startTime = performance.now();
+
+        window.addEventListener('scroll', function() {
+            currentScrollY = window.scrollY;
+        }, { passive: true });
+
+        function animate() {
+            var now = performance.now();
+            var t = now - startTime;
+
+            for (var i = 0; i < blobs.length; i++) {
+                var b = blobs[i];
+                var scrollOffset = currentScrollY * b.scrollRate;
+                var dx = Math.sin(t * b.freq + b.phase) * b.driftX;
+                var dy = Math.cos(t * b.freq * 0.7 + b.phase) * b.driftY;
+                b.el.style.transform = 'translate3d(' + dx + 'px,' + (scrollOffset + dy) + 'px,0)';
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        requestAnimationFrame(animate);
+
+        /* ═══ 2. SECTION REVEAL + DOT NAV ═══ */
+
+        var dots = document.querySelectorAll('.dot');
+        var sections = document.querySelectorAll('.section-content');
+        var activeDot = 0;
+
+        var sectionObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    var idx = parseInt(e.target.dataset.s);
+                    if (idx !== activeDot) {
+                        dots[activeDot].classList.remove('active');
+                        dots[idx].classList.add('active');
+                        activeDot = idx;
+                    }
+                }
+            });
+        }, { threshold: 0.35 });
+
+        sections.forEach(function(s) { sectionObserver.observe(s); });
+
+        dots.forEach(function(d) {
+            d.addEventListener('click', function() {
+                var idx = parseInt(d.dataset.i);
+                document.querySelectorAll('.section')[idx].scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        /* First section visible immediately */
+        setTimeout(function() {
+            sections[0].classList.add('visible');
+        }, 300);
+    </script>
+</body>
+</html>
