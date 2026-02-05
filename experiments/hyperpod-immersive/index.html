@@ -19,7 +19,7 @@
             --fg-faint: rgba(255,255,255,0.15);
             --accent: rgba(120,160,255,0.7);
             --accent-glow: rgba(120,160,255,0.15);
-            --overlay: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.6) 100%);
+            --overlay: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.45) 40%, rgba(0,0,0,0.75) 100%);
             --grain-opacity: 0.035;
             --card-bg: rgba(255,255,255,0.03);
             --card-border: rgba(255,255,255,0.06);
@@ -39,7 +39,7 @@
             --fg-faint: rgba(29,29,31,0.15);
             --accent: rgba(60,100,220,0.8);
             --accent-glow: rgba(60,100,220,0.1);
-            --overlay: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0.55) 100%);
+            --overlay: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.4) 40%, rgba(255,255,255,0.65) 100%);
             --grain-opacity: 0.02;
             --card-bg: rgba(0,0,0,0.02);
             --card-border: rgba(0,0,0,0.06);
@@ -146,7 +146,9 @@
             font-weight: 800;
             letter-spacing: -0.05em;
             line-height: 0.88;
+            text-shadow: 0 2px 40px rgba(0,0,0,0.5);
         }
+        [data-theme="light"] .hero h1 { text-shadow: 0 2px 40px rgba(255,255,255,0.5); }
         .hero h1 .thin {
             font-weight: 200;
             display: block;
@@ -211,7 +213,9 @@
             letter-spacing: -0.03em;
             line-height: 1.1;
             margin-bottom: 14px;
+            text-shadow: 0 2px 30px rgba(0,0,0,0.4);
         }
+        [data-theme="light"] .strip-text h2 { text-shadow: 0 2px 30px rgba(255,255,255,0.4); }
         .strip-text p {
             font-size: 16px; font-weight: 400; line-height: 1.7;
             color: var(--fg-muted);
@@ -269,7 +273,9 @@
             font-weight: 800;
             letter-spacing: -0.04em;
             line-height: 1;
+            text-shadow: 0 2px 40px rgba(0,0,0,0.5);
         }
+        [data-theme="light"] .closer h2 { text-shadow: 0 2px 40px rgba(255,255,255,0.5); }
         .closer p {
             font-size: 17px; color: var(--fg-dim); margin-top: 20px;
             font-weight: 400;
