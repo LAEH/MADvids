@@ -22,29 +22,7 @@
             -webkit-text-size-adjust: 100%;
         }
 
-        /* ═══════════════════════════════════════
-           BRAND
-           ═══════════════════════════════════════ */
-        .brand {
-            position: fixed;
-            top: max(20px, env(safe-area-inset-top, 20px));
-            left: max(24px, env(safe-area-inset-left, 24px));
-            z-index: 100;
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            color: rgba(26,26,46,0.35);
-            padding: 8px 16px;
-            background: rgba(255,255,255,0.5);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid rgba(255,255,255,0.7);
-            border-radius: 100px;
-            opacity: 0;
-            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1.8s forwards;
-        }
-
-        /* ═══════════════════════════════════════
+/* ═══════════════════════════════════════
            HERO
            ═══════════════════════════════════════ */
         .hero {
@@ -370,17 +348,76 @@
             .letter.revealed { transition: none; }
             .subtitle { opacity: 1; transform: none; }
             .subtitle.revealed { transition: none; }
-            .brand { opacity: 1; animation: none; }
             .card { opacity: 1; transform: none; }
             .card.visible { transition: none; }
             .card-preview::before { animation: none; }
             .scroll-cue svg { animation: none; }
             .hero { will-change: auto; }
+            .splash { display: none; }
+        }
+
+        /* ═══════════════════════════════════════
+           SPLASH / LOADING SCREEN
+           ═══════════════════════════════════════ */
+        body.loading { overflow: hidden; }
+
+        .splash {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 32px;
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .splash.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .splash-title {
+            font-size: clamp(32px, 8vw, 56px);
+            font-weight: 900;
+            letter-spacing: -0.045em;
+            color: #1a1a2e;
+            text-transform: uppercase;
+            opacity: 0;
+            transform: translateY(12px);
+            animation: splashIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+        }
+
+        .splash-bar-track {
+            width: min(240px, 60vw);
+            height: 3px;
+            border-radius: 3px;
+            background: rgba(26,26,46,0.06);
+            overflow: hidden;
+            opacity: 0;
+            animation: splashIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+        }
+        .splash-bar {
+            height: 100%;
+            width: 0%;
+            border-radius: 3px;
+            background: rgba(26,26,46,0.25);
+            transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes splashIn {
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body>
-    <div class="brand">MADvids</div>
+<body class="loading">
+    <div class="splash" id="splash">
+        <div class="splash-title"><span style="font-weight:900">MAD</span><span style="font-weight:300">vids</span></div>
+        <div class="splash-bar-track">
+            <div class="splash-bar" id="splashBar"></div>
+        </div>
+    </div>
 
     <section class="hero" id="hero">
         <div class="title-container">
@@ -412,7 +449,7 @@
         <div class="grid">
             <a class="card" href="experiments/hyperpod-cinematic/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="metadata">
+                    <video muted loop playsinline disablePictureInPicture preload="auto">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-dgfdf.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -428,7 +465,7 @@
 
             <a class="card" href="experiments/hyperpod-showcase/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="metadata">
+                    <video muted loop playsinline disablePictureInPicture preload="auto">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jhojeh.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -444,7 +481,7 @@
 
             <a class="card" href="experiments/hyperpod-grid/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="metadata">
+                    <video muted loop playsinline disablePictureInPicture preload="auto">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-kjhxsa.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -460,7 +497,7 @@
 
             <a class="card" href="experiments/hyperpod-immersive/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="metadata">
+                    <video muted loop playsinline disablePictureInPicture preload="auto">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jfdgyie.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -476,7 +513,7 @@
 
             <a class="card" href="experiments/delightfull-video/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="metadata">
+                    <video muted loop playsinline disablePictureInPicture preload="auto">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/Video_Generation_With_Specific_Colors%20copy.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -492,7 +529,7 @@
 
             <a class="card" href="experiments/chromatic-shift/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="metadata">
+                    <video muted loop playsinline disablePictureInPicture preload="auto">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-kjhxsa.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -508,7 +545,7 @@
 
             <a class="card" href="experiments/mesh-flow/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="metadata">
+                    <video muted loop playsinline disablePictureInPicture preload="auto">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jhojeh.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -524,7 +561,7 @@
 
             <a class="card" href="experiments/lumina/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="metadata">
+                    <video muted loop playsinline disablePictureInPicture preload="auto">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/claude-pretty-ugvuda.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -556,15 +593,96 @@
     </section>
 
     <script>
+        /* ═══ 0. SPLASH / LOADING SCREEN ═══
+           Waits for fonts + hero video + first card videos.
+           Max timeout 6s so it never hangs forever. */
+
+        var splash = document.getElementById('splash');
+        var splashBar = document.getElementById('splashBar');
+        var splashDismissed = false;
+
+        /* Track loading milestones */
+        var loadState = { fonts: false, heroVideo: false, cardVideos: 0 };
+        var cardVideos = document.querySelectorAll('.card-preview video');
+        var targetCards = Math.min(cardVideos.length, 4); /* first 4 cards */
+
+        function updateProgress() {
+            var total = 2 + targetCards; /* fonts + hero + N cards */
+            var done = (loadState.fonts ? 1 : 0)
+                     + (loadState.heroVideo ? 1 : 0)
+                     + Math.min(loadState.cardVideos, targetCards);
+            var pct = Math.round((done / total) * 100);
+            splashBar.style.width = pct + '%';
+            if (done >= total) dismissSplash();
+        }
+
+        function dismissSplash() {
+            if (splashDismissed) return;
+            splashDismissed = true;
+            splashBar.style.width = '100%';
+            setTimeout(function() {
+                splash.classList.add('hidden');
+                document.body.classList.remove('loading');
+                startHeroAnimation();
+                splash.addEventListener('transitionend', function() {
+                    splash.remove();
+                }, { once: true });
+            }, 200);
+        }
+
+        /* Fonts */
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(function() {
+                loadState.fonts = true;
+                updateProgress();
+            });
+        } else {
+            loadState.fonts = true;
+        }
+
+        /* Hero video */
+        var heroVid = document.querySelector('.title-video');
+        if (heroVid) {
+            if (heroVid.readyState >= 3) {
+                loadState.heroVideo = true;
+            } else {
+                heroVid.addEventListener('canplaythrough', function() {
+                    loadState.heroVideo = true;
+                    updateProgress();
+                }, { once: true });
+            }
+        } else {
+            loadState.heroVideo = true;
+        }
+
+        /* Card videos — listen for enough data on first N */
+        cardVideos.forEach(function(v, i) {
+            if (i >= targetCards) return;
+            if (v.readyState >= 2) {
+                loadState.cardVideos++;
+            } else {
+                v.addEventListener('loadeddata', function() {
+                    loadState.cardVideos++;
+                    updateProgress();
+                }, { once: true });
+            }
+        });
+
+        /* Initial check (some may already be loaded) */
+        updateProgress();
+
+        /* Max timeout — never wait more than 6s */
+        setTimeout(dismissSplash, 6000);
+
         /* ═══ 1. LETTER-BY-LETTER REVEAL ═══
            Split title lines into individual <span> letters.
            Each letter transitions in with a staggered delay.
            Uses class-toggle transitions (not CSS animation) so
-           will-change can be cleaned up after reveal completes. */
+           will-change can be cleaned up after reveal completes.
+           Triggered AFTER splash dismisses. */
 
         var lines = document.querySelectorAll('#heroTitle .line');
         var allLetters = [];
-        var globalIndex = 0;
 
         lines.forEach(function(line, lineIdx) {
             var text = line.textContent;
@@ -580,8 +698,7 @@
             }
         });
 
-        /* Trigger reveals after a short initial delay */
-        requestAnimationFrame(function() {
+        function startHeroAnimation() {
             allLetters.forEach(function(span) {
                 var delay = parseInt(span.dataset.delay);
                 setTimeout(function() {
@@ -589,13 +706,11 @@
                 }, delay);
             });
 
-            /* Subtitle reveal after title letters are mostly in */
             var subtitleDelay = 200 + (allLetters.length * 28) + 120 + 200;
             setTimeout(function() {
                 document.getElementById('heroSubtitle').classList.add('revealed');
             }, subtitleDelay);
 
-            /* Scroll cue after subtitle */
             setTimeout(function() {
                 document.getElementById('scrollCue').classList.add('visible');
             }, subtitleDelay + 600);
@@ -604,7 +719,7 @@
             setTimeout(function() {
                 allLetters.forEach(function(s) { s.style.willChange = 'auto'; });
             }, subtitleDelay + 1200);
-        });
+        }
 
         /* ═══ 2. HERO PARALLAX ON SCROLL ═══
            Compositor-only: transform + opacity via translate3d.
