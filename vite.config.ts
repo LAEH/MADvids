@@ -14,6 +14,7 @@ export default defineConfig({
         hyperpodCinematic: resolve(__dirname, 'experiments/hyperpod-cinematic/index.html'),
         hyperpodShowcase: resolve(__dirname, 'experiments/hyperpod-showcase/index.html'),
         hyperpodGrid: resolve(__dirname, 'experiments/hyperpod-grid/index.html'),
+        hyperpodImmersive: resolve(__dirname, 'experiments/hyperpod-immersive/index.html'),
       },
     },
   },
