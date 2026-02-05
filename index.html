@@ -624,6 +624,7 @@
                 splash.classList.add('hidden');
                 document.body.classList.remove('loading');
                 startHeroAnimation();
+                initFarObserver();
                 splash.addEventListener('transitionend', function() {
                     splash.remove();
                 }, { once: true });
@@ -775,24 +776,33 @@
            Only decode videos in/near the viewport.
            Play on intersect, pause when out. */
 
+        var videosInView = new Set();
+
         var videoObserver = new IntersectionObserver(function(entries) {
             entries.forEach(function(e) {
                 var v = e.target;
                 if (e.isIntersecting) {
-                    v.play().then(function() {
-                        v.classList.add('playing');
-                        v.closest('.card-preview').classList.add('loaded');
-                    }).catch(function() {});
+                    videosInView.add(v);
+                    tryPlay(v);
                 } else {
+                    videosInView.delete(v);
                     v.pause();
                     v.classList.remove('playing');
                 }
             });
         }, { rootMargin: '120px' });
 
+        function tryPlay(v) {
+            v.play().then(function() {
+                v.classList.add('playing');
+                v.closest('.card-preview').classList.add('loaded');
+            }).catch(function() {});
+        }
+
         document.querySelectorAll('.card-preview video').forEach(function(v) {
             v.addEventListener('loadeddata', function() {
                 v.closest('.card-preview').classList.add('loaded');
+                if (videosInView.has(v)) tryPlay(v);
             }, { once: true });
             videoObserver.observe(v);
         });
@@ -815,29 +825,32 @@
 
         /* ═══ 6. VIDEO MEMORY MANAGEMENT ═══
            Far-observer releases video decoders when cards are
-           well outside the viewport, restores src when approaching. */
+           well outside the viewport, restores src when approaching.
+           Deferred until after splash so preload="auto" isn't killed. */
 
-        var farObserver = new IntersectionObserver(function(entries) {
-            entries.forEach(function(e) {
-                var v = e.target.querySelector('video');
-                if (!v) return;
-                if (!e.isIntersecting) {
-                    v.pause();
-                    v.removeAttribute('src');
-                    v.load();
-                    v.classList.remove('playing');
-                } else if (!v.getAttribute('src')) {
-                    var source = v.querySelector('source');
-                    if (source) {
-                        v.src = source.getAttribute('src');
+        function initFarObserver() {
+            var farObserver = new IntersectionObserver(function(entries) {
+                entries.forEach(function(e) {
+                    var v = e.target.querySelector('video');
+                    if (!v) return;
+                    if (!e.isIntersecting) {
+                        v.pause();
+                        v.removeAttribute('src');
+                        v.load();
+                        v.classList.remove('playing');
+                    } else if (!v.getAttribute('src')) {
+                        var source = v.querySelector('source');
+                        if (source) {
+                            v.src = source.getAttribute('src');
+                        }
                     }
-                }
-            });
-        }, { rootMargin: '600px' });
+                });
+            }, { rootMargin: '600px' });
 
-        document.querySelectorAll('.card-preview').forEach(function(cp) {
-            farObserver.observe(cp);
-        });
+            document.querySelectorAll('.card-preview').forEach(function(cp) {
+                farObserver.observe(cp);
+            });
+        }
 
         /* ═══ 7. SERVICE WORKER ═══ */
         if ('serviceWorker' in navigator) {
