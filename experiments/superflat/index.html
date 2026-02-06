@@ -61,8 +61,46 @@
             overflow: hidden;
         }
         .video-wrap video {
+            position: absolute; inset: 0;
             width: 100%; height: 100%;
             object-fit: cover;
+            transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #bgVideo2 { opacity: 0; }
+
+        /* ═══ ACT DIVIDER ═══ */
+        .act-break {
+            position: relative;
+            min-height: 60dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .act-break-inner {
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .act-break-inner.visible {
+            opacity: 1; transform: scale(1);
+        }
+        .act-break-inner.exit {
+            opacity: 0; transform: scale(1.05);
+            transition: opacity 0.5s, transform 0.5s;
+        }
+        .act-line {
+            width: 40px; height: 1px;
+            background: rgba(255,255,255,0.15);
+            margin: 0 auto 20px;
+        }
+        .act-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.2);
         }
 
         /* ═══ SCROLL SPACE ═══ */
@@ -262,6 +300,9 @@
         <video id="bgVideo" muted loop playsinline disablePictureInPicture preload="auto">
             <source src="https://storage.googleapis.com/myproject-public-assets/art/MADvids/Surreal_Murakami_Dreamscape_Video_Generation.mp4" type="video/mp4">
         </video>
+        <video id="bgVideo2" muted loop playsinline disablePictureInPicture preload="auto">
+            <source src="https://storage.googleapis.com/myproject-public-assets/art/MADvids/Neo_Pop_Dreamscape_Drone_Journey.mp4" type="video/mp4">
+        </video>
     </div>
 
     <div class="progress-track">
@@ -362,17 +403,80 @@
             </div>
         </section>
 
-        <!-- 10 — OUTRO -->
+        <!-- ═══ ACT BREAK ═══ -->
+        <section class="act-break" data-act="break">
+            <div class="act-break-inner" data-s="act">
+                <div class="act-line"></div>
+                <p class="act-label">Act II &mdash; Neo Pop Dreamscape</p>
+            </div>
+        </section>
+
+        <!-- 10 -->
         <section class="s">
             <div class="s-inner" data-s="10">
+                <p class="s-overline mint">New Frequency</p>
+                <h2 class="s-display">The drone<br><span class="t-mint">lifted off</span></h2>
+                <p class="s-body">And suddenly you're not walking through the dream. You're floating above it. The flowers are still smiling. But now they're the size of city blocks.</p>
+            </div>
+        </section>
+
+        <!-- 11 -->
+        <section class="s">
+            <div class="s-inner" data-s="11">
+                <p class="s-overline coral">Altitude: Silly</p>
+                <h2 class="s-display"><span class="t-coral">Clouds</span><br>shaped like<br>kanji.</h2>
+                <p class="s-body">The one on the left says "joy." The one on the right says "snack time." Both are equally sacred.</p>
+            </div>
+        </section>
+
+        <!-- 12 -->
+        <section class="s">
+            <div class="s-inner" data-s="12">
+                <p class="s-overline violet">Geography</p>
+                <h2 class="s-display">Rivers of<br><span class="t-violet">liquid</span><br><span class="t-violet">candy.</span></h2>
+                <p class="s-body">Winding through pop-art mountains that look suspiciously like soft-serve ice cream. Nobody questions it. Questioning would ruin the flavor.</p>
+            </div>
+        </section>
+
+        <!-- 13 -->
+        <section class="s">
+            <div class="s-inner" data-s="13">
+                <p class="s-overline blue">Memo from the Sky</p>
+                <h2 class="s-display">Every color<br><span class="t-blue">showed up</span><br>uninvited.</h2>
+                <p class="s-body">And the party got better for it. Neon tangerine next to electric lavender next to screaming chartreuse. No dress code. No regrets.</p>
+            </div>
+        </section>
+
+        <!-- 14 -->
+        <section class="s">
+            <div class="s-inner" data-s="14">
+                <p class="s-overline gold">Urban Legend</p>
+                <h2 class="s-display"><span class="t-gradient-3">Giant koi</span><br>swim through<br>the streets.</h2>
+                <p class="s-body">They've been doing this since before the buildings existed. The buildings were built around their route. The city planners were fans.</p>
+            </div>
+        </section>
+
+        <!-- 15 -->
+        <section class="s">
+            <div class="s-inner" data-s="15">
+                <p class="s-overline pink">Field Report</p>
+                <h2 class="s-display">The horizon<br>is a<br><span class="t-pink">gradient.</span></h2>
+                <p class="s-body">It goes from "absolutely not a real color" to "definitely illegal in most color spaces." Nobody called the authorities. They were too busy staring.</p>
+            </div>
+        </section>
+
+        <!-- 16 — OUTRO -->
+        <section class="s">
+            <div class="s-inner" data-s="16">
                 <h2 class="s-display"><span class="t-gradient-2">Still<br>dreaming.</span></h2>
-                <p class="s-body">You can scroll back up. The flowers won't judge. They'll just keep smiling.</p>
+                <p class="s-body">You can scroll back up. The flowers won't judge. The koi will wave. The clouds will still say "snack time."</p>
                 <div class="pill-row">
                     <span class="pill">superflat</span>
                     <span class="pill">murakami</span>
                     <span class="pill">AI-generated</span>
                     <span class="pill">maximalist</span>
                     <span class="pill">scroll-driven</span>
+                    <span class="pill">neo pop</span>
                 </div>
                 <p class="outro-small">MADvids</p>
             </div>
@@ -382,21 +486,33 @@
     <script>
         /* ═══ LOADER ═══ */
         var video = document.getElementById('bgVideo');
+        var video2 = document.getElementById('bgVideo2');
         var loader = document.getElementById('loader');
         var launched = false;
+        var ready1 = false, ready2 = false;
+
+        function checkLaunch() {
+            if (ready1 && ready2) launch();
+        }
 
         function launch() {
             if (launched) return;
             launched = true;
             video.play();
+            video2.play();
             loader.classList.add('done');
             document.body.style.overflow = '';
             setTimeout(function() { loader.remove(); }, 600);
         }
         document.body.style.overflow = 'hidden';
-        if (video.readyState >= 3) launch();
-        else video.addEventListener('canplaythrough', launch, { once: true });
-        setTimeout(launch, 5000);
+
+        if (video.readyState >= 3) { ready1 = true; checkLaunch(); }
+        else video.addEventListener('canplaythrough', function() { ready1 = true; checkLaunch(); }, { once: true });
+
+        if (video2.readyState >= 3) { ready2 = true; checkLaunch(); }
+        else video2.addEventListener('canplaythrough', function() { ready2 = true; checkLaunch(); }, { once: true });
+
+        setTimeout(launch, 6000);
 
         /* ═══ SCROLL PROGRESS ═══ */
         var progressFill = document.getElementById('progressFill');
@@ -409,12 +525,36 @@
             cachedTotal = scrollSpace.offsetHeight - cachedVH;
         }, { passive: true });
 
+        /* ═══ ACT BREAK — scroll-driven video crossfade ═══ */
+        var actBreak = document.querySelector('[data-act="break"]');
+        var crossfaded = false;
+
+        function updateScroll() {
+            var p = Math.min(Math.max(window.scrollY / cachedTotal, 0), 1);
+            progressFill.style.width = (p * 100) + '%';
+
+            /* Crossfade around act break position */
+            if (actBreak) {
+                var breakTop = actBreak.offsetTop;
+                var fadeStart = breakTop - cachedVH * 1.2;
+                var fadeEnd = breakTop - cachedVH * 0.2;
+                var t = 0;
+                if (window.scrollY >= fadeEnd) t = 1;
+                else if (window.scrollY > fadeStart) t = (window.scrollY - fadeStart) / (fadeEnd - fadeStart);
+
+                video2.style.opacity = t;
+                if (t > 0) video.style.opacity = 1 - t * 0.6;
+                else if (!crossfaded) video.style.opacity = '';
+
+                crossfaded = t > 0.5;
+            }
+        }
+
         var ticking = false;
         window.addEventListener('scroll', function() {
             if (!ticking) {
                 requestAnimationFrame(function() {
-                    var p = Math.min(Math.max(window.scrollY / cachedTotal, 0), 1);
-                    progressFill.style.width = (p * 100) + '%';
+                    updateScroll();
                     ticking = false;
                 });
                 ticking = true;
@@ -436,7 +576,7 @@
             });
         }, { threshold: 0.25 });
 
-        document.querySelectorAll('.s-inner').forEach(function(el) {
+        document.querySelectorAll('.s-inner, .act-break-inner').forEach(function(el) {
             sectionObserver.observe(el);
         });
 
@@ -448,13 +588,28 @@
 
         /* ═══ SMOOTH LOOP FADE ═══ */
         var fade = 0.5;
-        video.addEventListener('timeupdate', function() {
-            if (!video.duration) return;
-            var rem = video.duration - video.currentTime;
-            if (rem < fade) video.style.opacity = rem / fade;
-            else if (video.currentTime < fade) video.style.opacity = Math.min(video.currentTime / fade, 1);
-            else if (video.style.opacity !== '') video.style.opacity = '';
-        });
+        function initLoopFade(v) {
+            v.addEventListener('timeupdate', function() {
+                if (!v.duration) return;
+                var rem = v.duration - v.currentTime;
+                if (rem < fade) {
+                    var loopOpacity = rem / fade;
+                    /* Only set loop opacity if it's less than current crossfade opacity */
+                    var current = parseFloat(v.style.opacity);
+                    if (isNaN(current) || loopOpacity < current) {
+                        v.style.opacity = loopOpacity;
+                    }
+                } else if (v.currentTime < fade) {
+                    var fadeIn = Math.min(v.currentTime / fade, 1);
+                    var current2 = parseFloat(v.style.opacity);
+                    if (isNaN(current2) || fadeIn < current2) {
+                        v.style.opacity = fadeIn;
+                    }
+                }
+            });
+        }
+        initLoopFade(video);
+        initLoopFade(video2);
     </script>
 </body>
 </html>
