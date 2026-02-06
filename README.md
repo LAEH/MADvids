@@ -20,7 +20,8 @@ A collection of video web experiments exploring scroll-driven animation, video c
 | 8 | **Mesh Flow** | `mesh-flow/` | Gradient blob animation with screen blend mode and parallax drift |
 | 9 | **Lumina** | `lumina/` | Interactive gamified light story with canvas particle system, achievements, and Web Audio |
 | 10 | **Shape Reveal** | `shape-reveal/` | Scroll-driven `clip-path` morphing through circle, diamond, star, cross, blob, and inset shapes |
-| 11 | **Autonomy Dashboard** | `autonomy-dashboard/` | React + Framer Motion dashboard with slide-based presentation |
+| 11 | **Rift** | `rift/` | Scroll-driven dimensional portal — radial gradient mask expands to reveal video, canvas particles, glow ring, Web Audio drone |
+| 12 | **Autonomy Dashboard** | `autonomy-dashboard/` | React + Framer Motion dashboard with slide-based presentation |
 
 ## Tech Stack
 
@@ -37,6 +38,7 @@ A collection of video web experiments exploring scroll-driven animation, video c
 - Compositor-only animations (`transform` / `opacity` via `translate3d`)
 - `will-change` lifecycle management (set during animation, cleaned up after)
 - CSS `clip-path` with scroll-driven polygon generators
+- Scroll-driven `radial-gradient` masking for portal/rift reveals
 - Web Audio API synthesis for ambient sound and interactive audio
 - Cross-document View Transitions API (`@view-transition { navigation: auto; }`)
 - Lazy video loading with `IntersectionObserver` and memory management
@@ -78,6 +80,7 @@ experiments/
   mesh-flow/
   lumina/
   shape-reveal/
+  rift/
   autonomy-dashboard/   React app (src/ directory)
 src/                    React source for autonomy-dashboard
 public/
