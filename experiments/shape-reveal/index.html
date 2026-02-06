@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shape Reveal</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        @view-transition { navigation: auto; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* ═══ LOADER ═══ */
+        .loader {
+            position: fixed; inset: 0; z-index: 9999;
+            background: #0a0a0a;
+            display: flex; align-items: center; justify-content: center; gap: 16px;
+            transition: opacity 0.6s ease;
+        }
+        .loader.done { opacity: 0; pointer-events: none; }
+        .loader-text {
+            font-size: clamp(24px, 5vw, 36px);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: rgba(255,255,255,0.15);
+        }
+        .loader-ring {
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.06);
+            border-top-color: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ═══ VIDEO LAYER — clip-path driven by scroll ═══ */
+        .video-layer {
+            position: fixed; inset: 0; z-index: 0;
+            overflow: hidden;
+            clip-path: circle(0% at 50% 50%);
+        }
+        .video-layer video {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+
+        /* ═══ SCROLL SPACE ═══ */
+        .scroll-space { position: relative; z-index: 1; }
+
+        /* ═══ SECTION ═══ */
+        .s {
+            position: relative;
+            min-height: 100dvh;
+            display: flex; align-items: center; justify-content: center;
+            padding: 60px max(24px, env(safe-area-inset-left, 24px));
+        }
+        .s-inner {
+            text-align: center; max-width: 700px;
+            opacity: 0; transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .s-inner.visible { opacity: 1; transform: translateY(0); }
+        .s-inner.exit { opacity: 0; transform: translateY(-20px); transition: opacity 0.4s, transform 0.4s; }
+
+        /* ═══ TYPOGRAPHY ═══ */
+        .s-label {
+            font-size: 0.6rem; font-weight: 700;
+            letter-spacing: 0.2em; text-transform: uppercase;
+            margin-bottom: 16px; color: rgba(255,255,255,0.25);
+        }
+        .s-display {
+            font-size: clamp(42px, 10vw, 110px);
+            font-weight: 900; letter-spacing: -0.05em;
+            line-height: 0.92; margin-bottom: 20px;
+            text-shadow: 0 4px 40px rgba(0,0,0,0.6);
+        }
+        .s-body {
+            font-size: clamp(14px, 1.8vw, 18px); font-weight: 400;
+            line-height: 1.7; color: rgba(255,255,255,0.5);
+            max-width: 460px; margin: 0 auto;
+        }
+
+        /* ═══ SHAPE INDICATOR ═══ */
+        .shape-indicator {
+            position: fixed;
+            top: max(20px, env(safe-area-inset-top, 20px));
+            right: max(20px, env(safe-area-inset-right, 20px));
+            z-index: 100;
+            font-size: 0.55rem; font-weight: 700;
+            letter-spacing: 0.15em; text-transform: uppercase;
+            color: rgba(255,255,255,0.15);
+            transition: opacity 0.5s;
+        }
+
+        /* ═══ PROGRESS ═══ */
+        .progress-track {
+            position: fixed; top: 0; left: 0; right: 0;
+            height: 2px; background: rgba(255,255,255,0.03); z-index: 100;
+        }
+        .progress-fill {
+            height: 100%; width: 0%;
+            background: rgba(255,255,255,0.15);
+            transition: width 0.15s linear;
+        }
+
+        /* ═══ NAV ═══ */
+        .exp-nav {
+            position: fixed;
+            bottom: max(20px, env(safe-area-inset-bottom, 20px));
+            left: 50%; transform: translateX(-50%);
+            z-index: 100;
+            display: flex; gap: 2px; padding: 4px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .exp-nav a {
+            display: flex; align-items: center; justify-content: center;
+            width: 38px; height: 38px; border-radius: 10px;
+            text-decoration: none; color: rgba(255,255,255,0.5);
+            transition: background 0.2s, color 0.2s;
+        }
+        .exp-nav a:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+        /* ═══ RESPONSIVE ═══ */
+        @media (max-width: 480px) {
+            .s { padding-left: 16px; padding-right: 16px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .s-inner { opacity: 1; transform: none; transition: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader" id="loader">
+        <span class="loader-text">Shape Reveal</span>
+        <div class="loader-ring"></div>
+    </div>
+
+    <div class="video-layer" id="videoLayer">
+        <video id="bgVideo" muted loop playsinline disablePictureInPicture preload="auto">
+            <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-dgfdf.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <div class="shape-indicator" id="shapeIndicator"></div>
+
+    <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <nav class="exp-nav">
+        <a href="../lumina/" title="Previous"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></a>
+        <a href="../../" title="All experiments"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg></a>
+        <a href="../superflat/" title="Next"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
+    </nav>
+
+    <div class="scroll-space" id="scrollSpace">
+        <!-- 0 — INTRO: video hidden -->
+        <section class="s">
+            <div class="s-inner" data-s="0">
+                <p class="s-label">Experiment</p>
+                <h1 class="s-display">Shape<br>Reveal</h1>
+                <p class="s-body">Scroll to unmask. The video hides behind geometry that morphs with your progress.</p>
+            </div>
+        </section>
+
+        <!-- 1 — Circle opens -->
+        <section class="s">
+            <div class="s-inner" data-s="1">
+                <p class="s-label">Circle</p>
+                <h2 class="s-display">A hole<br>in the dark.</h2>
+                <p class="s-body">It starts as a point. Then it breathes. Then it swallows the entire frame.</p>
+            </div>
+        </section>
+
+        <!-- 2 — Diamond -->
+        <section class="s">
+            <div class="s-inner" data-s="2">
+                <p class="s-label">Diamond</p>
+                <h2 class="s-display">Four points.<br>One cut.</h2>
+                <p class="s-body">The diamond rotates as it grows, slicing the dark like a crystal being turned in light.</p>
+            </div>
+        </section>
+
+        <!-- 3 — Horizontal split -->
+        <section class="s">
+            <div class="s-inner" data-s="3">
+                <p class="s-label">Split</p>
+                <h2 class="s-display">The curtain<br>parts.</h2>
+                <p class="s-body">Top and bottom peel away. The video breathes between two closing edges.</p>
+            </div>
+        </section>
+
+        <!-- 4 — Star -->
+        <section class="s">
+            <div class="s-inner" data-s="4">
+                <p class="s-label">Star</p>
+                <h2 class="s-display">Six arms<br>reaching.</h2>
+                <p class="s-body">A hexagonal starburst opens from center, each arm racing to the edge at its own pace.</p>
+            </div>
+        </section>
+
+        <!-- 5 — Cross / Plus -->
+        <section class="s">
+            <div class="s-inner" data-s="5">
+                <p class="s-label">Cross</p>
+                <h2 class="s-display">Four<br>directions.</h2>
+                <p class="s-body">A plus sign that grows until its arms consume the entire viewport. Geometry with ambition.</p>
+            </div>
+        </section>
+
+        <!-- 6 — Blob morph -->
+        <section class="s">
+            <div class="s-inner" data-s="6">
+                <p class="s-label">Organic</p>
+                <h2 class="s-display">It has<br>no edges.</h2>
+                <p class="s-body">A living blob, all soft tension and wobble, growing outward like an amoeba with purpose.</p>
+            </div>
+        </section>
+
+        <!-- 7 — Inset rectangle -->
+        <section class="s">
+            <div class="s-inner" data-s="7">
+                <p class="s-label">Inset</p>
+                <h2 class="s-display">Almost<br>there.</h2>
+                <p class="s-body">A thin border of darkness. The video fills 98% of the frame. The last 2% is anticipation.</p>
+            </div>
+        </section>
+
+        <!-- 8 — Outro -->
+        <section class="s">
+            <div class="s-inner" data-s="8">
+                <h2 class="s-display">Unmasked.</h2>
+                <p class="s-body">Seven shapes. One video. Scroll back up to watch the geometry return.</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        /* ═══ LOADER ═══ */
+        var video = document.getElementById('bgVideo');
+        var loader = document.getElementById('loader');
+        var launched = false;
+
+        function launch() {
+            if (launched) return;
+            launched = true;
+            video.play();
+            loader.classList.add('done');
+            setTimeout(function() { loader.remove(); }, 600);
+        }
+        if (video.readyState >= 3) launch();
+        else video.addEventListener('canplaythrough', launch, { once: true });
+        setTimeout(launch, 5000);
+
+        /* ═══ SCROLL VARS ═══ */
+        var videoLayer = document.getElementById('videoLayer');
+        var progressFill = document.getElementById('progressFill');
+        var shapeIndicator = document.getElementById('shapeIndicator');
+        var scrollSpace = document.getElementById('scrollSpace');
+        var cachedVH = window.innerHeight;
+        var cachedTotal = scrollSpace.offsetHeight - cachedVH;
+
+        window.addEventListener('resize', function() {
+            cachedVH = window.innerHeight;
+            cachedTotal = scrollSpace.offsetHeight - cachedVH;
+        }, { passive: true });
+
+        /* ═══ SHAPE GENERATORS ═══
+           Each takes t (0→1) and returns a clip-path string.
+           clip-path is on the VIDEO layer — bigger shape = more video visible. */
+
+        var shapes = [
+            /* 0: Intro — video hidden */
+            { name: '', fn: function() { return 'circle(0% at 50% 50%)'; } },
+
+            /* 1: Circle */
+            { name: 'Circle', fn: function(t) {
+                return 'circle(' + (t * 75) + '% at 50% 50%)';
+            }},
+
+            /* 2: Diamond */
+            { name: 'Diamond', fn: function(t) {
+                var s = Math.max(t * 55, 0.5);
+                return 'polygon(50% ' + (50 - s) + '%, ' + (50 + s) + '% 50%, 50% ' + (50 + s) + '%, ' + (50 - s) + '% 50%)';
+            }},
+
+            /* 3: Horizontal split — reveals from center */
+            { name: 'Split', fn: function(t) {
+                var gap = (1 - t) * 50;
+                return 'inset(' + gap + '% 0%)';
+            }},
+
+            /* 4: Star */
+            { name: 'Star', fn: function(t) {
+                var r = Math.max(t * 65, 1);
+                var ir = r * 0.4;
+                var pts = [];
+                for (var i = 0; i < 6; i++) {
+                    var a1 = (i * 60 - 90) * Math.PI / 180;
+                    var a2 = ((i * 60 + 30) - 90) * Math.PI / 180;
+                    pts.push((50 + Math.cos(a1) * r).toFixed(2) + '% ' + (50 + Math.sin(a1) * r).toFixed(2) + '%');
+                    pts.push((50 + Math.cos(a2) * ir).toFixed(2) + '% ' + (50 + Math.sin(a2) * ir).toFixed(2) + '%');
+                }
+                return 'polygon(' + pts.join(', ') + ')';
+            }},
+
+            /* 5: Cross / Plus */
+            { name: 'Cross', fn: function(t) {
+                var arm = Math.max(t * 50, 0.5);
+                return 'polygon(' +
+                    (50 - arm) + '% 0%, ' + (50 + arm) + '% 0%, ' +
+                    (50 + arm) + '% ' + (50 - arm) + '%, 100% ' + (50 - arm) + '%, ' +
+                    '100% ' + (50 + arm) + '%, ' + (50 + arm) + '% ' + (50 + arm) + '%, ' +
+                    (50 + arm) + '% 100%, ' + (50 - arm) + '% 100%, ' +
+                    (50 - arm) + '% ' + (50 + arm) + '%, 0% ' + (50 + arm) + '%, ' +
+                    '0% ' + (50 - arm) + '%, ' + (50 - arm) + '% ' + (50 - arm) + '%)';
+            }},
+
+            /* 6: Organic blob */
+            { name: 'Organic', fn: function(t) {
+                var time = Date.now() * 0.0008;
+                var r = 10 + t * 50;
+                var pts = [];
+                for (var i = 0; i < 10; i++) {
+                    var a = (i / 10) * Math.PI * 2;
+                    var wobble = Math.sin(a * 3 + time * 2) * 5 + Math.cos(a * 2 - time * 1.5) * 4;
+                    var dr = r + wobble * Math.min(t, 0.7);
+                    pts.push((50 + Math.cos(a) * dr).toFixed(2) + '% ' + (50 + Math.sin(a) * dr).toFixed(2) + '%');
+                }
+                return 'polygon(' + pts.join(', ') + ')';
+            }},
+
+            /* 7: Inset rectangle with rounded corners */
+            { name: 'Inset', fn: function(t) {
+                var border = ((1 - t) * 45 + 1).toFixed(1);
+                var radius = Math.round((1 - t) * 30);
+                return 'inset(' + border + '% round ' + radius + 'px)';
+            }},
+
+            /* 8: Outro — fully open */
+            { name: '', fn: function() { return 'inset(0%)'; } }
+        ];
+
+        /* ═══ EASING ═══ */
+        function easeInOutCubic(t) {
+            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        }
+
+        /* ═══ SCROLL HANDLER ═══ */
+        var ticking = false;
+        var currentShape = -1;
+
+        function updateScroll() {
+            var y = window.scrollY;
+            var p = Math.min(Math.max(y / cachedTotal, 0), 1);
+            progressFill.style.width = (p * 100) + '%';
+
+            var sectionCount = shapes.length;
+            var sectionProgress = p * (sectionCount - 1);
+            var idx = Math.min(Math.floor(sectionProgress), sectionCount - 2);
+            var localT = easeInOutCubic(Math.min(Math.max(sectionProgress - idx, 0), 1));
+
+            var clip = shapes[idx].fn(localT);
+            videoLayer.style.clipPath = clip;
+            videoLayer.style.webkitClipPath = clip;
+
+            if (idx !== currentShape) {
+                currentShape = idx;
+                shapeIndicator.textContent = shapes[idx].name;
+            }
+        }
+
+        window.addEventListener('scroll', function() {
+            if (!ticking) {
+                requestAnimationFrame(function() {
+                    updateScroll();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }, { passive: true });
+
+        /* Organic blob needs continuous animation for the wobble */
+        var blobRAF = 0;
+        function animateBlob() {
+            if (currentShape === 6) {
+                updateScroll();
+                blobRAF = requestAnimationFrame(animateBlob);
+            } else {
+                blobRAF = 0;
+            }
+        }
+        setInterval(function() {
+            if (currentShape === 6 && !blobRAF) animateBlob();
+        }, 200);
+
+        /* ═══ SECTION REVEAL ═══ */
+        var sectionObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    e.target.classList.remove('exit');
+                } else if (e.target.classList.contains('visible')) {
+                    e.target.classList.add('exit');
+                    e.target.classList.remove('visible');
+                }
+            });
+        }, { threshold: 0.25 });
+
+        document.querySelectorAll('.s-inner').forEach(function(el) {
+            sectionObserver.observe(el);
+        });
+
+        setTimeout(function() {
+            var first = document.querySelector('.s-inner[data-s="0"]');
+            if (first) first.classList.add('visible');
+        }, 300);
+
+        /* ═══ SMOOTH LOOP FADE ═══ */
+        var fadeDur = 0.5;
+        video.addEventListener('timeupdate', function() {
+            if (!video.duration) return;
+            var rem = video.duration - video.currentTime;
+            if (rem < fadeDur) video.style.opacity = rem / fadeDur;
+            else if (video.currentTime < fadeDur) video.style.opacity = Math.min(video.currentTime / fadeDur, 1);
+            else if (video.style.opacity !== '') video.style.opacity = '';
+        });
+    </script>
+</body>
+</html>

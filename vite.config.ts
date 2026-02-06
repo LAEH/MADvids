@@ -19,6 +19,7 @@ export default defineConfig({
         meshFlow: resolve(__dirname, 'experiments/mesh-flow/index.html'),
         lumina: resolve(__dirname, 'experiments/lumina/index.html'),
         superflat: resolve(__dirname, 'experiments/superflat/index.html'),
+        shapeReveal: resolve(__dirname, 'experiments/shape-reveal/index.html'),
       },
     },
   },

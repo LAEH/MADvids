@@ -10,6 +10,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        @view-transition { navigation: auto; }
+        ::view-transition-old(root) { animation: vt-fade 0.25s ease both; }
+        ::view-transition-new(root) { animation: vt-fade 0.25s ease both reverse; }
+        ::view-transition-old(hero) { animation: vt-shrink 0.35s cubic-bezier(0.16,1,0.3,1) both; }
+        ::view-transition-new(hero) { animation: vt-grow 0.35s cubic-bezier(0.16,1,0.3,1) both; }
+        @keyframes vt-fade { to { opacity: 0; } }
+        @keyframes vt-shrink { to { transform: scale(0.94); opacity: 0; } }
+        @keyframes vt-grow { from { transform: scale(0.94); opacity: 0; } }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
@@ -245,6 +254,8 @@
             overflow: hidden;
             border-radius: 13px;
             background: rgba(26,26,46,0.04);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            transform-origin: center center;
         }
         .card-preview::before {
             content: '';
@@ -593,6 +604,23 @@
                 </div>
             </a>
 
+            <a class="card" href="experiments/shape-reveal/index.html">
+                <div class="card-preview">
+                    <video muted loop playsinline disablePictureInPicture preload="none">
+                        <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-dgfdf.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="card-body">
+                    <h2>Shape Reveal</h2>
+                    <p>Scroll-driven clip-path morphing — seven geometric shapes progressively unmask the video.</p>
+                    <div class="tags">
+                        <span class="tag-pill">clip-path</span>
+                        <span class="tag-pill">scroll</span>
+                        <span class="tag-pill">geometry</span>
+                    </div>
+                </div>
+            </a>
+
             <a class="card" href="experiments/autonomy-dashboard/index.html">
                 <div class="card-preview no-video">
                     <span class="placeholder">Dashboard</span>
@@ -886,7 +914,47 @@
             });
         }
 
-        /* ═══ 7. SERVICE WORKER ═══ */
+        /* ═══ 7. CARD TILT + VIDEO SPEED ON HOVER ═══ */
+        if (window.matchMedia('(hover: hover)').matches) {
+            document.querySelectorAll('.card').forEach(function(card) {
+                var preview = card.querySelector('.card-preview');
+                var vid = card.querySelector('.card-preview video');
+
+                card.addEventListener('mousemove', function(e) {
+                    var rect = card.getBoundingClientRect();
+                    var x = (e.clientX - rect.left) / rect.width;
+                    var y = (e.clientY - rect.top) / rect.height;
+                    var rx = (0.5 - y) * 10;
+                    var ry = (x - 0.5) * 10;
+                    if (preview) {
+                        preview.style.transition = 'transform 0.1s ease-out';
+                        preview.style.transform = 'perspective(800px) rotateX(' + rx + 'deg) rotateY(' + ry + 'deg) scale(1.02)';
+                    }
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    if (preview) {
+                        preview.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+                        preview.style.transform = '';
+                    }
+                    if (vid) vid.playbackRate = 1;
+                });
+
+                card.addEventListener('mouseenter', function() {
+                    if (vid) vid.playbackRate = 0.6;
+                });
+            });
+        }
+
+        /* ═══ 8. VIEW TRANSITION — set name on clicked card ═══ */
+        document.querySelectorAll('.card').forEach(function(card) {
+            card.addEventListener('click', function() {
+                var preview = card.querySelector('.card-preview');
+                if (preview) preview.style.viewTransitionName = 'hero';
+            });
+        });
+
+        /* ═══ 9. SERVICE WORKER ═══ */
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/MADvids/sw.js').catch(function() {});
         }
