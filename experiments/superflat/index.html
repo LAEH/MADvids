@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superflat</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        /* ═══ LOADER ═══ */
+        .loader {
+            position: fixed; inset: 0; z-index: 9999;
+            background: #0a0a0a;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 24px;
+            transition: opacity 0.6s ease;
+        }
+        .loader.done { opacity: 0; pointer-events: none; }
+        .loader-text {
+            font-size: clamp(28px, 6vw, 44px);
+            letter-spacing: -0.04em;
+            background: linear-gradient(135deg, #ff3c8e, #ffe14d, #3ce8ff, #ff3c8e);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 2s ease infinite;
+        }
+        .loader-text .bold { font-weight: 900; }
+        .loader-text .light { font-weight: 300; }
+        .loader-ring {
+            width: 20px; height: 20px;
+            border: 2px solid rgba(255,255,255,0.08);
+            border-top-color: #ff3c8e;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* ═══ VIDEO ═══ */
+        .video-wrap {
+            position: fixed; inset: 0; z-index: 0;
+            overflow: hidden;
+        }
+        .video-wrap video {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+
+        /* ═══ SCROLL SPACE ═══ */
+        .scroll-space {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ═══ SECTION ═══ */
+        .s {
+            position: relative;
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px max(24px, env(safe-area-inset-left, 24px));
+        }
+
+        .s-inner {
+            text-align: center;
+            max-width: 800px;
+            opacity: 0;
+            transform: translateY(50px) scale(0.96);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .s-inner.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        .s-inner.exit {
+            opacity: 0;
+            transform: translateY(-30px) scale(1.02);
+            transition: opacity 0.5s, transform 0.5s;
+        }
+
+        /* ═══ TYPOGRAPHY ═══ */
+        .s-overline {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        .s-overline.pink { color: #ff3c8e; }
+        .s-overline.blue { color: #3ce8ff; }
+        .s-overline.gold { color: #ffe14d; }
+        .s-overline.mint { color: #6bffb8; }
+        .s-overline.coral { color: #ff7b54; }
+        .s-overline.violet { color: #c77dff; }
+
+        .s-display {
+            font-size: clamp(48px, 11vw, 130px);
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            line-height: 0.9;
+            margin-bottom: 24px;
+            text-shadow: 0 4px 40px rgba(0,0,0,0.5), 0 0 120px rgba(0,0,0,0.3);
+        }
+
+        .s-body {
+            font-size: clamp(15px, 2vw, 20px);
+            font-weight: 400;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.65);
+            max-width: 520px;
+            margin: 0 auto;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.6);
+        }
+
+        /* Color text accents */
+        .t-pink { color: #ff3c8e; }
+        .t-blue { color: #3ce8ff; }
+        .t-gold { color: #ffe14d; }
+        .t-mint { color: #6bffb8; }
+        .t-coral { color: #ff7b54; }
+        .t-violet { color: #c77dff; }
+        .t-white { color: #fff; }
+
+        .t-gradient {
+            background: linear-gradient(135deg, #ff3c8e, #ffe14d, #3ce8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .t-gradient-2 {
+            background: linear-gradient(135deg, #6bffb8, #3ce8ff, #c77dff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .t-gradient-3 {
+            background: linear-gradient(135deg, #ffe14d, #ff7b54, #ff3c8e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ═══ SPECIAL: INTRO ═══ */
+        .intro-title {
+            font-size: clamp(64px, 16vw, 220px);
+            font-weight: 900;
+            letter-spacing: -0.06em;
+            line-height: 0.85;
+            text-shadow: 0 4px 60px rgba(0,0,0,0.4);
+        }
+
+        .intro-sub {
+            font-size: clamp(13px, 1.6vw, 17px);
+            font-weight: 500;
+            color: rgba(255,255,255,0.4);
+            margin-top: 32px;
+            letter-spacing: 0.06em;
+        }
+
+        /* ═══ SPECIAL: OUTRO ═══ */
+        .outro-small {
+            font-size: clamp(12px, 1.2vw, 14px);
+            font-weight: 400;
+            color: rgba(255,255,255,0.2);
+            margin-top: 40px;
+            letter-spacing: 0.04em;
+        }
+
+        /* ═══ PILL TAGS ═══ */
+        .pill-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 28px;
+        }
+        .pill {
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            padding: 6px 14px;
+            border-radius: 100px;
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* ═══ PROGRESS ═══ */
+        .progress-track {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: rgba(255,255,255,0.04);
+            z-index: 100;
+        }
+        .progress-fill {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, #ff3c8e, #ffe14d, #3ce8ff, #6bffb8);
+            transition: width 0.15s linear;
+        }
+
+        /* ═══ BACK ═══ */
+        .back-btn {
+            position: fixed;
+            bottom: max(20px, env(safe-area-inset-bottom, 20px));
+            right: max(20px, env(safe-area-inset-right, 20px));
+            z-index: 100;
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.08);
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none; color: #fff;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.12); transform: scale(1.05); }
+
+        /* ═══ RESPONSIVE ═══ */
+        @media (max-width: 480px) {
+            .s { padding-left: 16px; padding-right: 16px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .s-inner { opacity: 1; transform: none; transition: none; }
+            .loader-text { animation: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader" id="loader">
+        <div class="loader-text">Superflat</div>
+        <div class="loader-ring"></div>
+    </div>
+
+    <div class="video-wrap">
+        <video id="bgVideo" muted loop playsinline disablePictureInPicture preload="auto">
+            <source src="https://storage.googleapis.com/myproject-public-assets/art/MADvids/Surreal_Murakami_Dreamscape_Video_Generation.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <a class="back-btn" href="../../" title="Back to experiments">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    </a>
+
+    <div class="scroll-space" id="scrollSpace">
+        <!-- 0 — INTRO -->
+        <section class="s">
+            <div class="s-inner" data-s="0">
+                <h1 class="intro-title"><span class="t-gradient">Super</span><span class="t-white">flat</span></h1>
+                <p class="intro-sub">A Murakami dreamscape. Scroll to enter.</p>
+            </div>
+        </section>
+
+        <!-- 1 -->
+        <section class="s">
+            <div class="s-inner" data-s="1">
+                <p class="s-overline pink">Observation No. 1</p>
+                <h2 class="s-display"><span class="t-pink">The flowers</span><br>are smiling.</h2>
+                <p class="s-body">They know something you don't. They've always known. They just thought it'd be funnier to let you figure it out.</p>
+            </div>
+        </section>
+
+        <!-- 2 -->
+        <section class="s">
+            <div class="s-inner" data-s="2">
+                <p class="s-overline gold">Altitude: 200ft</p>
+                <h2 class="s-display"><span class="t-gold">Gravity</span><br>took a day off.</h2>
+                <p class="s-body">Cherry blossoms falling upward. Fish with butterfly wings. Cats the size of mountains. Nobody filed a complaint.</p>
+            </div>
+        </section>
+
+        <!-- 3 -->
+        <section class="s">
+            <div class="s-inner" data-s="3">
+                <p class="s-overline blue">Color Theory</p>
+                <h2 class="s-display">The sky <span class="t-blue">forgot</span><br>how to pick one.</h2>
+                <p class="s-body">Indigo, hot pink, tangerine, lemon. The sky went to the paint store and said "yes." To everything. Simultaneously.</p>
+            </div>
+        </section>
+
+        <!-- 4 -->
+        <section class="s">
+            <div class="s-inner" data-s="4">
+                <p class="s-overline coral">Patience Level: Infinite</p>
+                <h2 class="s-display"><span class="t-coral">Those cats</span><br>have been waving<br>for 3,000 years.</h2>
+                <p class="s-body">They're not tired. They're not stuck. They just really, genuinely believe you're going to have a great day.</p>
+            </div>
+        </section>
+
+        <!-- 5 -->
+        <section class="s">
+            <div class="s-inner" data-s="5">
+                <p class="s-overline mint">Scale: Absurd</p>
+                <h2 class="s-display">Every petal is<br><span class="t-mint">a tiny universe</span></h2>
+                <p class="s-body">Pretending to be simple. Inside each one: a whole world, a small story, a manga character having the absolute best day of their life.</p>
+            </div>
+        </section>
+
+        <!-- 6 -->
+        <section class="s">
+            <div class="s-inner" data-s="6">
+                <p class="s-overline violet">Fun Fact</p>
+                <h2 class="s-display"><span class="t-violet">Origami</span> cranes<br>don't need<br>runways.</h2>
+                <p class="s-body">Thousands of them. Holographic. Iridescent. Scattering rainbows like confetti at a party the universe threw for itself.</p>
+            </div>
+        </section>
+
+        <!-- 7 -->
+        <section class="s">
+            <div class="s-inner" data-s="7">
+                <p class="s-overline gold">Art Criticism</p>
+                <h2 class="s-display">Murakami said<br><span class="t-gradient-3">"more"</span></h2>
+                <p class="s-body">Then he said it again. And again. Until "more" became a philosophy, a religion, a 300-foot carp streamer billowing in a wind that smells like candy.</p>
+            </div>
+        </section>
+
+        <!-- 8 -->
+        <section class="s">
+            <div class="s-inner" data-s="8">
+                <p class="s-overline blue">Technical Note</p>
+                <h2 class="s-display">This is<br><span class="t-blue">24 frames</span><br>per second.</h2>
+                <p class="s-body">Each one hand-hallucinated by an AI that was asked to dream in Japanese pop art. It did not disappoint. It did not hold back.</p>
+            </div>
+        </section>
+
+        <!-- 9 -->
+        <section class="s">
+            <div class="s-inner" data-s="9">
+                <p class="s-overline pink">Honest Review</p>
+                <h2 class="s-display"><span class="t-gradient">Too much?</span></h2>
+                <p class="s-body">Never. Maximalism is just minimalism that went to therapy, healed its shame, and decided to wear every color at once.</p>
+            </div>
+        </section>
+
+        <!-- 10 — OUTRO -->
+        <section class="s">
+            <div class="s-inner" data-s="10">
+                <h2 class="s-display"><span class="t-gradient-2">Still<br>dreaming.</span></h2>
+                <p class="s-body">You can scroll back up. The flowers won't judge. They'll just keep smiling.</p>
+                <div class="pill-row">
+                    <span class="pill">superflat</span>
+                    <span class="pill">murakami</span>
+                    <span class="pill">AI-generated</span>
+                    <span class="pill">maximalist</span>
+                    <span class="pill">scroll-driven</span>
+                </div>
+                <p class="outro-small">MADvids</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        /* ═══ LOADER ═══ */
+        var video = document.getElementById('bgVideo');
+        var loader = document.getElementById('loader');
+        var launched = false;
+
+        function launch() {
+            if (launched) return;
+            launched = true;
+            video.play();
+            loader.classList.add('done');
+            document.body.style.overflow = '';
+            setTimeout(function() { loader.remove(); }, 600);
+        }
+        document.body.style.overflow = 'hidden';
+        if (video.readyState >= 3) launch();
+        else video.addEventListener('canplaythrough', launch, { once: true });
+        setTimeout(launch, 5000);
+
+        /* ═══ SCROLL PROGRESS ═══ */
+        var progressFill = document.getElementById('progressFill');
+        var scrollSpace = document.getElementById('scrollSpace');
+        var cachedVH = window.innerHeight;
+        var cachedTotal = scrollSpace.offsetHeight - cachedVH;
+
+        window.addEventListener('resize', function() {
+            cachedVH = window.innerHeight;
+            cachedTotal = scrollSpace.offsetHeight - cachedVH;
+        }, { passive: true });
+
+        var ticking = false;
+        window.addEventListener('scroll', function() {
+            if (!ticking) {
+                requestAnimationFrame(function() {
+                    var p = Math.min(Math.max(window.scrollY / cachedTotal, 0), 1);
+                    progressFill.style.width = (p * 100) + '%';
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }, { passive: true });
+
+        /* ═══ SECTION REVEAL ═══ */
+        var sectionObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    e.target.classList.remove('exit');
+                } else {
+                    if (e.target.classList.contains('visible')) {
+                        e.target.classList.add('exit');
+                        e.target.classList.remove('visible');
+                    }
+                }
+            });
+        }, { threshold: 0.25 });
+
+        document.querySelectorAll('.s-inner').forEach(function(el) {
+            sectionObserver.observe(el);
+        });
+
+        /* First section visible immediately */
+        setTimeout(function() {
+            var first = document.querySelector('.s-inner[data-s="0"]');
+            if (first) first.classList.add('visible');
+        }, 300);
+
+        /* ═══ SMOOTH LOOP FADE ═══ */
+        var fade = 0.5;
+        video.addEventListener('timeupdate', function() {
+            if (!video.duration) return;
+            var rem = video.duration - video.currentTime;
+            if (rem < fade) video.style.opacity = rem / fade;
+            else if (video.currentTime < fade) video.style.opacity = Math.min(video.currentTime / fade, 1);
+            else if (video.style.opacity !== '') video.style.opacity = '';
+        });
+    </script>
+</body>
+</html>
