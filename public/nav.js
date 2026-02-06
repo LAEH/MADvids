@@ -11,7 +11,7 @@
     var NAV_ORDER = [
         'superflat', 'hyperpod-cinematic', 'hyperpod-showcase', 'hyperpod-grid',
         'hyperpod-immersive', 'delightfull-video', 'chromatic-shift', 'mesh-flow',
-        'lumina', 'shape-reveal', 'rift', 'verso'
+        'lumina', 'shape-reveal', 'rift', 'verso', 'cosmos'
     ];
 
     var EXP_NAMES = {
@@ -26,7 +26,8 @@
         'lumina': 'Lumina',
         'shape-reveal': 'Shape Reveal',
         'rift': 'Rift',
-        'verso': 'Verso'
+        'verso': 'Verso',
+        'cosmos': 'Cosmos'
     };
 
     /* Videos available for mixing */

@@ -490,6 +490,7 @@
             </div>
         </div>
         <a class="genie-btn" id="genieBtn" href="experiments/journey/index.html" title="Enter the Journey" aria-label="Enter the Journey"><svg viewBox="0 0 24 24" fill="#fff"><polygon points="8,5 20,12 8,19"/></svg></a>
+        <a class="genie-btn" id="cosmosBtn" href="experiments/cosmos/index.html" title="Enter the Cosmos" aria-label="Enter the Cosmos" style="margin-top: 14px;"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="12" cy="12" r="6" opacity="0.5"/><circle cx="12" cy="12" r="10" opacity="0.25"/><line x1="12" y1="2" x2="12" y2="4" opacity="0.6"/><line x1="12" y1="20" x2="12" y2="22" opacity="0.6"/><line x1="2" y1="12" x2="4" y2="12" opacity="0.6"/><line x1="20" y1="12" x2="22" y2="12" opacity="0.6"/></svg></a>
         <div class="scroll-cue" id="scrollCue">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M6 9l6 6 6-6"/>
@@ -700,6 +701,23 @@
                 </div>
             </a>
 
+            <a class="card" href="experiments/cosmos/index.html">
+                <div class="card-preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Experiment preview">
+                        <source src="https://storage.googleapis.com/myproject-public-assets/art/MADvids/Abstract_Multiverse_Cinematic_Journey_Generated-preview.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="card-body">
+                    <h2>Cosmos</h2>
+                    <p>Floating video portals with soft-body physics on desktop, swipeable cinema on mobile. Five imagination worlds.</p>
+                    <div class="tags">
+                        <span class="tag-pill">imagination</span>
+                        <span class="tag-pill">physics</span>
+                        <span class="tag-pill">sound</span>
+                    </div>
+                </div>
+            </a>
+
             <a class="card" href="experiments/journey/index.html">
                 <div class="card-preview">
                     <video muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Experiment preview">
@@ -831,6 +849,9 @@
             setTimeout(function() {
                 document.getElementById('genieBtn').classList.add('revealed');
             }, genieDelay);
+            setTimeout(function() {
+                document.getElementById('cosmosBtn').classList.add('revealed');
+            }, genieDelay + 150);
 
             setTimeout(function() {
                 document.getElementById('scrollCue').classList.add('visible');

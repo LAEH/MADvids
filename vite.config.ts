@@ -23,6 +23,7 @@ export default defineConfig({
         rift: resolve(__dirname, 'experiments/rift/index.html'),
         about: resolve(__dirname, 'about/index.html'),
         verso: resolve(__dirname, 'experiments/verso/index.html'),
+        cosmos: resolve(__dirname, 'experiments/cosmos/index.html'),
         journey: resolve(__dirname, 'experiments/journey/index.html'),
       },
     },
