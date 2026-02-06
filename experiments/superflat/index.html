@@ -221,6 +221,13 @@
         }
 
         /* ═══ SPECIAL: OUTRO ═══ */
+        .outro-title {
+            font-size: clamp(64px, 16vw, 220px);
+            font-weight: 900;
+            letter-spacing: -0.06em;
+            line-height: 0.85;
+            text-shadow: 0 4px 60px rgba(0,0,0,0.4);
+        }
         .outro-small {
             font-size: clamp(12px, 1.2vw, 14px);
             font-weight: 400;
@@ -228,25 +235,65 @@
             margin-top: 40px;
             letter-spacing: 0.04em;
         }
-
-        /* ═══ PILL TAGS ═══ */
-        .pill-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
+        .scroll-top-link {
+            display: inline-block;
             margin-top: 28px;
-        }
-        .pill {
-            font-size: 0.65rem;
-            font-weight: 600;
+            font-size: clamp(13px, 1.4vw, 16px);
+            font-weight: 500;
+            color: rgba(255,255,255,0.35);
+            text-decoration: none;
             letter-spacing: 0.04em;
-            padding: 6px 14px;
-            border-radius: 100px;
-            background: rgba(255,255,255,0.06);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.08);
-            color: rgba(255,255,255,0.4);
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+        .scroll-top-link:hover { color: rgba(255,255,255,0.7); }
+
+        /* ═══ LAYOUT VARIANTS ═══ */
+        .s-left { justify-content: flex-start; }
+        .s-left .s-inner { text-align: left; margin-left: max(48px, 8vw); margin-right: auto; }
+        .s-left .s-body { margin-left: 0; }
+        .s-right { justify-content: flex-end; }
+        .s-right .s-inner { text-align: right; margin-right: max(48px, 8vw); margin-left: auto; }
+        .s-right .s-body { margin-right: 0; margin-left: auto; }
+        .s-wide .s-inner { max-width: none; }
+        .s-wide .s-display { font-size: clamp(64px, 16vw, 220px); line-height: 0.85; }
+        .s-compact { min-height: 60dvh; }
+
+        /* ═══ ANIMATION VARIANTS ═══ */
+        .s-inner[data-anim="scale"] {
+            transform: scale(0.75);
+        }
+        .s-inner[data-anim="scale"].visible {
+            transform: scale(1);
+        }
+        .s-inner[data-anim="scale"].exit {
+            transform: scale(1.1);
+        }
+        .s-inner[data-anim="left"] {
+            transform: translateX(-80px);
+        }
+        .s-inner[data-anim="left"].visible {
+            transform: translateX(0);
+        }
+        .s-inner[data-anim="left"].exit {
+            transform: translateX(80px);
+        }
+        .s-inner[data-anim="right"] {
+            transform: translateX(80px);
+        }
+        .s-inner[data-anim="right"].visible {
+            transform: translateX(0);
+        }
+        .s-inner[data-anim="right"].exit {
+            transform: translateX(-80px);
+        }
+
+        /* ═══ COLOR WASH ═══ */
+        .color-wash {
+            position: fixed; inset: 0; z-index: 0;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.8s ease, background-color 0.8s ease;
         }
 
         /* ═══ PROGRESS ═══ */
@@ -321,10 +368,15 @@
             .s-display { font-size: clamp(36px, 10vw, 80px); }
             .s-body { line-height: 1.8; }
             .intro-title { font-size: clamp(48px, 14vw, 160px); }
+            .outro-title { font-size: clamp(48px, 14vw, 160px); }
+            .s-left .s-inner { margin-left: 16px; }
+            .s-right .s-inner { margin-right: 16px; }
+            .s-wide .s-display { font-size: clamp(48px, 14vw, 160px); }
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .s-inner { opacity: 1; transform: none; transition: none; }
+            .s-inner, .s-inner[data-anim] { opacity: 1; transform: none; transition: none; }
+            .color-wash { display: none; }
             .loader-text { animation: none; }
         }
     </style>
@@ -343,6 +395,8 @@
             <source src="https://storage.googleapis.com/myproject-public-assets/art/MADvids/Neo_Pop_Dreamscape_Drone_Journey.mp4" type="video/mp4">
         </video>
     </div>
+
+    <div class="color-wash" id="colorWash"></div>
 
     <div class="progress-track">
         <div class="progress-fill" id="progressFill"></div>
@@ -380,8 +434,8 @@
         </section>
 
         <!-- 2 -->
-        <section class="s">
-            <div class="s-inner" data-s="2">
+        <section class="s s-left">
+            <div class="s-inner" data-s="2" data-anim="left">
                 <p class="s-overline gold">Altitude: 200ft</p>
                 <h2 class="s-display"><span class="t-gold">Gravity</span> is<br>optional here.</h2>
                 <p class="s-body">Petals drift upward. Colors bend sideways. In this world, even the laws of physics decided to play along.</p>
@@ -389,17 +443,15 @@
         </section>
 
         <!-- 3 -->
-        <section class="s">
-            <div class="s-inner" data-s="3">
-                <p class="s-overline blue">Color Theory</p>
+        <section class="s s-wide" data-tint="#3ce8ff">
+            <div class="s-inner" data-s="3" data-anim="scale">
                 <h2 class="s-display">Every surface is<br><span class="t-blue">saturated.</span></h2>
-                <p class="s-body">Not a single color was left out. Not a single one asked permission. The palette just happened — all at once, unapologetically.</p>
             </div>
         </section>
 
         <!-- 4 -->
-        <section class="s">
-            <div class="s-inner" data-s="4">
+        <section class="s s-right">
+            <div class="s-inner" data-s="4" data-anim="right">
                 <p class="s-overline coral">Patience Level: Infinite</p>
                 <h2 class="s-display">The beckoning cats<br><span class="t-coral">never stop.</span></h2>
                 <p class="s-body">Three thousand years of waving. Not from obligation. From the radical, unshakeable belief that something wonderful is about to happen.</p>
@@ -407,7 +459,7 @@
         </section>
 
         <!-- 5 -->
-        <section class="s">
+        <section class="s" data-tint="#6bffb8">
             <div class="s-inner" data-s="5">
                 <p class="s-overline mint">Scale: Absurd</p>
                 <h2 class="s-display">Inside every petal,<br><span class="t-mint">a universe.</span></h2>
@@ -416,8 +468,8 @@
         </section>
 
         <!-- 6 -->
-        <section class="s">
-            <div class="s-inner" data-s="6">
+        <section class="s s-left">
+            <div class="s-inner" data-s="6" data-anim="left">
                 <p class="s-overline violet">Fun Fact</p>
                 <h2 class="s-display"><span class="t-violet">Paper cranes</span><br>don't need<br>runways.</h2>
                 <p class="s-body">A thousand of them. Holographic. Catching light from angles that shouldn't exist. Each one a small act of belief in the impossible.</p>
@@ -425,17 +477,15 @@
         </section>
 
         <!-- 7 -->
-        <section class="s">
-            <div class="s-inner" data-s="7">
-                <p class="s-overline gold">Art Criticism</p>
+        <section class="s s-wide s-compact" data-tint="#ff3c8e">
+            <div class="s-inner" data-s="7" data-anim="scale">
                 <h2 class="s-display">More is the<br><span class="t-gradient-3">only direction.</span></h2>
-                <p class="s-body">Murakami understood: restraint is a choice. So is abundance. One of them fills a room. The other fills a universe.</p>
             </div>
         </section>
 
         <!-- 8 -->
-        <section class="s">
-            <div class="s-inner" data-s="8">
+        <section class="s s-right">
+            <div class="s-inner" data-s="8" data-anim="right">
                 <p class="s-overline blue">Technical Note</p>
                 <h2 class="s-display"><span class="t-blue">24 frames</span> of<br>pure imagination.</h2>
                 <p class="s-body">Every frame synthesized by an AI dreaming in Japanese pop art. No reference images. No safety net. Just vision, rendered.</p>
@@ -443,11 +493,9 @@
         </section>
 
         <!-- 9 -->
-        <section class="s">
-            <div class="s-inner" data-s="9">
-                <p class="s-overline pink">Honest Review</p>
+        <section class="s s-wide" data-tint="#ffe14d">
+            <div class="s-inner" data-s="9" data-anim="scale">
                 <h2 class="s-display"><span class="t-gradient">Is it too much?</span></h2>
-                <p class="s-body">Never. Maximalism isn't excess. It's confidence. It's every color deciding to show up at the same time — and the world being better for it.</p>
             </div>
         </section>
 
@@ -460,8 +508,8 @@
         </section>
 
         <!-- 10 -->
-        <section class="s">
-            <div class="s-inner" data-s="10">
+        <section class="s s-left">
+            <div class="s-inner" data-s="10" data-anim="left">
                 <p class="s-overline mint">New Frequency</p>
                 <h2 class="s-display">The perspective<br><span class="t-mint">shifted.</span></h2>
                 <p class="s-body">Now you're above it. The flowers are still there — but they're the size of city blocks. The patterns repeat to the horizon.</p>
@@ -478,8 +526,8 @@
         </section>
 
         <!-- 12 -->
-        <section class="s">
-            <div class="s-inner" data-s="12">
+        <section class="s s-right" data-tint="#c77dff">
+            <div class="s-inner" data-s="12" data-anim="right">
                 <p class="s-overline violet">Geography</p>
                 <h2 class="s-display">The rivers<br><span class="t-violet">run in color.</span></h2>
                 <p class="s-body">Winding through pop-art valleys. Reflecting hues that don't exist in nature. Every bend reveals another impossible shade.</p>
@@ -487,8 +535,8 @@
         </section>
 
         <!-- 13 -->
-        <section class="s">
-            <div class="s-inner" data-s="13">
+        <section class="s s-left">
+            <div class="s-inner" data-s="13" data-anim="left">
                 <p class="s-overline blue">Memo from the Sky</p>
                 <h2 class="s-display">No color was<br><span class="t-blue">left behind.</span></h2>
                 <p class="s-body">Tangerine beside lavender beside chartreuse. No hierarchy. No palette committee. Just pure chromatic democracy.</p>
@@ -496,17 +544,15 @@
         </section>
 
         <!-- 14 -->
-        <section class="s">
-            <div class="s-inner" data-s="14">
-                <p class="s-overline gold">Urban Legend</p>
+        <section class="s s-wide" data-tint="#ff7b54">
+            <div class="s-inner" data-s="14" data-anim="scale">
                 <h2 class="s-display"><span class="t-gradient-3">The koi</span> have<br>always been here.</h2>
-                <p class="s-body">Swimming through streets older than the buildings around them. The city grew up around their route. Nobody thought to question it.</p>
             </div>
         </section>
 
         <!-- 15 -->
-        <section class="s">
-            <div class="s-inner" data-s="15">
+        <section class="s s-right">
+            <div class="s-inner" data-s="15" data-anim="right">
                 <p class="s-overline pink">Field Report</p>
                 <h2 class="s-display">The horizon breaks<br><span class="t-pink">every rule.</span></h2>
                 <p class="s-body">Colors that aren't in any color space. Gradients that shouldn't be possible. And yet — there they are. Undeniably real.</p>
@@ -514,18 +560,10 @@
         </section>
 
         <!-- 16 — OUTRO -->
-        <section class="s">
+        <section class="s" id="outro">
             <div class="s-inner" data-s="16">
-                <h2 class="s-display"><span class="t-gradient-2">Still<br>dreaming.</span></h2>
-                <p class="s-body">The flowers don't judge. The koi still swim. Scroll back up — the dream doesn't end, it just starts again.</p>
-                <div class="pill-row">
-                    <span class="pill">superflat</span>
-                    <span class="pill">murakami</span>
-                    <span class="pill">AI-generated</span>
-                    <span class="pill">maximalist</span>
-                    <span class="pill">scroll-driven</span>
-                    <span class="pill">neo pop</span>
-                </div>
+                <h2 class="outro-title"><span class="t-gradient-2">Still<br>dreaming.</span></h2>
+                <a class="scroll-top-link" id="scrollTop">Back to the beginning &uarr;</a>
                 <p class="outro-small">MADvids</p>
             </div>
         </section>
@@ -549,6 +587,8 @@
         function launch() {
             if (launched) return;
             launched = true;
+            video.playbackRate = 0.5;
+            video2.playbackRate = 0.5;
             video.play().catch(function(){});
             video2.play().catch(function(){});
             loader.classList.add('done');
@@ -577,12 +617,20 @@
             cachedTotal = scrollSpace.offsetHeight - cachedVH;
         }, { passive: true });
 
+        /* ═══ COLOR WASH ═══ */
+        const colorWash = document.getElementById('colorWash');
+        const tintSections = document.querySelectorAll('[data-tint]');
+
+        /* ═══ PARALLAX — cache section elements ═══ */
+        const sInners = document.querySelectorAll('.s-inner[data-s]');
+
         /* ═══ ACT BREAK — scroll-driven video crossfade ═══ */
         const actBreak = document.querySelector('[data-act="break"]');
         let crossfaded = false;
 
         function updateScroll() {
-            const p = Math.min(Math.max(window.scrollY / cachedTotal, 0), 1);
+            const scrollY = window.scrollY;
+            const p = Math.min(Math.max(scrollY / cachedTotal, 0), 1);
             progressFill.style.width = (p * 100) + '%';
 
             /* Crossfade around act break position */
@@ -591,8 +639,8 @@
                 const fadeStart = breakTop - cachedVH * 1.2;
                 const fadeEnd = breakTop - cachedVH * 0.2;
                 let t = 0;
-                if (window.scrollY >= fadeEnd) t = 1;
-                else if (window.scrollY > fadeStart) t = (window.scrollY - fadeStart) / (fadeEnd - fadeStart);
+                if (scrollY >= fadeEnd) t = 1;
+                else if (scrollY > fadeStart) t = (scrollY - fadeStart) / (fadeEnd - fadeStart);
 
                 var crossfadeOpacity1 = t > 0 ? 1 - t * 0.6 : 1;
                 var crossfadeOpacity2 = t;
@@ -601,6 +649,45 @@
 
                 crossfaded = t > 0.5;
             }
+
+            /* ═══ COLOR WASH — tint overlay based on centered section ═══ */
+            var activeTint = null;
+            var bestCenter = Infinity;
+            var viewCenter = scrollY + cachedVH * 0.5;
+            for (var i = 0; i < tintSections.length; i++) {
+                var sec = tintSections[i];
+                var secTop = sec.offsetTop;
+                var secH = sec.offsetHeight;
+                var secCenter = secTop + secH * 0.5;
+                var dist = Math.abs(viewCenter - secCenter);
+                if (dist < cachedVH * 0.6 && dist < bestCenter) {
+                    bestCenter = dist;
+                    activeTint = sec.dataset.tint;
+                }
+            }
+            if (activeTint) {
+                var tintStrength = 1 - (bestCenter / (cachedVH * 0.6));
+                colorWash.style.backgroundColor = activeTint;
+                colorWash.style.opacity = tintStrength * 0.15;
+            } else {
+                colorWash.style.opacity = '0';
+            }
+
+            /* ═══ PARALLAX — offset overline/body within visible sections ═══ */
+            for (var j = 0; j < sInners.length; j++) {
+                var inner = sInners[j];
+                if (!inner.classList.contains('visible')) continue;
+                var section = inner.parentElement;
+                var sTop = section.offsetTop;
+                var sH = section.offsetHeight;
+                var localProgress = (scrollY + cachedVH * 0.5 - sTop) / sH;
+                var offset = (localProgress - 0.5) * 40;
+                var overline = inner.querySelector('.s-overline');
+                var body = inner.querySelector('.s-body');
+                if (overline) overline.style.transform = 'translateY(' + (-offset) + 'px)';
+                if (body) body.style.transform = 'translateY(' + offset + 'px)';
+            }
+
             updateAudioFromScroll();
         }
 
@@ -730,6 +817,12 @@
                 );
                 if (audioCtx.state === 'suspended') audioCtx.resume().catch(function(){});
             }
+        });
+
+        /* ═══ SCROLL TO TOP ═══ */
+        document.getElementById('scrollTop').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     })();
     </script>
