@@ -114,7 +114,7 @@
             .title-video { display: none; }
         }
 
-        /* Play button — black circle with play triangle */
+        /* Play button — black icon, no background */
         .genie-btn {
             display: flex;
             align-items: center;
@@ -122,19 +122,18 @@
             width: 56px;
             height: 56px;
             border-radius: 50%;
-            background: #1a1a2e;
+            background: none;
             border: none;
             text-decoration: none;
             margin-top: clamp(28px, 4vw, 44px);
             opacity: 0;
             transform: translateY(20px);
             cursor: pointer;
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-                        background 0.3s;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .genie-btn svg {
-            width: 22px;
-            height: 22px;
+            width: 28px;
+            height: 28px;
             margin-left: 3px;
         }
         .genie-btn.revealed {
@@ -145,8 +144,7 @@
             animation: genieFloat 3s ease-in-out infinite;
         }
         .genie-btn:hover {
-            transform: scale(1.15);
-            background: #000;
+            transform: scale(1.25);
         }
         .genie-btn:active {
             transform: scale(0.9);
@@ -489,8 +487,7 @@
                 </h1>
             </div>
         </div>
-        <a class="genie-btn" id="genieBtn" href="experiments/journey/index.html" title="Enter the Journey" aria-label="Enter the Journey"><svg viewBox="0 0 24 24" fill="#fff"><polygon points="8,5 20,12 8,19"/></svg></a>
-        <a class="genie-btn" id="cosmosBtn" href="experiments/cosmos/index.html" title="Enter the Cosmos" aria-label="Enter the Cosmos" style="margin-top: 14px;"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><circle cx="12" cy="12" r="6" opacity="0.5"/><circle cx="12" cy="12" r="10" opacity="0.25"/><line x1="12" y1="2" x2="12" y2="4" opacity="0.6"/><line x1="12" y1="20" x2="12" y2="22" opacity="0.6"/><line x1="2" y1="12" x2="4" y2="12" opacity="0.6"/><line x1="20" y1="12" x2="22" y2="12" opacity="0.6"/></svg></a>
+        <a class="genie-btn" id="genieBtn" href="experiments/cosmos/index.html" title="Enter the Cosmos" aria-label="Enter the Cosmos"><svg viewBox="0 0 24 24" fill="#1a1a2e"><polygon points="8,5 20,12 8,19"/></svg></a>
         <div class="scroll-cue" id="scrollCue">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M6 9l6 6 6-6"/>
@@ -849,9 +846,6 @@
             setTimeout(function() {
                 document.getElementById('genieBtn').classList.add('revealed');
             }, genieDelay);
-            setTimeout(function() {
-                document.getElementById('cosmosBtn').classList.add('revealed');
-            }, genieDelay + 150);
 
             setTimeout(function() {
                 document.getElementById('scrollCue').classList.add('visible');
