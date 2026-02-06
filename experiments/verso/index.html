@@ -219,6 +219,64 @@
         }
         .scroll-top-link:hover { color: rgba(255,255,255,0.5); }
 
+        /* ═══ NEXT EXPERIENCE BUTTON ═══ */
+        .next-exp {
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+            margin-top: 48px;
+            padding: 20px 40px;
+            border-radius: 60px;
+            border: 1.5px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            text-decoration: none;
+            color: #fff;
+            font-family: 'Inter', -apple-system, sans-serif;
+            font-size: clamp(15px, 2vw, 19px);
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            cursor: pointer;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                        background 0.3s,
+                        border-color 0.3s,
+                        box-shadow 0.4s;
+            animation: nextFloat 3.5s ease-in-out infinite;
+        }
+        .next-exp:hover {
+            transform: scale(1.08);
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.25);
+            box-shadow: 0 0 40px rgba(125,249,255,0.12), 0 0 80px rgba(179,136,255,0.08);
+        }
+        .next-exp:active {
+            transform: scale(0.95);
+        }
+        .next-exp svg {
+            width: 22px; height: 22px;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .next-exp:hover svg {
+            transform: translateX(4px);
+        }
+        .next-exp-label {
+            font-size: 0.65rem;
+            font-weight: 400;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.3);
+        }
+        @keyframes nextFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .next-exp { animation: none; }
+            .next-exp:hover svg { transform: none; }
+        }
+
         /* ═══ PROGRESS ═══ */
         .progress-track {
             position: fixed;
@@ -371,8 +429,15 @@
         <section class="phase" data-phase="4">
             <div class="phase-inner" data-s="4">
                 <h2 class="outro-title"><span class="t-verso">Turn the page.</span></h2>
+                <a class="next-exp" href="/MADvids/experiments/cosmos/" aria-label="Next: Cosmos">
+                    <span>
+                        <span class="next-exp-label">Next experience</span><br>
+                        Cosmos
+                    </span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </a>
+                <br>
                 <a class="scroll-top-link" id="scrollTop">Back to the surface &uarr;</a>
-                <p class="outro-small">MADvids</p>
             </div>
         </section>
     </div>
