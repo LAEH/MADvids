@@ -11,7 +11,7 @@
     var NAV_ORDER = [
         'superflat', 'hyperpod-cinematic', 'hyperpod-showcase', 'hyperpod-grid',
         'hyperpod-immersive', 'delightfull-video', 'chromatic-shift', 'mesh-flow',
-        'lumina', 'shape-reveal', 'rift', 'verso', 'cosmos'
+        'lumina', 'shape-reveal', 'verso', 'cosmos'
     ];
 
     var EXP_NAMES = {
@@ -25,7 +25,6 @@
         'mesh-flow': 'Mesh Flow',
         'lumina': 'Lumina',
         'shape-reveal': 'Shape Reveal',
-        'rift': 'Rift',
         'verso': 'Verso',
         'cosmos': 'Cosmos'
     };

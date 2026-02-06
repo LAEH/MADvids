@@ -20,7 +20,6 @@ export default defineConfig({
         lumina: resolve(__dirname, 'experiments/lumina/index.html'),
         superflat: resolve(__dirname, 'experiments/superflat/index.html'),
         shapeReveal: resolve(__dirname, 'experiments/shape-reveal/index.html'),
-        rift: resolve(__dirname, 'experiments/rift/index.html'),
         about: resolve(__dirname, 'about/index.html'),
         verso: resolve(__dirname, 'experiments/verso/index.html'),
         cosmos: resolve(__dirname, 'experiments/cosmos/index.html'),
