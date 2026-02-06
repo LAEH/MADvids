@@ -4,14 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Depth & Grain</title>
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script>
-        (function(){var t=localStorage.getItem('ddn-theme');if(t)document.documentElement.setAttribute('data-theme',t)})();
+        (function(){const t=localStorage.getItem('ddn-theme');if(t)document.documentElement.setAttribute('data-theme',t)})();
     </script>
     <style>
         @view-transition { navigation: auto; }
+        :focus-visible { outline: 2px solid var(--fg-muted, rgba(255,255,255,0.5)); outline-offset: 2px; }
         :root {
             --bg: #000;
             --fg: #fff;
@@ -325,22 +327,22 @@
     <div class="grain"></div>
 
     <nav class="nav-bar">
-        <a class="nav-btn" href="../hyperpod-grid/" title="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></a>
+        <a class="nav-btn" href="../hyperpod-grid/" title="Previous" aria-label="Previous experiment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></a>
         <div class="nav-sep"></div>
-        <a class="nav-btn" href="../../" title="Home">
+        <a class="nav-btn" href="../../" title="Home" aria-label="Home">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><polyline points="9 21 9 13 15 13 15 21"/></svg>
         </a>
         <div class="nav-sep"></div>
-        <a class="nav-btn" href="../delightfull-video/" title="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
+        <a class="nav-btn" href="../delightfull-video/" title="Next" aria-label="Next experiment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
         <div class="nav-sep"></div>
-        <button class="nav-btn" id="themeToggle" title="Toggle theme">
+        <button class="nav-btn" id="themeToggle" title="Toggle theme" aria-label="Toggle theme">
             <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
             <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
     </nav>
 
     <div class="video-layer">
-        <video id="bgVideo" autoplay muted loop playsinline disablePictureInPicture>
+        <video id="bgVideo" autoplay muted loop playsinline disablePictureInPicture aria-label="Background cinematic footage">
             <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jfdgyie.mp4" type="video/mp4">
         </video>
     </div>
@@ -411,23 +413,26 @@
     </div>
 
     <script>
+    (function() {
+        'use strict';
+
         // Theme
         document.getElementById('themeToggle').addEventListener('click', function() {
-            var html = document.documentElement;
-            var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            const html = document.documentElement;
+            const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             html.setAttribute('data-theme', next);
             localStorage.setItem('ddn-theme', next);
         });
 
         // Video & loader
-        var video = document.getElementById('bgVideo');
-        var loader = document.getElementById('loader');
-        var launched = false;
+        const video = document.getElementById('bgVideo');
+        const loader = document.getElementById('loader');
+        let launched = false;
 
         function launch() {
             if (launched) return;
             launched = true;
-            video.play();
+            video.play().catch(function(){});
             loader.classList.add('done');
             document.body.classList.add('ready');
             setTimeout(function() { loader.remove(); }, 700);
@@ -437,12 +442,12 @@
         setTimeout(launch, 5000);
 
         // Parallax — compositor-only transform via translate3d
-        var ticking = false;
+        let ticking = false;
         window.addEventListener('scroll', function() {
             if (!ticking) {
                 requestAnimationFrame(function() {
-                    var y = window.scrollY;
-                    var s = 1 + y * 0.00015;
+                    const y = window.scrollY;
+                    const s = 1 + y * 0.00015;
                     video.style.transform = 'translate3d(0,' + (y * -0.12) + 'px,0) scale(' + s + ')';
                     ticking = false;
                 });
@@ -451,10 +456,10 @@
         }, { passive: true });
 
         // Reveal observer
-        var observer = new IntersectionObserver(function(entries) {
+        const observer = new IntersectionObserver(function(entries) {
             entries.forEach(function(e) {
                 if (e.isIntersecting) {
-                    var d = parseInt(e.target.dataset.delay || '0');
+                    const d = parseInt(e.target.dataset.delay || '0');
                     setTimeout(function() { e.target.classList.add('visible'); }, d);
                     observer.unobserve(e.target);
                 }
@@ -464,15 +469,16 @@
 
         /* Smooth loop fade */
         (function() {
-            var fade = 0.5;
+            const fade = 0.5;
             video.addEventListener('timeupdate', function() {
                 if (!video.duration) return;
-                var rem = video.duration - video.currentTime;
+                const rem = video.duration - video.currentTime;
                 if (rem < fade) video.style.opacity = rem / fade;
                 else if (video.currentTime < fade) video.style.opacity = Math.min(video.currentTime / fade, 1);
                 else if (video.style.opacity !== '') video.style.opacity = '';
             });
         })();
+    })();
     </script>
 </body>
 </html>

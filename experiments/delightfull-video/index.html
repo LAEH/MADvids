@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delightfull</title>
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
     <link rel="dns-prefetch" href="https://use.typekit.net">
     <link rel="preconnect" href="https://use.typekit.net" crossorigin>
     <link rel="stylesheet" href="https://use.typekit.net/ijn4thf.css">
     <style>
         @view-transition { navigation: auto; }
+        :focus-visible { outline: 2px solid rgba(255,255,255,0.5); outline-offset: 2px; }
         * {
             margin: 0;
             padding: 0;
@@ -242,14 +244,14 @@
 <body>
     <div class="preloader" id="preloader"><div class="preloader-ring"></div></div>
     <nav style="position:fixed;bottom:max(20px,env(safe-area-inset-bottom,20px));left:50%;transform:translateX(-50%);z-index:1000;display:flex;gap:2px;padding:4px;border-radius:14px;background:rgba(255,255,255,0.06);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08)">
-        <a href="../hyperpod-immersive/" title="Previous" style="display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;text-decoration:none;color:rgba(255,255,255,0.5);transition:background 0.2s,color 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.5)'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></a>
-        <a href="../../" title="All experiments" style="display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;text-decoration:none;color:rgba(255,255,255,0.5);transition:background 0.2s,color 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.5)'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg></a>
-        <a href="../chromatic-shift/" title="Next" style="display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;text-decoration:none;color:rgba(255,255,255,0.5);transition:background 0.2s,color 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.5)'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
+        <a href="../hyperpod-immersive/" title="Previous" aria-label="Previous experiment" style="display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;text-decoration:none;color:rgba(255,255,255,0.5);transition:background 0.2s,color 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.5)'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></a>
+        <a href="../../" title="All experiments" aria-label="Home" style="display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;text-decoration:none;color:rgba(255,255,255,0.5);transition:background 0.2s,color 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.5)'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg></a>
+        <a href="../chromatic-shift/" title="Next" aria-label="Next experiment" style="display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;text-decoration:none;color:rgba(255,255,255,0.5);transition:background 0.2s,color 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.5)'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
     </nav>
 
     <!-- Video Background -->
     <div class="video-bg loading" id="videoBg">
-        <video autoplay muted loop playsinline disablePictureInPicture>
+        <video autoplay muted loop playsinline disablePictureInPicture aria-label="Background video">
             <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/Video_Generation_With_Specific_Colors%20copy.mp4" type="video/mp4">
         </video>
     </div>
@@ -283,6 +285,8 @@
     </div>
 
     <script>
+    (function() {
+        'use strict';
         // Video load handling
         const videoBg = document.getElementById('videoBg');
         const video = videoBg.querySelector('video');
@@ -435,15 +439,16 @@
 
         /* Smooth loop fade */
         (function() {
-            var fade = 0.5;
+            const fade = 0.5;
             video.addEventListener('timeupdate', function() {
                 if (!video.duration) return;
-                var rem = video.duration - video.currentTime;
+                const rem = video.duration - video.currentTime;
                 if (rem < fade) video.style.opacity = rem / fade;
                 else if (video.currentTime < fade) video.style.opacity = Math.min(video.currentTime / fade, 1);
                 else if (video.style.opacity !== '') video.style.opacity = '';
             });
         })();
+    })();
     </script>
 </body>
 </html>

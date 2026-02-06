@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MADvids — Experiments</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="dns-prefetch" href="https://storage.googleapis.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,6 +18,8 @@
         @keyframes vt-fade { to { opacity: 0; } }
         @keyframes vt-shrink { to { transform: scale(0.94); opacity: 0; } }
         @keyframes vt-grow { from { transform: scale(0.94); opacity: 0; } }
+
+        :focus-visible { outline: 2px solid rgba(26,26,46,0.3); outline-offset: 2px; }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -342,6 +344,10 @@
                     0 2px 8px rgba(0,0,0,0.03),
                     0 12px 40px rgba(0,0,0,0.04);
             }
+            .card:active {
+                transform: scale(0.97);
+                transition: transform 0.1s ease;
+            }
         }
 
         @media (max-width: 480px) {
@@ -432,7 +438,7 @@
 
     <section class="hero" id="hero">
         <div class="title-container">
-            <video class="title-video" muted autoplay loop playsinline disablePictureInPicture preload="auto">
+            <video class="title-video" muted autoplay loop playsinline disablePictureInPicture preload="auto" aria-label="Background cinematic footage">
                 <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/Video_Generation_With_Specific_Colors%20copy.mp4" type="video/mp4">
             </video>
             <div class="title-mask">
@@ -460,7 +466,7 @@
         <div class="grid">
             <a class="card" href="experiments/superflat/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="auto">
+                    <video muted loop playsinline disablePictureInPicture preload="auto" aria-label="Experiment preview">
                         <source src="https://storage.googleapis.com/myproject-public-assets/art/MADvids/Surreal_Murakami_Dreamscape_Video_Generation.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -477,7 +483,7 @@
 
             <a class="card" href="experiments/hyperpod-cinematic/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="auto">
+                    <video muted loop playsinline disablePictureInPicture preload="auto" aria-label="Experiment preview">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-dgfdf.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -493,7 +499,7 @@
 
             <a class="card" href="experiments/hyperpod-showcase/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="auto">
+                    <video muted loop playsinline disablePictureInPicture preload="auto" aria-label="Experiment preview">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jhojeh.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -509,7 +515,7 @@
 
             <a class="card" href="experiments/hyperpod-grid/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="auto">
+                    <video muted loop playsinline disablePictureInPicture preload="none" aria-label="Experiment preview">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-kjhxsa.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -525,7 +531,7 @@
 
             <a class="card" href="experiments/hyperpod-immersive/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="none">
+                    <video muted loop playsinline disablePictureInPicture preload="none" aria-label="Experiment preview">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jfdgyie.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -541,7 +547,7 @@
 
             <a class="card" href="experiments/delightfull-video/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="none">
+                    <video muted loop playsinline disablePictureInPicture preload="none" aria-label="Experiment preview">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/Video_Generation_With_Specific_Colors%20copy.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -557,7 +563,7 @@
 
             <a class="card" href="experiments/chromatic-shift/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="none">
+                    <video muted loop playsinline disablePictureInPicture preload="none" aria-label="Experiment preview">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-kjhxsa.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -573,7 +579,7 @@
 
             <a class="card" href="experiments/mesh-flow/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="none">
+                    <video muted loop playsinline disablePictureInPicture preload="none" aria-label="Experiment preview">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jhojeh.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -589,7 +595,7 @@
 
             <a class="card" href="experiments/lumina/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="none">
+                    <video muted loop playsinline disablePictureInPicture preload="none" aria-label="Experiment preview">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/claude-pretty-ugvuda.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -606,7 +612,7 @@
 
             <a class="card" href="experiments/shape-reveal/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="none">
+                    <video muted loop playsinline disablePictureInPicture preload="none" aria-label="Experiment preview">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-dgfdf.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -642,21 +648,21 @@
            Waits for fonts + hero video + first card videos.
            Max timeout 6s so it never hangs forever. */
 
-        var splash = document.getElementById('splash');
-        var splashBar = document.getElementById('splashBar');
-        var splashDismissed = false;
+        const splash = document.getElementById('splash');
+        const splashBar = document.getElementById('splashBar');
+        let splashDismissed = false;
 
         /* Track loading milestones */
-        var loadState = { fonts: false, heroVideo: false, cardVideos: 0 };
-        var cardVideos = document.querySelectorAll('.card-preview video');
-        var targetCards = Math.min(cardVideos.length, 3); /* first row (3 cards) */
+        const loadState = { fonts: false, heroVideo: false, cardVideos: 0 };
+        const cardVideos = document.querySelectorAll('.card-preview video');
+        const targetCards = Math.min(cardVideos.length, 3); /* first row (3 cards) */
 
         function updateProgress() {
-            var total = 2 + targetCards; /* fonts + hero + N cards */
-            var done = (loadState.fonts ? 1 : 0)
+            const total = 2 + targetCards; /* fonts + hero + N cards */
+            const done = (loadState.fonts ? 1 : 0)
                      + (loadState.heroVideo ? 1 : 0)
                      + Math.min(loadState.cardVideos, targetCards);
-            var pct = Math.round((done / total) * 100);
+            const pct = Math.round((done / total) * 100);
             splashBar.style.width = pct + '%';
             if (done >= total) dismissSplash();
         }
@@ -687,7 +693,7 @@
         }
 
         /* Hero video */
-        var heroVid = document.querySelector('.title-video');
+        const heroVid = document.querySelector('.title-video');
         if (heroVid) {
             if (heroVid.readyState >= 3) {
                 loadState.heroVideo = true;
@@ -727,15 +733,15 @@
            will-change can be cleaned up after reveal completes.
            Triggered AFTER splash dismisses. */
 
-        var lines = document.querySelectorAll('#heroTitle .line');
-        var allLetters = [];
+        const lines = document.querySelectorAll('#heroTitle .line');
+        const allLetters = [];
 
         lines.forEach(function(line, lineIdx) {
-            var text = line.textContent;
+            const text = line.textContent;
             line.textContent = '';
-            var lineDelay = lineIdx * 120;
-            for (var i = 0; i < text.length; i++) {
-                var span = document.createElement('span');
+            const lineDelay = lineIdx * 120;
+            for (let i = 0; i < text.length; i++) {
+                const span = document.createElement('span');
                 span.className = 'letter';
                 span.textContent = text[i] === ' ' ? '\u00A0' : text[i];
                 span.dataset.delay = String(lineDelay + i * 28 + 200);
@@ -746,13 +752,13 @@
 
         function startHeroAnimation() {
             allLetters.forEach(function(span) {
-                var delay = parseInt(span.dataset.delay);
+                const delay = parseInt(span.dataset.delay);
                 setTimeout(function() {
                     span.classList.add('revealed');
                 }, delay);
             });
 
-            var subtitleDelay = 200 + (allLetters.length * 28) + 120 + 200;
+            const subtitleDelay = 200 + (allLetters.length * 28) + 120 + 200;
             setTimeout(function() {
                 document.getElementById('heroSubtitle').classList.add('revealed');
             }, subtitleDelay);
@@ -771,10 +777,10 @@
            Compositor-only: transform + opacity via translate3d.
            Throttled to one rAF per frame for guaranteed 60fps. */
 
-        var hero = document.getElementById('hero');
-        var scrollCue = document.getElementById('scrollCue');
-        var heroTicking = false;
-        var cachedVH = window.innerHeight;
+        const hero = document.getElementById('hero');
+        const scrollCue = document.getElementById('scrollCue');
+        let heroTicking = false;
+        let cachedVH = window.innerHeight;
 
         window.addEventListener('resize', function() {
             cachedVH = window.innerHeight;
@@ -783,8 +789,8 @@
         window.addEventListener('scroll', function() {
             if (!heroTicking) {
                 requestAnimationFrame(function() {
-                    var y = window.scrollY;
-                    var p = Math.min(y / (cachedVH * 0.7), 1);
+                    const y = window.scrollY;
+                    const p = Math.min(y / (cachedVH * 0.7), 1);
                     hero.style.transform = 'translate3d(0,' + (y * 0.35) + 'px,0)';
                     hero.style.opacity = String(1 - p);
                     if (y > 60 && scrollCue.classList.contains('visible')) {
@@ -800,10 +806,10 @@
            IntersectionObserver triggers class-based transitions.
            Stagger delay by card index for a cascade effect. */
 
-        var cardObserver = new IntersectionObserver(function(entries) {
+        const cardObserver = new IntersectionObserver(function(entries) {
             entries.forEach(function(e) {
                 if (e.isIntersecting) {
-                    var idx = parseInt(e.target.dataset.idx || '0');
+                    const idx = parseInt(e.target.dataset.idx || '0');
                     setTimeout(function() {
                         e.target.classList.add('visible');
                     }, idx * 90);
@@ -821,14 +827,14 @@
            Only decode videos in/near the viewport.
            Play on intersect, pause when out. */
 
-        var videosInView = new Set();
+        const videosInView = new Set();
 
-        var videoObserver = new IntersectionObserver(function(entries) {
+        const videoObserver = new IntersectionObserver(function(entries) {
             entries.forEach(function(e) {
-                var v = e.target;
+                const v = e.target;
                 if (e.isIntersecting) {
                     videosInView.add(v);
-                    tryPlay(v);
+                    if (v.readyState >= 2) tryPlay(v);
                 } else {
                     videosInView.delete(v);
                     v.pause();
@@ -846,10 +852,10 @@
 
         /* Smooth loop: fade out near end, fade back in at start */
         function initLoopFade(v) {
-            var fadeZone = 0.4; /* seconds before end to start fading */
+            const fadeZone = 0.4; /* seconds before end to start fading */
             v.addEventListener('timeupdate', function() {
                 if (!v.duration) return;
-                var remaining = v.duration - v.currentTime;
+                const remaining = v.duration - v.currentTime;
                 if (remaining < fadeZone) {
                     v.style.opacity = String(remaining / fadeZone);
                 } else if (v.currentTime < fadeZone) {
@@ -872,13 +878,13 @@
         /* ═══ 5. PREFETCH ON HOVER ═══
            Warm the browser cache for instant navigation. */
 
-        var prefetched = {};
+        const prefetched = {};
         document.querySelectorAll('.card').forEach(function(card) {
             card.addEventListener('mouseenter', function() {
-                var href = card.getAttribute('href');
+                const href = card.getAttribute('href');
                 if (!href || prefetched[href]) return;
                 prefetched[href] = true;
-                var link = document.createElement('link');
+                const link = document.createElement('link');
                 link.rel = 'prefetch';
                 link.href = href;
                 document.head.appendChild(link);
@@ -891,9 +897,9 @@
            Deferred until after splash so preload="auto" isn't killed. */
 
         function initFarObserver() {
-            var farObserver = new IntersectionObserver(function(entries) {
+            const farObserver = new IntersectionObserver(function(entries) {
                 entries.forEach(function(e) {
-                    var v = e.target.querySelector('video');
+                    const v = e.target.querySelector('video');
                     if (!v) return;
                     if (!e.isIntersecting) {
                         v.pause();
@@ -901,9 +907,13 @@
                         v.load();
                         v.classList.remove('playing');
                     } else if (!v.getAttribute('src')) {
-                        var source = v.querySelector('source');
+                        const source = v.querySelector('source');
                         if (source) {
                             v.src = source.getAttribute('src');
+                            v.addEventListener('loadeddata', function() {
+                                v.closest('.card-preview').classList.add('loaded');
+                                if (videosInView.has(v)) tryPlay(v);
+                            }, { once: true });
                         }
                     }
                 });
@@ -917,15 +927,15 @@
         /* ═══ 7. CARD TILT + VIDEO SPEED ON HOVER ═══ */
         if (window.matchMedia('(hover: hover)').matches) {
             document.querySelectorAll('.card').forEach(function(card) {
-                var preview = card.querySelector('.card-preview');
-                var vid = card.querySelector('.card-preview video');
+                const preview = card.querySelector('.card-preview');
+                const vid = card.querySelector('.card-preview video');
 
                 card.addEventListener('mousemove', function(e) {
-                    var rect = card.getBoundingClientRect();
-                    var x = (e.clientX - rect.left) / rect.width;
-                    var y = (e.clientY - rect.top) / rect.height;
-                    var rx = (0.5 - y) * 10;
-                    var ry = (x - 0.5) * 10;
+                    const rect = card.getBoundingClientRect();
+                    const x = (e.clientX - rect.left) / rect.width;
+                    const y = (e.clientY - rect.top) / rect.height;
+                    const rx = (0.5 - y) * 10;
+                    const ry = (x - 0.5) * 10;
                     if (preview) {
                         preview.style.transition = 'transform 0.1s ease-out';
                         preview.style.transform = 'perspective(800px) rotateX(' + rx + 'deg) rotateY(' + ry + 'deg) scale(1.02)';
@@ -949,7 +959,7 @@
         /* ═══ 8. VIEW TRANSITION — set name on clicked card ═══ */
         document.querySelectorAll('.card').forEach(function(card) {
             card.addEventListener('click', function() {
-                var preview = card.querySelector('.card-preview');
+                const preview = card.querySelector('.card-preview');
                 if (preview) preview.style.viewTransitionName = 'hero';
             });
         });

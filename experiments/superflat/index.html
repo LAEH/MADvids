@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Superflat</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         @view-transition { navigation: auto; }
+        :focus-visible { outline: 2px solid rgba(255,255,255,0.5); outline-offset: 2px; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
@@ -263,25 +264,34 @@
         }
 
         /* ═══ NAV ═══ */
-        .exp-nav {
+        .nav-bar {
             position: fixed;
-            bottom: max(20px, env(safe-area-inset-bottom, 20px));
-            left: 50%; transform: translateX(-50%);
+            top: max(20px, env(safe-area-inset-top, 20px));
+            left: max(20px, env(safe-area-inset-left, 20px));
             z-index: 100;
-            display: flex; gap: 2px; padding: 4px;
-            border-radius: 14px;
+            display: flex; align-items: center; gap: 2px; padding: 4px;
+            border-radius: 100px;
             background: rgba(255,255,255,0.06);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255,255,255,0.08);
+            opacity: 0; transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
-        .exp-nav a {
+        .nav-bar.visible { opacity: 1; }
+        .nav-btn {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: transparent; border: none;
             display: flex; align-items: center; justify-content: center;
-            width: 38px; height: 38px; border-radius: 10px;
-            text-decoration: none; color: rgba(255,255,255,0.5);
+            text-decoration: none; color: rgba(255,255,255,0.5); cursor: pointer;
             transition: background 0.2s, color 0.2s;
         }
-        .exp-nav a:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .nav-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .nav-btn svg { width: 15px; height: 15px; }
+        .nav-sep { width: 1px; height: 16px; background: rgba(255,255,255,0.08); margin: 0 2px; }
+        @media (pointer: coarse) {
+            .nav-btn { width: 44px; height: 44px; }
+            .nav-bar { padding: 4px 5px; }
+        }
 
         /* ═══ SOUND TOGGLE ═══ */
         .sound-toggle {
@@ -308,6 +318,9 @@
         /* ═══ RESPONSIVE ═══ */
         @media (max-width: 480px) {
             .s { padding-left: 16px; padding-right: 16px; }
+            .s-display { font-size: clamp(36px, 10vw, 80px); }
+            .s-body { line-height: 1.8; }
+            .intro-title { font-size: clamp(48px, 14vw, 160px); }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -323,10 +336,10 @@
     </div>
 
     <div class="video-wrap">
-        <video id="bgVideo" muted loop playsinline disablePictureInPicture preload="auto">
+        <video id="bgVideo" muted loop playsinline disablePictureInPicture preload="auto" aria-label="Murakami dreamscape video">
             <source src="https://storage.googleapis.com/myproject-public-assets/art/MADvids/Surreal_Murakami_Dreamscape_Video_Generation.mp4" type="video/mp4">
         </video>
-        <video id="bgVideo2" muted loop playsinline disablePictureInPicture preload="auto">
+        <video id="bgVideo2" muted loop playsinline disablePictureInPicture preload="auto" aria-label="Second dreamscape video">
             <source src="https://storage.googleapis.com/myproject-public-assets/art/MADvids/Neo_Pop_Dreamscape_Drone_Journey.mp4" type="video/mp4">
         </video>
     </div>
@@ -335,15 +348,17 @@
         <div class="progress-fill" id="progressFill"></div>
     </div>
 
-    <button class="sound-toggle" id="soundToggle" title="Toggle sound">
+    <button class="sound-toggle" id="soundToggle" title="Toggle sound" aria-label="Toggle sound" aria-pressed="false">
         <svg class="icon-off" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
         <svg class="icon-on" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
     </button>
 
-    <nav class="exp-nav">
-        <a href="../shape-reveal/" title="Previous"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></a>
-        <a href="../../" title="All experiments"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg></a>
-        <a href="../hyperpod-cinematic/" title="Next"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
+    <nav class="nav-bar" id="navBar">
+        <a class="nav-btn" href="../shape-reveal/" title="Previous" aria-label="Previous experiment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></a>
+        <div class="nav-sep"></div>
+        <a class="nav-btn" href="../../" title="Home" aria-label="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><polyline points="9 21 9 13 15 13 15 21"/></svg></a>
+        <div class="nav-sep"></div>
+        <a class="nav-btn" href="../hyperpod-cinematic/" title="Next" aria-label="Next experiment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
     </nav>
 
     <div class="scroll-space" id="scrollSpace">
@@ -368,8 +383,8 @@
         <section class="s">
             <div class="s-inner" data-s="2">
                 <p class="s-overline gold">Altitude: 200ft</p>
-                <h2 class="s-display"><span class="t-gold">Gravity</span><br>took a day off.</h2>
-                <p class="s-body">Cherry blossoms falling upward. Fish with butterfly wings. Cats the size of mountains. Nobody filed a complaint.</p>
+                <h2 class="s-display"><span class="t-gold">Gravity</span> is<br>optional here.</h2>
+                <p class="s-body">Petals drift upward. Colors bend sideways. In this world, even the laws of physics decided to play along.</p>
             </div>
         </section>
 
@@ -377,8 +392,8 @@
         <section class="s">
             <div class="s-inner" data-s="3">
                 <p class="s-overline blue">Color Theory</p>
-                <h2 class="s-display">The sky <span class="t-blue">forgot</span><br>how to pick one.</h2>
-                <p class="s-body">Indigo, hot pink, tangerine, lemon. The sky went to the paint store and said "yes." To everything. Simultaneously.</p>
+                <h2 class="s-display">Every surface is<br><span class="t-blue">saturated.</span></h2>
+                <p class="s-body">Not a single color was left out. Not a single one asked permission. The palette just happened — all at once, unapologetically.</p>
             </div>
         </section>
 
@@ -386,8 +401,8 @@
         <section class="s">
             <div class="s-inner" data-s="4">
                 <p class="s-overline coral">Patience Level: Infinite</p>
-                <h2 class="s-display"><span class="t-coral">Those cats</span><br>have been waving<br>for 3,000 years.</h2>
-                <p class="s-body">They're not tired. They're not stuck. They just really, genuinely believe you're going to have a great day.</p>
+                <h2 class="s-display">The beckoning cats<br><span class="t-coral">never stop.</span></h2>
+                <p class="s-body">Three thousand years of waving. Not from obligation. From the radical, unshakeable belief that something wonderful is about to happen.</p>
             </div>
         </section>
 
@@ -395,8 +410,8 @@
         <section class="s">
             <div class="s-inner" data-s="5">
                 <p class="s-overline mint">Scale: Absurd</p>
-                <h2 class="s-display">Every petal is<br><span class="t-mint">a tiny universe</span></h2>
-                <p class="s-body">Pretending to be simple. Inside each one: a whole world, a small story, a manga character having the absolute best day of their life.</p>
+                <h2 class="s-display">Inside every petal,<br><span class="t-mint">a universe.</span></h2>
+                <p class="s-body">Whole worlds folded into a single bloom. Look closer. There are stories in there. Characters. Entire afternoons of joy.</p>
             </div>
         </section>
 
@@ -404,8 +419,8 @@
         <section class="s">
             <div class="s-inner" data-s="6">
                 <p class="s-overline violet">Fun Fact</p>
-                <h2 class="s-display"><span class="t-violet">Origami</span> cranes<br>don't need<br>runways.</h2>
-                <p class="s-body">Thousands of them. Holographic. Iridescent. Scattering rainbows like confetti at a party the universe threw for itself.</p>
+                <h2 class="s-display"><span class="t-violet">Paper cranes</span><br>don't need<br>runways.</h2>
+                <p class="s-body">A thousand of them. Holographic. Catching light from angles that shouldn't exist. Each one a small act of belief in the impossible.</p>
             </div>
         </section>
 
@@ -413,8 +428,8 @@
         <section class="s">
             <div class="s-inner" data-s="7">
                 <p class="s-overline gold">Art Criticism</p>
-                <h2 class="s-display">Murakami said<br><span class="t-gradient-3">"more"</span></h2>
-                <p class="s-body">Then he said it again. And again. Until "more" became a philosophy, a religion, a 300-foot carp streamer billowing in a wind that smells like candy.</p>
+                <h2 class="s-display">More is the<br><span class="t-gradient-3">only direction.</span></h2>
+                <p class="s-body">Murakami understood: restraint is a choice. So is abundance. One of them fills a room. The other fills a universe.</p>
             </div>
         </section>
 
@@ -422,8 +437,8 @@
         <section class="s">
             <div class="s-inner" data-s="8">
                 <p class="s-overline blue">Technical Note</p>
-                <h2 class="s-display">This is<br><span class="t-blue">24 frames</span><br>per second.</h2>
-                <p class="s-body">Each one hand-hallucinated by an AI that was asked to dream in Japanese pop art. It did not disappoint. It did not hold back.</p>
+                <h2 class="s-display"><span class="t-blue">24 frames</span> of<br>pure imagination.</h2>
+                <p class="s-body">Every frame synthesized by an AI dreaming in Japanese pop art. No reference images. No safety net. Just vision, rendered.</p>
             </div>
         </section>
 
@@ -431,8 +446,8 @@
         <section class="s">
             <div class="s-inner" data-s="9">
                 <p class="s-overline pink">Honest Review</p>
-                <h2 class="s-display"><span class="t-gradient">Too much?</span></h2>
-                <p class="s-body">Never. Maximalism is just minimalism that went to therapy, healed its shame, and decided to wear every color at once.</p>
+                <h2 class="s-display"><span class="t-gradient">Is it too much?</span></h2>
+                <p class="s-body">Never. Maximalism isn't excess. It's confidence. It's every color deciding to show up at the same time — and the world being better for it.</p>
             </div>
         </section>
 
@@ -448,8 +463,8 @@
         <section class="s">
             <div class="s-inner" data-s="10">
                 <p class="s-overline mint">New Frequency</p>
-                <h2 class="s-display">The drone<br><span class="t-mint">lifted off</span></h2>
-                <p class="s-body">And suddenly you're not walking through the dream. You're floating above it. The flowers are still smiling. But now they're the size of city blocks.</p>
+                <h2 class="s-display">The perspective<br><span class="t-mint">shifted.</span></h2>
+                <p class="s-body">Now you're above it. The flowers are still there — but they're the size of city blocks. The patterns repeat to the horizon.</p>
             </div>
         </section>
 
@@ -457,8 +472,8 @@
         <section class="s">
             <div class="s-inner" data-s="11">
                 <p class="s-overline coral">Altitude: Silly</p>
-                <h2 class="s-display"><span class="t-coral">Clouds</span><br>shaped like<br>kanji.</h2>
-                <p class="s-body">The one on the left says "joy." The one on the right says "snack time." Both are equally sacred.</p>
+                <h2 class="s-display">The clouds have<br><span class="t-coral">their own language.</span></h2>
+                <p class="s-body">Shapes that almost spell something. Meanings that dissolve before you can read them. The sky is literate, but it speaks in riddles.</p>
             </div>
         </section>
 
@@ -466,8 +481,8 @@
         <section class="s">
             <div class="s-inner" data-s="12">
                 <p class="s-overline violet">Geography</p>
-                <h2 class="s-display">Rivers of<br><span class="t-violet">liquid</span><br><span class="t-violet">candy.</span></h2>
-                <p class="s-body">Winding through pop-art mountains that look suspiciously like soft-serve ice cream. Nobody questions it. Questioning would ruin the flavor.</p>
+                <h2 class="s-display">The rivers<br><span class="t-violet">run in color.</span></h2>
+                <p class="s-body">Winding through pop-art valleys. Reflecting hues that don't exist in nature. Every bend reveals another impossible shade.</p>
             </div>
         </section>
 
@@ -475,8 +490,8 @@
         <section class="s">
             <div class="s-inner" data-s="13">
                 <p class="s-overline blue">Memo from the Sky</p>
-                <h2 class="s-display">Every color<br><span class="t-blue">showed up</span><br>uninvited.</h2>
-                <p class="s-body">And the party got better for it. Neon tangerine next to electric lavender next to screaming chartreuse. No dress code. No regrets.</p>
+                <h2 class="s-display">No color was<br><span class="t-blue">left behind.</span></h2>
+                <p class="s-body">Tangerine beside lavender beside chartreuse. No hierarchy. No palette committee. Just pure chromatic democracy.</p>
             </div>
         </section>
 
@@ -484,8 +499,8 @@
         <section class="s">
             <div class="s-inner" data-s="14">
                 <p class="s-overline gold">Urban Legend</p>
-                <h2 class="s-display"><span class="t-gradient-3">Giant koi</span><br>swim through<br>the streets.</h2>
-                <p class="s-body">They've been doing this since before the buildings existed. The buildings were built around their route. The city planners were fans.</p>
+                <h2 class="s-display"><span class="t-gradient-3">The koi</span> have<br>always been here.</h2>
+                <p class="s-body">Swimming through streets older than the buildings around them. The city grew up around their route. Nobody thought to question it.</p>
             </div>
         </section>
 
@@ -493,8 +508,8 @@
         <section class="s">
             <div class="s-inner" data-s="15">
                 <p class="s-overline pink">Field Report</p>
-                <h2 class="s-display">The horizon<br>is a<br><span class="t-pink">gradient.</span></h2>
-                <p class="s-body">It goes from "absolutely not a real color" to "definitely illegal in most color spaces." Nobody called the authorities. They were too busy staring.</p>
+                <h2 class="s-display">The horizon breaks<br><span class="t-pink">every rule.</span></h2>
+                <p class="s-body">Colors that aren't in any color space. Gradients that shouldn't be possible. And yet — there they are. Undeniably real.</p>
             </div>
         </section>
 
@@ -502,7 +517,7 @@
         <section class="s">
             <div class="s-inner" data-s="16">
                 <h2 class="s-display"><span class="t-gradient-2">Still<br>dreaming.</span></h2>
-                <p class="s-body">You can scroll back up. The flowers won't judge. The koi will wave. The clouds will still say "snack time."</p>
+                <p class="s-body">The flowers don't judge. The koi still swim. Scroll back up — the dream doesn't end, it just starts again.</p>
                 <div class="pill-row">
                     <span class="pill">superflat</span>
                     <span class="pill">murakami</span>
@@ -517,12 +532,15 @@
     </div>
 
     <script>
+    (function() {
+        'use strict';
+
         /* ═══ LOADER ═══ */
-        var video = document.getElementById('bgVideo');
-        var video2 = document.getElementById('bgVideo2');
-        var loader = document.getElementById('loader');
-        var launched = false;
-        var ready1 = false, ready2 = false;
+        const video = document.getElementById('bgVideo');
+        const video2 = document.getElementById('bgVideo2');
+        const loader = document.getElementById('loader');
+        let launched = false;
+        let ready1 = false, ready2 = false;
 
         function checkLaunch() {
             if (ready1 && ready2) launch();
@@ -531,11 +549,12 @@
         function launch() {
             if (launched) return;
             launched = true;
-            video.play();
-            video2.play();
+            video.play().catch(function(){});
+            video2.play().catch(function(){});
             loader.classList.add('done');
             document.body.style.overflow = '';
             setTimeout(function() { loader.remove(); }, 600);
+            setTimeout(function() { document.getElementById('navBar').classList.add('visible'); }, 1000);
         }
         document.body.style.overflow = 'hidden';
 
@@ -548,10 +567,10 @@
         setTimeout(launch, 6000);
 
         /* ═══ SCROLL PROGRESS ═══ */
-        var progressFill = document.getElementById('progressFill');
-        var scrollSpace = document.getElementById('scrollSpace');
-        var cachedVH = window.innerHeight;
-        var cachedTotal = scrollSpace.offsetHeight - cachedVH;
+        const progressFill = document.getElementById('progressFill');
+        const scrollSpace = document.getElementById('scrollSpace');
+        let cachedVH = window.innerHeight;
+        let cachedTotal = scrollSpace.offsetHeight - cachedVH;
 
         window.addEventListener('resize', function() {
             cachedVH = window.innerHeight;
@@ -559,31 +578,33 @@
         }, { passive: true });
 
         /* ═══ ACT BREAK — scroll-driven video crossfade ═══ */
-        var actBreak = document.querySelector('[data-act="break"]');
-        var crossfaded = false;
+        const actBreak = document.querySelector('[data-act="break"]');
+        let crossfaded = false;
 
         function updateScroll() {
-            var p = Math.min(Math.max(window.scrollY / cachedTotal, 0), 1);
+            const p = Math.min(Math.max(window.scrollY / cachedTotal, 0), 1);
             progressFill.style.width = (p * 100) + '%';
 
             /* Crossfade around act break position */
             if (actBreak) {
-                var breakTop = actBreak.offsetTop;
-                var fadeStart = breakTop - cachedVH * 1.2;
-                var fadeEnd = breakTop - cachedVH * 0.2;
-                var t = 0;
+                const breakTop = actBreak.offsetTop;
+                const fadeStart = breakTop - cachedVH * 1.2;
+                const fadeEnd = breakTop - cachedVH * 0.2;
+                let t = 0;
                 if (window.scrollY >= fadeEnd) t = 1;
                 else if (window.scrollY > fadeStart) t = (window.scrollY - fadeStart) / (fadeEnd - fadeStart);
 
-                video2.style.opacity = t;
-                if (t > 0) video.style.opacity = 1 - t * 0.6;
-                else if (!crossfaded) video.style.opacity = '';
+                var crossfadeOpacity1 = t > 0 ? 1 - t * 0.6 : 1;
+                var crossfadeOpacity2 = t;
+                video.style.opacity = Math.min(parseFloat(video.dataset.loopOpacity || 1), crossfadeOpacity1);
+                video2.style.opacity = Math.min(parseFloat(video2.dataset.loopOpacity || 1), crossfadeOpacity2);
 
                 crossfaded = t > 0.5;
             }
+            updateAudioFromScroll();
         }
 
-        var ticking = false;
+        let ticking = false;
         window.addEventListener('scroll', function() {
             if (!ticking) {
                 requestAnimationFrame(function() {
@@ -595,7 +616,7 @@
         }, { passive: true });
 
         /* ═══ SECTION REVEAL ═══ */
-        var sectionObserver = new IntersectionObserver(function(entries) {
+        const sectionObserver = new IntersectionObserver(function(entries) {
             entries.forEach(function(e) {
                 if (e.isIntersecting) {
                     e.target.classList.add('visible');
@@ -615,48 +636,45 @@
 
         /* First section visible immediately */
         setTimeout(function() {
-            var first = document.querySelector('.s-inner[data-s="0"]');
+            const first = document.querySelector('.s-inner[data-s="0"]');
             if (first) first.classList.add('visible');
         }, 300);
 
-        /* ═══ SMOOTH LOOP FADE ═══ */
-        var fade = 0.5;
+        /* ═══ SMOOTH LOOP FADE (rAF-based for 60fps) ═══ */
         function initLoopFade(v) {
-            v.addEventListener('timeupdate', function() {
-                if (!v.duration) return;
-                var rem = v.duration - v.currentTime;
-                if (rem < fade) {
-                    var loopOpacity = rem / fade;
-                    /* Only set loop opacity if it's less than current crossfade opacity */
-                    var current = parseFloat(v.style.opacity);
-                    if (isNaN(current) || loopOpacity < current) {
-                        v.style.opacity = loopOpacity;
-                    }
-                } else if (v.currentTime < fade) {
-                    var fadeIn = Math.min(v.currentTime / fade, 1);
-                    var current2 = parseFloat(v.style.opacity);
-                    if (isNaN(current2) || fadeIn < current2) {
-                        v.style.opacity = fadeIn;
-                    }
+            var fadeDur = 1.5;
+            v.dataset.loopOpacity = '1';
+            function tick() {
+                if (v.paused) return;
+                if (v.duration) {
+                    var rem = v.duration - v.currentTime;
+                    var o = 1;
+                    if (rem < fadeDur) o = rem / fadeDur;
+                    else if (v.currentTime < fadeDur) o = Math.min(v.currentTime / fadeDur, 1);
+                    v.dataset.loopOpacity = o;
                 }
-            });
+                requestAnimationFrame(tick);
+            }
+            v.addEventListener('play', function() { requestAnimationFrame(tick); });
         }
         initLoopFade(video);
         initLoopFade(video2);
 
         /* ═══ AMBIENT SOUND (Web Audio API) ═══ */
-        var audioCtx = null, masterGain = null, droneFilter = null;
-        var soundEnabled = false;
-        var soundBtn = document.getElementById('soundToggle');
+        let audioCtx = null, masterGain = null, droneFilter = null;
+        let soundEnabled = false;
+        const soundBtn = document.getElementById('soundToggle');
 
         function initAudio() {
             if (audioCtx) return;
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) { return; }
             masterGain = audioCtx.createGain();
             masterGain.gain.value = 0;
             masterGain.connect(audioCtx.destination);
 
-            var droneGain = audioCtx.createGain();
+            const droneGain = audioCtx.createGain();
             droneGain.gain.value = 0.08;
             droneFilter = audioCtx.createBiquadFilter();
             droneFilter.type = 'lowpass';
@@ -667,13 +685,13 @@
 
             /* Dreamy pad: major 7th chord with detuning */
             [65.4, 82.4, 98, 123.5].forEach(function(f) {
-                var osc = audioCtx.createOscillator();
+                const osc = audioCtx.createOscillator();
                 osc.type = 'sine';
                 osc.frequency.value = f;
                 osc.connect(droneGain);
                 osc.start();
                 /* Slight detune copy */
-                var osc2 = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
                 osc2.type = 'sine';
                 osc2.frequency.value = f * 1.003;
                 osc2.connect(droneGain);
@@ -681,8 +699,8 @@
             });
 
             /* Slow filter sweep LFO */
-            var lfo = audioCtx.createOscillator();
-            var lfoG = audioCtx.createGain();
+            const lfo = audioCtx.createOscillator();
+            const lfoG = audioCtx.createGain();
             lfo.frequency.value = 0.08;
             lfoG.gain.value = 100;
             lfo.connect(lfoG);
@@ -693,31 +711,27 @@
         /* Scroll modulates filter brightness */
         function updateAudioFromScroll() {
             if (!droneFilter || !soundEnabled) return;
-            var p = Math.min(Math.max(window.scrollY / cachedTotal, 0), 1);
+            const p = Math.min(Math.max(window.scrollY / cachedTotal, 0), 1);
             droneFilter.frequency.linearRampToValueAtTime(
                 200 + p * 600,
                 audioCtx.currentTime + 0.1
             );
         }
 
-        var oldUpdateScroll = updateScroll;
-        updateScroll = function() {
-            oldUpdateScroll();
-            updateAudioFromScroll();
-        };
-
         soundBtn.addEventListener('click', function() {
             initAudio();
             soundEnabled = !soundEnabled;
             soundBtn.classList.toggle('active', soundEnabled);
+            soundBtn.setAttribute('aria-pressed', String(soundEnabled));
             if (audioCtx) {
                 masterGain.gain.linearRampToValueAtTime(
                     soundEnabled ? 1 : 0,
                     audioCtx.currentTime + 0.5
                 );
-                if (audioCtx.state === 'suspended') audioCtx.resume();
+                if (audioCtx.state === 'suspended') audioCtx.resume().catch(function(){});
             }
         });
+    })();
     </script>
 </body>
 </html>

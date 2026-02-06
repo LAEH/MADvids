@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Lumina</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         @view-transition { navigation: auto; }
+        :focus-visible { outline: 2px solid rgba(255,255,255,0.5); outline-offset: 2px; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; overflow: hidden; }
 
@@ -295,7 +296,7 @@
 </head>
 <body>
     <div class="video-layer">
-        <video id="bgVideo" muted autoplay loop playsinline disablePictureInPicture preload="auto">
+        <video id="bgVideo" muted autoplay loop playsinline disablePictureInPicture preload="auto" aria-label="Background ambient video">
             <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/claude-pretty-ugvuda.mp4" type="video/mp4">
         </video>
     </div>
@@ -361,15 +362,15 @@
         <div class="progress-fill" id="progressFill"></div>
     </div>
 
-    <button class="sound-toggle" id="soundToggle" title="Toggle sound">
+    <button class="sound-toggle" id="soundToggle" title="Toggle sound" aria-label="Toggle sound" aria-pressed="false">
         <svg class="icon-off" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
         <svg class="icon-on" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
     </button>
 
     <nav class="exp-nav">
-        <a href="../mesh-flow/" title="Previous"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></a>
-        <a href="../../" title="All experiments"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg></a>
-        <a href="../shape-reveal/" title="Next"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
+        <a href="../mesh-flow/" title="Previous" aria-label="Previous experiment"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></a>
+        <a href="../../" title="All experiments" aria-label="Home"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg></a>
+        <a href="../shape-reveal/" title="Next" aria-label="Next experiment"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
     </nav>
 
     <script>
@@ -379,15 +380,17 @@
         /* ═══════════════════════════════════════
            SOUND ENGINE (Web Audio API synthesis)
            ═══════════════════════════════════════ */
-        var audioCtx = null;
-        var masterGain = null;
-        var droneGain = null;
-        var soundEnabled = false;
-        var soundToggleBtn = document.getElementById('soundToggle');
+        let audioCtx = null;
+        let masterGain = null;
+        let droneGain = null;
+        let soundEnabled = false;
+        const soundToggleBtn = document.getElementById('soundToggle');
 
         function initAudio() {
             if (audioCtx) return;
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) { return; }
             masterGain = audioCtx.createGain();
             masterGain.gain.value = 0;
             masterGain.connect(audioCtx.destination);
@@ -395,16 +398,16 @@
             /* Ambient drone: 3 detuned oscillators through lowpass */
             droneGain = audioCtx.createGain();
             droneGain.gain.value = 0.12;
-            var filter = audioCtx.createBiquadFilter();
+            const filter = audioCtx.createBiquadFilter();
             filter.type = 'lowpass';
             filter.frequency.value = 400;
             filter.Q.value = 1;
             droneGain.connect(filter);
             filter.connect(masterGain);
 
-            var freqs = [55, 55.3, 82.4]; /* A1, slightly detuned, E2 */
+            const freqs = [55, 55.3, 82.4]; /* A1, slightly detuned, E2 */
             freqs.forEach(function(f) {
-                var osc = audioCtx.createOscillator();
+                const osc = audioCtx.createOscillator();
                 osc.type = 'sine';
                 osc.frequency.value = f;
                 osc.connect(droneGain);
@@ -412,8 +415,8 @@
             });
 
             /* Slow LFO on filter for movement */
-            var lfo = audioCtx.createOscillator();
-            var lfoGain = audioCtx.createGain();
+            const lfo = audioCtx.createOscillator();
+            const lfoGain = audioCtx.createGain();
             lfo.frequency.value = 0.15;
             lfoGain.gain.value = 150;
             lfo.connect(lfoGain);
@@ -423,12 +426,12 @@
 
         function playCollectSound(ci) {
             if (!audioCtx || !soundEnabled) return;
-            var now = audioCtx.currentTime;
-            var osc = audioCtx.createOscillator();
-            var g = audioCtx.createGain();
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
             osc.type = 'sine';
             /* Map color index to pentatonic scale note */
-            var notes = [523, 587, 659, 784, 880, 988, 1047, 1175];
+            const notes = [523, 587, 659, 784, 880, 988, 1047, 1175];
             osc.frequency.value = notes[ci % notes.length] * (0.95 + Math.random() * 0.1);
             g.gain.setValueAtTime(0.08, now);
             g.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
@@ -440,11 +443,11 @@
 
         function playChapterSound() {
             if (!audioCtx || !soundEnabled) return;
-            var now = audioCtx.currentTime;
-            var notes = [523, 659, 784]; /* C5, E5, G5 arpeggio */
+            const now = audioCtx.currentTime;
+            const notes = [523, 659, 784]; /* C5, E5, G5 arpeggio */
             notes.forEach(function(f, i) {
-                var osc = audioCtx.createOscillator();
-                var g = audioCtx.createGain();
+                const osc = audioCtx.createOscillator();
+                const g = audioCtx.createGain();
                 osc.type = 'triangle';
                 osc.frequency.value = f;
                 g.gain.setValueAtTime(0, now + i * 0.12);
@@ -461,12 +464,13 @@
             initAudio();
             soundEnabled = !soundEnabled;
             soundToggleBtn.classList.toggle('active', soundEnabled);
+            soundToggleBtn.setAttribute('aria-pressed', String(soundEnabled));
             if (audioCtx) {
                 masterGain.gain.linearRampToValueAtTime(
                     soundEnabled ? 1 : 0,
                     audioCtx.currentTime + 0.3
                 );
-                if (audioCtx.state === 'suspended') audioCtx.resume();
+                if (audioCtx.state === 'suspended') audioCtx.resume().catch(function(){});
             }
         });
 
@@ -474,9 +478,9 @@
            CONFIG
            ═══════════════════════════════════════ */
 
-        var THRESHOLDS = [0, 2, 8, 18, 35, 55, 80];
+        const THRESHOLDS = [0, 2, 8, 18, 35, 55, 80];
 
-        var ACHIEVEMENTS = [
+        const ACHIEVEMENTS = [
             { at: 1,  title: 'First Light',     desc: 'Let there be light' },
             { at: 5,  title: 'Spark',            desc: 'You\'re glowing' },
             { at: 15, title: 'Chain Reaction',   desc: 'Can\'t stop the light' },
@@ -485,7 +489,7 @@
             { at: 80, title: 'Transcendent',     desc: 'You became the light' }
         ];
 
-        var COLORS = [
+        const COLORS = [
             [255, 80, 180],   // hot pink
             [80, 160, 255],   // sky blue
             [255, 210, 60],   // golden
@@ -500,39 +504,39 @@
            STATE
            ═══════════════════════════════════════ */
 
-        var lumens = 0;
-        var activeChapter = 0;
-        var combo = 0;
-        var lastCollectTime = 0;
-        var mx = -500, my = -500;
-        var W, H;
-        var maxOrbs = 14;
-        var spawnInterval = 600;
-        var spawnTimer = 0;
-        var magnetRadius = 160;
-        var autoCollectRadius = 55;
+        let lumens = 0;
+        let activeChapter = 0;
+        let combo = 0;
+        let lastCollectTime = 0;
+        let mx = -500, my = -500;
+        let W, H;
+        let maxOrbs = 14;
+        let spawnInterval = 600;
+        let spawnTimer = 0;
+        let magnetRadius = 160;
+        let autoCollectRadius = 55;
 
         /* ═══════════════════════════════════════
            DOM
            ═══════════════════════════════════════ */
 
-        var canvas = document.getElementById('canvas');
-        var ctx = canvas.getContext('2d');
-        var darkOverlay = document.getElementById('darkOverlay');
-        var flashEl = document.getElementById('flash');
-        var lumenValueEl = document.getElementById('lumenValue');
-        var hudEl = document.getElementById('hud');
-        var toastContainer = document.getElementById('toastContainer');
-        var progressFill = document.getElementById('progressFill');
-        var instructionEl = document.getElementById('instruction');
-        var chapters = [];
-        for (var i = 0; i <= 6; i++) chapters.push(document.getElementById('c' + i));
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const darkOverlay = document.getElementById('darkOverlay');
+        const flashEl = document.getElementById('flash');
+        const lumenValueEl = document.getElementById('lumenValue');
+        const hudEl = document.getElementById('hud');
+        const toastContainer = document.getElementById('toastContainer');
+        const progressFill = document.getElementById('progressFill');
+        const instructionEl = document.getElementById('instruction');
+        const chapters = [];
+        for (let i = 0; i <= 6; i++) chapters.push(document.getElementById('c' + i));
 
         /* ═══════════════════════════════════════
            CANVAS SETUP
            ═══════════════════════════════════════ */
 
-        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
         function resize() {
             W = window.innerWidth;
@@ -551,10 +555,10 @@
            ═══════════════════════════════════════ */
 
         function makeGlow(r, g, b, rad) {
-            var c = document.createElement('canvas');
+            const c = document.createElement('canvas');
             c.width = c.height = rad * 2;
-            var x = c.getContext('2d');
-            var gr = x.createRadialGradient(rad, rad, 0, rad, rad, rad);
+            const x = c.getContext('2d');
+            const gr = x.createRadialGradient(rad, rad, 0, rad, rad, rad);
             gr.addColorStop(0, 'rgba(' + r + ',' + g + ',' + b + ',1)');
             gr.addColorStop(0.15, 'rgba(' + r + ',' + g + ',' + b + ',0.6)');
             gr.addColorStop(0.4, 'rgba(' + r + ',' + g + ',' + b + ',0.15)');
@@ -564,16 +568,16 @@
             return c;
         }
 
-        var glows = COLORS.map(function(c) { return makeGlow(c[0], c[1], c[2], 100); });
-        var cursorGlow = makeGlow(255, 255, 255, 120);
+        const glows = COLORS.map(function(c) { return makeGlow(c[0], c[1], c[2], 100); });
+        const cursorGlow = makeGlow(255, 255, 255, 120);
 
         /* ═══════════════════════════════════════
            PARTICLES
            ═══════════════════════════════════════ */
 
         /* — Ambient — */
-        var ambients = [];
-        for (var i = 0; i < 60; i++) {
+        const ambients = [];
+        for (let i = 0; i < 60; i++) {
             ambients.push({
                 x: Math.random() * 2000,
                 y: Math.random() * 2000,
@@ -587,14 +591,14 @@
         }
 
         /* — Trails (follow cursor) — */
-        var trails = [];
+        const trails = [];
 
         /* — Collectible Orbs — */
-        var orbs = [];
+        const orbs = [];
 
         function spawnOrb() {
             if (orbs.length >= maxOrbs) return;
-            var o = {
+            const o = {
                 x: 0, y: 0, vx: 0, vy: 0,
                 radius: 14 + Math.random() * 14,
                 ci: Math.floor(Math.random() * COLORS.length),
@@ -603,9 +607,9 @@
                 collecting: false,
                 ct: 0, born: performance.now()
             };
-            var side = Math.floor(Math.random() * 4);
-            var speed = 0.5 + Math.random() * 0.8;
-            var drift = (Math.random() - 0.5) * 0.5;
+            const side = Math.floor(Math.random() * 4);
+            const speed = 0.5 + Math.random() * 0.8;
+            const drift = (Math.random() - 0.5) * 0.5;
             if (side === 0)      { o.x = -50; o.y = Math.random() * H; o.vx = speed; o.vy = drift; }
             else if (side === 1) { o.x = W + 50; o.y = Math.random() * H; o.vx = -speed; o.vy = drift; }
             else if (side === 2) { o.x = Math.random() * W; o.y = -50; o.vx = drift; o.vy = speed; }
@@ -613,16 +617,16 @@
             orbs.push(o);
         }
 
-        for (var i = 0; i < 8; i++) spawnOrb();
+        for (let i = 0; i < 8; i++) spawnOrb();
 
         /* — Burst particles — */
-        var bursts = [];
+        const bursts = [];
 
         function emitBurst(x, y, ci, power) {
-            var n = 10 + Math.floor(Math.random() * 8 + power * 3);
-            for (var i = 0; i < n; i++) {
-                var angle = (6.28 / n) * i + Math.random() * 0.5;
-                var speed = 2 + Math.random() * 5 + power;
+            const n = 10 + Math.floor(Math.random() * 8 + power * 3);
+            for (let i = 0; i < n; i++) {
+                const angle = (6.28 / n) * i + Math.random() * 0.5;
+                const speed = 2 + Math.random() * 5 + power;
                 bursts.push({
                     x: x, y: y,
                     vx: Math.cos(angle) * speed,
@@ -634,10 +638,10 @@
         }
 
         /* — Pulse rings — */
-        var pulses = [];
+        const pulses = [];
 
         /* — Floating score texts — */
-        var floats = [];
+        const floats = [];
 
         /* ═══════════════════════════════════════
            SCREEN EFFECTS
@@ -671,10 +675,10 @@
         document.addEventListener('click', function(e) {
             pulses.push({ x: e.clientX, y: e.clientY, radius: 0, alpha: 0.55 });
             /* Shockwave collects in a large radius */
-            for (var i = 0; i < orbs.length; i++) {
-                var o = orbs[i];
+            for (let i = 0; i < orbs.length; i++) {
+                const o = orbs[i];
                 if (o.collecting || !o.alive) continue;
-                var dx = e.clientX - o.x, dy = e.clientY - o.y;
+                const dx = e.clientX - o.x, dy = e.clientY - o.y;
                 if (Math.sqrt(dx * dx + dy * dy) < 200) {
                     collectOrb(o);
                 }
@@ -686,13 +690,13 @@
             o.collecting = true;
             o.ct = 0;
 
-            var now = performance.now();
+            const now = performance.now();
             if (now - lastCollectTime < 2000) { combo++; }
             else { combo = 1; }
             lastCollectTime = now;
 
-            var points = combo;
-            var ci = o.ci;
+            const points = combo;
+            const ci = o.ci;
 
             setTimeout(function() {
                 if (!o.alive) return;
@@ -711,10 +715,10 @@
 
                 /* Chain reaction — nearby orbs get pulled in too */
                 if (combo >= 2) {
-                    for (var j = 0; j < orbs.length; j++) {
-                        var oo = orbs[j];
+                    for (let j = 0; j < orbs.length; j++) {
+                        const oo = orbs[j];
                         if (oo === o || oo.collecting || !oo.alive) continue;
-                        var ddx = o.x - oo.x, ddy = o.y - oo.y;
+                        const ddx = o.x - oo.x, ddy = o.y - oo.y;
                         if (Math.sqrt(ddx * ddx + ddy * ddy) < 120 + combo * 15) {
                             setTimeout(function(target) {
                                 return function() { collectOrb(target); };
@@ -740,7 +744,7 @@
             }
 
             /* Dark overlay fades quickly */
-            var overlayAlpha = Math.max(0.02, 0.3 - (lumens / 80) * 0.28);
+            const overlayAlpha = Math.max(0.02, 0.3 - (lumens / 80) * 0.28);
             darkOverlay.style.opacity = overlayAlpha;
 
             /* Difficulty + reward scaling */
@@ -754,16 +758,16 @@
         }
 
         function updateProgress() {
-            var next = activeChapter + 1;
+            const next = activeChapter + 1;
             if (next >= THRESHOLDS.length) { progressFill.style.width = '100%'; return; }
-            var lo = THRESHOLDS[activeChapter];
-            var hi = THRESHOLDS[next];
-            var p = Math.min((lumens - lo) / (hi - lo), 1);
+            const lo = THRESHOLDS[activeChapter];
+            const hi = THRESHOLDS[next];
+            const p = Math.min((lumens - lo) / (hi - lo), 1);
             progressFill.style.width = (p * 100) + '%';
         }
 
         function checkChapters() {
-            for (var i = THRESHOLDS.length - 1; i >= 0; i--) {
+            for (let i = THRESHOLDS.length - 1; i >= 0; i--) {
                 if (lumens >= THRESHOLDS[i] && i > activeChapter) {
                     transitionTo(i);
                     break;
@@ -774,11 +778,11 @@
         function transitionTo(idx) {
             if (idx === activeChapter) return;
             playChapterSound();
-            var prev = chapters[activeChapter];
+            const prev = chapters[activeChapter];
             prev.classList.remove('active');
             prev.classList.add('exit');
             activeChapter = idx;
-            var captured = idx;
+            const captured = idx;
             setTimeout(function() {
                 prev.classList.remove('exit');
                 chapters[captured].classList.add('active');
@@ -787,8 +791,8 @@
         }
 
         function checkAchievements() {
-            for (var i = 0; i < ACHIEVEMENTS.length; i++) {
-                var a = ACHIEVEMENTS[i];
+            for (let i = 0; i < ACHIEVEMENTS.length; i++) {
+                const a = ACHIEVEMENTS[i];
                 if (lumens >= a.at && !a.shown) {
                     a.shown = true;
                     showToast(a.title, a.desc);
@@ -797,7 +801,7 @@
         }
 
         function showToast(title, desc) {
-            var el = document.createElement('div');
+            const el = document.createElement('div');
             el.className = 'toast';
             el.innerHTML = '<div class="toast-title">' + title + '</div><div class="toast-desc">' + desc + '</div>';
             toastContainer.appendChild(el);
@@ -814,10 +818,10 @@
            RENDER LOOP
            ═══════════════════════════════════════ */
 
-        var lastTime = performance.now();
+        let lastTime = performance.now();
 
         function frame(now) {
-            var dt = Math.min(now - lastTime, 50);
+            const dt = Math.min(now - lastTime, 50);
             lastTime = now;
 
             ctx.clearRect(0, 0, W, H);
@@ -840,29 +844,29 @@
 
             /* — Cursor glow — */
             if (mx > 0 && my > 0) {
-                var gs = 50 + lumens * 0.4;
+                const gs = 50 + lumens * 0.4;
                 ctx.globalAlpha = 0.12 + Math.min(lumens * 0.002, 0.12);
                 ctx.drawImage(cursorGlow, mx - gs, my - gs, gs * 2, gs * 2);
                 ctx.globalAlpha = 1;
             }
 
             /* — Trails — */
-            for (var i = trails.length - 1; i >= 0; i--) {
-                var tr = trails[i];
+            for (let i = trails.length - 1; i >= 0; i--) {
+                const tr = trails[i];
                 tr.alpha -= 0.025;
                 if (tr.alpha <= 0) { trails.splice(i, 1); continue; }
                 ctx.globalAlpha = tr.alpha * 0.4;
                 ctx.beginPath();
                 ctx.arc(tr.x, tr.y, tr.r, 0, 6.28);
-                var tc = COLORS[tr.ci];
+                const tc = COLORS[tr.ci];
                 ctx.fillStyle = 'rgba(' + tc[0] + ',' + tc[1] + ',' + tc[2] + ',1)';
                 ctx.fill();
             }
             ctx.globalAlpha = 1;
 
             /* — Ambient particles — */
-            for (var i = 0; i < ambients.length; i++) {
-                var a = ambients[i];
+            for (let i = 0; i < ambients.length; i++) {
+                const a = ambients[i];
                 a.x += a.vx; a.y += a.vy;
                 a.phase += 0.012;
                 if (a.x < -10) a.x = W + 10;
@@ -872,8 +876,8 @@
 
                 /* Ambient particles react to cursor */
                 if (mx > 0) {
-                    var adx = mx - a.x, ady = my - a.y;
-                    var adist = Math.sqrt(adx * adx + ady * ady);
+                    const adx = mx - a.x, ady = my - a.y;
+                    const adist = Math.sqrt(adx * adx + ady * ady);
                     if (adist < 180 && adist > 1) {
                         a.vx += (adx / adist) * 0.015;
                         a.vy += (ady / adist) * 0.015;
@@ -881,9 +885,9 @@
                     a.vx *= 0.99; a.vy *= 0.99;
                 }
 
-                var brightness = a.a * (0.5 + 0.5 * Math.sin(a.phase));
+                const brightness = a.a * (0.5 + 0.5 * Math.sin(a.phase));
                 ctx.globalAlpha = brightness;
-                var ac = COLORS[a.ci];
+                const ac = COLORS[a.ci];
                 ctx.beginPath();
                 ctx.arc(a.x, a.y, a.r, 0, 6.28);
                 ctx.fillStyle = 'rgba(' + ac[0] + ',' + ac[1] + ',' + ac[2] + ',1)';
@@ -892,8 +896,8 @@
             ctx.globalAlpha = 1;
 
             /* — Collectible orbs — */
-            for (var i = orbs.length - 1; i >= 0; i--) {
-                var o = orbs[i];
+            for (let i = orbs.length - 1; i >= 0; i--) {
+                const o = orbs[i];
                 if (!o.alive) { orbs.splice(i, 1); continue; }
 
                 if (o.collecting) {
@@ -902,10 +906,10 @@
                     o.ct += dt;
                 } else {
                     /* Magnetic pull toward cursor */
-                    var dx = mx - o.x, dy = my - o.y;
-                    var dist = Math.sqrt(dx * dx + dy * dy);
+                    const dx = mx - o.x, dy = my - o.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
                     if (dist < magnetRadius && dist > 1) {
-                        var force = (magnetRadius - dist) / magnetRadius;
+                        let force = (magnetRadius - dist) / magnetRadius;
                         force = force * force * 1.8;
                         o.vx += (dx / dist) * force;
                         o.vy += (dy / dist) * force;
@@ -925,13 +929,13 @@
                     if (o.y > H + 80) o.y = -80;
                 }
 
-                var pulse = 1 + 0.25 * Math.sin(now * 0.004 + o.phase);
-                var dr = o.radius * pulse;
+                const pulse = 1 + 0.25 * Math.sin(now * 0.004 + o.phase);
+                let dr = o.radius * pulse;
                 /* Entrance scale */
-                var age = Math.min((now - o.born) / 400, 1);
+                const age = Math.min((now - o.born) / 400, 1);
                 dr *= age;
 
-                var tex = glows[o.ci];
+                const tex = glows[o.ci];
                 ctx.globalAlpha = (o.collecting ? Math.max(0, 1 - o.ct / 150) : 0.9) * age;
                 ctx.drawImage(tex, o.x - dr * 3, o.y - dr * 3, dr * 6, dr * 6);
                 /* Bright core */
@@ -950,21 +954,21 @@
             ctx.globalAlpha = 1;
 
             /* — Burst particles — */
-            for (var i = bursts.length - 1; i >= 0; i--) {
-                var b = bursts[i];
+            for (let i = bursts.length - 1; i >= 0; i--) {
+                const b = bursts[i];
                 b.x += b.vx; b.y += b.vy;
                 b.vx *= 0.94; b.vy *= 0.94;
                 b.alpha -= 0.022;
                 if (b.alpha <= 0) { bursts.splice(i, 1); continue; }
                 ctx.globalAlpha = Math.min(b.alpha, 1);
-                var tex = glows[b.ci];
+                const tex = glows[b.ci];
                 ctx.drawImage(tex, b.x - b.r * 3, b.y - b.r * 3, b.r * 6, b.r * 6);
             }
             ctx.globalAlpha = 1;
 
             /* — Pulse rings — */
-            for (var i = pulses.length - 1; i >= 0; i--) {
-                var p = pulses[i];
+            for (let i = pulses.length - 1; i >= 0; i--) {
+                const p = pulses[i];
                 p.radius += 4;
                 p.alpha -= 0.01;
                 if (p.alpha <= 0) { pulses.splice(i, 1); continue; }
@@ -979,13 +983,13 @@
 
             /* — Floating score texts — */
             ctx.globalCompositeOperation = 'source-over';
-            for (var i = floats.length - 1; i >= 0; i--) {
-                var f = floats[i];
+            for (let i = floats.length - 1; i >= 0; i--) {
+                const f = floats[i];
                 f.y += f.vy;
                 f.alpha -= 0.018;
                 if (f.alpha <= 0) { floats.splice(i, 1); continue; }
                 ctx.globalAlpha = Math.min(f.alpha, 1);
-                var fs = Math.round(16 * (f.scale || 1));
+                const fs = Math.round(16 * (f.scale || 1));
                 ctx.font = '800 ' + fs + 'px Inter, sans-serif';
                 ctx.fillStyle = '#fff';
                 ctx.textAlign = 'center';
@@ -994,16 +998,16 @@
 
             /* — Combo indicator — */
             if (combo > 1 && now - lastCollectTime < 2000) {
-                var ca = Math.min(1, (2000 - (now - lastCollectTime)) / 600);
+                const ca = Math.min(1, (2000 - (now - lastCollectTime)) / 600);
                 ctx.globalAlpha = ca * 0.9;
-                var comboSize = Math.min(16 + combo * 2, 32);
+                const comboSize = Math.min(16 + combo * 2, 32);
                 ctx.font = '900 ' + comboSize + 'px Inter, sans-serif';
                 ctx.fillStyle = 'rgba(255,220,80,1)';
                 ctx.textAlign = 'center';
                 ctx.fillText('\u00d7' + combo, mx + 28, my - 28);
 
                 /* Combo ring */
-                var ringProgress = 1 - (now - lastCollectTime) / 2000;
+                const ringProgress = 1 - (now - lastCollectTime) / 2000;
                 ctx.globalAlpha = ca * 0.35;
                 ctx.beginPath();
                 ctx.arc(mx, my, 25 + combo * 2, -1.57, -1.57 + ringProgress * 6.28);
@@ -1026,11 +1030,11 @@
         requestAnimationFrame(frame);
 
         /* Smooth loop fade */
-        var bgVid = document.getElementById('bgVideo');
-        var loopFade = 0.5;
+        const bgVid = document.getElementById('bgVideo');
+        const loopFade = 0.5;
         bgVid.addEventListener('timeupdate', function() {
             if (!bgVid.duration) return;
-            var rem = bgVid.duration - bgVid.currentTime;
+            const rem = bgVid.duration - bgVid.currentTime;
             if (rem < loopFade) bgVid.style.opacity = rem / loopFade;
             else if (bgVid.currentTime < loopFade) bgVid.style.opacity = Math.min(bgVid.currentTime / loopFade, 1);
             else if (bgVid.style.opacity !== '') bgVid.style.opacity = '';

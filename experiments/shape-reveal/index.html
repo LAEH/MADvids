@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shape Reveal</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         @view-transition { navigation: auto; }
+        :focus-visible { outline: 2px solid rgba(255,255,255,0.5); outline-offset: 2px; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
@@ -151,7 +152,7 @@
     </div>
 
     <div class="video-layer" id="videoLayer">
-        <video id="bgVideo" muted loop playsinline disablePictureInPicture preload="auto">
+        <video id="bgVideo" muted loop playsinline disablePictureInPicture preload="auto" aria-label="Shape reveal video">
             <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-dgfdf.mp4" type="video/mp4">
         </video>
     </div>
@@ -163,9 +164,9 @@
     </div>
 
     <nav class="exp-nav">
-        <a href="../lumina/" title="Previous"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></a>
-        <a href="../../" title="All experiments"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg></a>
-        <a href="../superflat/" title="Next"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
+        <a href="../lumina/" title="Previous" aria-label="Previous experiment"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></a>
+        <a href="../../" title="All experiments" aria-label="Home"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg></a>
+        <a href="../superflat/" title="Next" aria-label="Next experiment"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
     </nav>
 
     <div class="scroll-space" id="scrollSpace">
@@ -251,15 +252,18 @@
     </div>
 
     <script>
+    (function() {
+        'use strict';
+
         /* ═══ LOADER ═══ */
-        var video = document.getElementById('bgVideo');
-        var loader = document.getElementById('loader');
-        var launched = false;
+        const video = document.getElementById('bgVideo');
+        const loader = document.getElementById('loader');
+        let launched = false;
 
         function launch() {
             if (launched) return;
             launched = true;
-            video.play();
+            video.play().catch(function(){});
             loader.classList.add('done');
             setTimeout(function() { loader.remove(); }, 600);
         }
@@ -268,12 +272,12 @@
         setTimeout(launch, 5000);
 
         /* ═══ SCROLL VARS ═══ */
-        var videoLayer = document.getElementById('videoLayer');
-        var progressFill = document.getElementById('progressFill');
-        var shapeIndicator = document.getElementById('shapeIndicator');
-        var scrollSpace = document.getElementById('scrollSpace');
-        var cachedVH = window.innerHeight;
-        var cachedTotal = scrollSpace.offsetHeight - cachedVH;
+        const videoLayer = document.getElementById('videoLayer');
+        const progressFill = document.getElementById('progressFill');
+        const shapeIndicator = document.getElementById('shapeIndicator');
+        const scrollSpace = document.getElementById('scrollSpace');
+        let cachedVH = window.innerHeight;
+        let cachedTotal = scrollSpace.offsetHeight - cachedVH;
 
         window.addEventListener('resize', function() {
             cachedVH = window.innerHeight;
@@ -284,7 +288,7 @@
            Each takes t (0→1) and returns a clip-path string.
            clip-path is on the VIDEO layer — bigger shape = more video visible. */
 
-        var shapes = [
+        const shapes = [
             /* 0: Intro — video hidden */
             { name: '', fn: function() { return 'circle(0% at 50% 50%)'; } },
 
@@ -295,24 +299,24 @@
 
             /* 2: Diamond */
             { name: 'Diamond', fn: function(t) {
-                var s = Math.max(t * 55, 0.5);
+                const s = Math.max(t * 55, 0.5);
                 return 'polygon(50% ' + (50 - s) + '%, ' + (50 + s) + '% 50%, 50% ' + (50 + s) + '%, ' + (50 - s) + '% 50%)';
             }},
 
             /* 3: Horizontal split — reveals from center */
             { name: 'Split', fn: function(t) {
-                var gap = (1 - t) * 50;
+                const gap = (1 - t) * 50;
                 return 'inset(' + gap + '% 0%)';
             }},
 
             /* 4: Star */
             { name: 'Star', fn: function(t) {
-                var r = Math.max(t * 65, 1);
-                var ir = r * 0.4;
-                var pts = [];
-                for (var i = 0; i < 6; i++) {
-                    var a1 = (i * 60 - 90) * Math.PI / 180;
-                    var a2 = ((i * 60 + 30) - 90) * Math.PI / 180;
+                const r = Math.max(t * 65, 1);
+                const ir = r * 0.4;
+                const pts = [];
+                for (let i = 0; i < 6; i++) {
+                    const a1 = (i * 60 - 90) * Math.PI / 180;
+                    const a2 = ((i * 60 + 30) - 90) * Math.PI / 180;
                     pts.push((50 + Math.cos(a1) * r).toFixed(2) + '% ' + (50 + Math.sin(a1) * r).toFixed(2) + '%');
                     pts.push((50 + Math.cos(a2) * ir).toFixed(2) + '% ' + (50 + Math.sin(a2) * ir).toFixed(2) + '%');
                 }
@@ -321,7 +325,7 @@
 
             /* 5: Cross / Plus */
             { name: 'Cross', fn: function(t) {
-                var arm = Math.max(t * 50, 0.5);
+                const arm = Math.max(t * 50, 0.5);
                 return 'polygon(' +
                     (50 - arm) + '% 0%, ' + (50 + arm) + '% 0%, ' +
                     (50 + arm) + '% ' + (50 - arm) + '%, 100% ' + (50 - arm) + '%, ' +
@@ -333,13 +337,13 @@
 
             /* 6: Organic blob */
             { name: 'Organic', fn: function(t) {
-                var time = Date.now() * 0.0008;
-                var r = 10 + t * 50;
-                var pts = [];
-                for (var i = 0; i < 10; i++) {
-                    var a = (i / 10) * Math.PI * 2;
-                    var wobble = Math.sin(a * 3 + time * 2) * 5 + Math.cos(a * 2 - time * 1.5) * 4;
-                    var dr = r + wobble * Math.min(t, 0.7);
+                const time = Date.now() * 0.0008;
+                const r = 10 + t * 50;
+                const pts = [];
+                for (let i = 0; i < 10; i++) {
+                    const a = (i / 10) * Math.PI * 2;
+                    const wobble = Math.sin(a * 3 + time * 2) * 5 + Math.cos(a * 2 - time * 1.5) * 4;
+                    const dr = r + wobble * Math.min(t, 0.7);
                     pts.push((50 + Math.cos(a) * dr).toFixed(2) + '% ' + (50 + Math.sin(a) * dr).toFixed(2) + '%');
                 }
                 return 'polygon(' + pts.join(', ') + ')';
@@ -347,8 +351,8 @@
 
             /* 7: Inset rectangle with rounded corners */
             { name: 'Inset', fn: function(t) {
-                var border = ((1 - t) * 45 + 1).toFixed(1);
-                var radius = Math.round((1 - t) * 30);
+                const border = ((1 - t) * 45 + 1).toFixed(1);
+                const radius = Math.round((1 - t) * 30);
                 return 'inset(' + border + '% round ' + radius + 'px)';
             }},
 
@@ -362,20 +366,20 @@
         }
 
         /* ═══ SCROLL HANDLER ═══ */
-        var ticking = false;
-        var currentShape = -1;
+        let ticking = false;
+        let currentShape = -1;
 
         function updateScroll() {
-            var y = window.scrollY;
-            var p = Math.min(Math.max(y / cachedTotal, 0), 1);
+            const y = window.scrollY;
+            const p = Math.min(Math.max(y / cachedTotal, 0), 1);
             progressFill.style.width = (p * 100) + '%';
 
-            var sectionCount = shapes.length;
-            var sectionProgress = p * (sectionCount - 1);
-            var idx = Math.min(Math.floor(sectionProgress), sectionCount - 2);
-            var localT = easeInOutCubic(Math.min(Math.max(sectionProgress - idx, 0), 1));
+            const sectionCount = shapes.length;
+            const sectionProgress = p * (sectionCount - 1);
+            const idx = Math.min(Math.floor(sectionProgress), sectionCount - 2);
+            const localT = easeInOutCubic(Math.min(Math.max(sectionProgress - idx, 0), 1));
 
-            var clip = shapes[idx].fn(localT);
+            const clip = shapes[idx].fn(localT);
             videoLayer.style.clipPath = clip;
             videoLayer.style.webkitClipPath = clip;
 
@@ -383,6 +387,7 @@
                 currentShape = idx;
                 shapeIndicator.textContent = shapes[idx].name;
             }
+            if (currentShape === 6 && !blobRAF) animateBlob();
         }
 
         window.addEventListener('scroll', function() {
@@ -396,7 +401,7 @@
         }, { passive: true });
 
         /* Organic blob needs continuous animation for the wobble */
-        var blobRAF = 0;
+        let blobRAF = 0;
         function animateBlob() {
             if (currentShape === 6) {
                 updateScroll();
@@ -405,12 +410,9 @@
                 blobRAF = 0;
             }
         }
-        setInterval(function() {
-            if (currentShape === 6 && !blobRAF) animateBlob();
-        }, 200);
 
         /* ═══ SECTION REVEAL ═══ */
-        var sectionObserver = new IntersectionObserver(function(entries) {
+        const sectionObserver = new IntersectionObserver(function(entries) {
             entries.forEach(function(e) {
                 if (e.isIntersecting) {
                     e.target.classList.add('visible');
@@ -427,19 +429,20 @@
         });
 
         setTimeout(function() {
-            var first = document.querySelector('.s-inner[data-s="0"]');
+            const first = document.querySelector('.s-inner[data-s="0"]');
             if (first) first.classList.add('visible');
         }, 300);
 
         /* ═══ SMOOTH LOOP FADE ═══ */
-        var fadeDur = 0.5;
+        const fadeDur = 0.5;
         video.addEventListener('timeupdate', function() {
             if (!video.duration) return;
-            var rem = video.duration - video.currentTime;
+            const rem = video.duration - video.currentTime;
             if (rem < fadeDur) video.style.opacity = rem / fadeDur;
             else if (video.currentTime < fadeDur) video.style.opacity = Math.min(video.currentTime / fadeDur, 1);
             else if (video.style.opacity !== '') video.style.opacity = '';
         });
+    })();
     </script>
 </body>
 </html>
