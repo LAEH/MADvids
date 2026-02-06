@@ -467,17 +467,27 @@
         }, { threshold: 0.1 });
         document.querySelectorAll('[data-reveal]').forEach(function(el) { observer.observe(el); });
 
-        /* Smooth loop fade */
+        /* Smooth loop fade — rAF-based, self-terminates when paused */
         (function() {
-            const fade = 0.5;
-            video.addEventListener('timeupdate', function() {
-                if (!video.duration) return;
-                const rem = video.duration - video.currentTime;
-                if (rem < fade) video.style.opacity = rem / fade;
-                else if (video.currentTime < fade) video.style.opacity = Math.min(video.currentTime / fade, 1);
-                else if (video.style.opacity !== '') video.style.opacity = '';
-            });
+            var fadeDur = 0.5;
+            function tick() {
+                if (video.paused) return;
+                if (video.duration) {
+                    var rem = video.duration - video.currentTime;
+                    var o = 1;
+                    if (rem < fadeDur) o = rem / fadeDur;
+                    else if (video.currentTime < fadeDur) o = Math.min(video.currentTime / fadeDur, 1);
+                    video.style.opacity = o;
+                }
+                requestAnimationFrame(tick);
+            }
+            video.addEventListener('play', function() { requestAnimationFrame(tick); });
         })();
+
+    /* ─── Service Worker ─── */
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/MADvids/sw.js').catch(function(){});
+    }
     })();
     </script>
 </body>

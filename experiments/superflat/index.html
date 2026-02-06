@@ -408,7 +408,7 @@
     </button>
 
     <nav class="nav-bar" id="navBar">
-        <a class="nav-btn" href="../rift/" title="Previous" aria-label="Previous experiment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></a>
+        <a class="nav-btn" href="../verso/" title="Previous" aria-label="Previous experiment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></a>
         <div class="nav-sep"></div>
         <a class="nav-btn" href="../../" title="Home" aria-label="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><polyline points="9 21 9 13 15 13 15 21"/></svg></a>
         <div class="nav-sep"></div>
@@ -611,11 +611,27 @@
         const scrollSpace = document.getElementById('scrollSpace');
         let cachedVH = window.innerHeight;
         let cachedTotal = scrollSpace.offsetHeight - cachedVH;
+        let cachedActTop = 0;
+        let cachedTintLayout = [];
+        let cachedSectionLayout = [];
 
-        window.addEventListener('resize', function() {
+        function cacheLayout() {
             cachedVH = window.innerHeight;
             cachedTotal = scrollSpace.offsetHeight - cachedVH;
-        }, { passive: true });
+            if (actBreak) cachedActTop = actBreak.offsetTop;
+            cachedTintLayout = [];
+            for (var i = 0; i < tintSections.length; i++) {
+                var sec = tintSections[i];
+                cachedTintLayout.push({ tint: sec.dataset.tint, top: sec.offsetTop, height: sec.offsetHeight });
+            }
+            cachedSectionLayout = [];
+            for (var j = 0; j < sInners.length; j++) {
+                var section = sInners[j].parentElement;
+                cachedSectionLayout.push({ inner: sInners[j], top: section.offsetTop, height: section.offsetHeight });
+            }
+        }
+
+        window.addEventListener('resize', cacheLayout, { passive: true });
 
         /* ═══ COLOR WASH ═══ */
         const colorWash = document.getElementById('colorWash');
@@ -635,7 +651,7 @@
 
             /* Crossfade around act break position */
             if (actBreak) {
-                const breakTop = actBreak.offsetTop;
+                const breakTop = cachedActTop;
                 const fadeStart = breakTop - cachedVH * 1.2;
                 const fadeEnd = breakTop - cachedVH * 0.2;
                 let t = 0;
@@ -654,15 +670,15 @@
             var activeTint = null;
             var bestCenter = Infinity;
             var viewCenter = scrollY + cachedVH * 0.5;
-            for (var i = 0; i < tintSections.length; i++) {
-                var sec = tintSections[i];
-                var secTop = sec.offsetTop;
-                var secH = sec.offsetHeight;
+            for (var i = 0; i < cachedTintLayout.length; i++) {
+                var tl = cachedTintLayout[i];
+                var secTop = tl.top;
+                var secH = tl.height;
                 var secCenter = secTop + secH * 0.5;
                 var dist = Math.abs(viewCenter - secCenter);
                 if (dist < cachedVH * 0.6 && dist < bestCenter) {
                     bestCenter = dist;
-                    activeTint = sec.dataset.tint;
+                    activeTint = tl.tint;
                 }
             }
             if (activeTint) {
@@ -674,12 +690,12 @@
             }
 
             /* ═══ PARALLAX — offset overline/body within visible sections ═══ */
-            for (var j = 0; j < sInners.length; j++) {
-                var inner = sInners[j];
+            for (var j = 0; j < cachedSectionLayout.length; j++) {
+                var sl = cachedSectionLayout[j];
+                var inner = sl.inner;
                 if (!inner.classList.contains('visible')) continue;
-                var section = inner.parentElement;
-                var sTop = section.offsetTop;
-                var sH = section.offsetHeight;
+                var sTop = sl.top;
+                var sH = sl.height;
                 var localProgress = (scrollY + cachedVH * 0.5 - sTop) / sH;
                 var offset = (localProgress - 0.5) * 40;
                 var overline = inner.querySelector('.s-overline');
@@ -720,6 +736,8 @@
         document.querySelectorAll('.s-inner, .act-break-inner').forEach(function(el) {
             sectionObserver.observe(el);
         });
+
+        cacheLayout();
 
         /* First section visible immediately */
         setTimeout(function() {
@@ -824,6 +842,11 @@
             e.preventDefault();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
+
+    /* ─── Service Worker ─── */
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/MADvids/sw.js').catch(function(){});
+    }
     })();
     </script>
 </body>

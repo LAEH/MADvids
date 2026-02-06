@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rift</title>
+    <title>Verso</title>
     <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,40 +36,39 @@
             font-size: clamp(28px, 6vw, 44px);
             font-weight: 900;
             letter-spacing: -0.04em;
-            color: rgba(255,255,255,0.08);
+            background: linear-gradient(135deg, #7df9ff, #b388ff, #ff80ab);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         .loader-ring {
             width: 16px; height: 16px;
             border: 1.5px solid rgba(255,255,255,0.04);
-            border-top-color: #3ce8ff;
+            border-top-color: #7df9ff;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ═══ VIDEO ═══ */
-        .video-wrap {
+        /* ═══ VIDEO PANEL ═══ */
+        .video-panel {
             position: fixed; inset: 0; z-index: 0;
             overflow: hidden;
+            transition: clip-path 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            clip-path: inset(0 0 0 0);
+            will-change: clip-path;
         }
-        .video-wrap video {
+        .video-panel video {
             position: absolute; inset: 0;
             width: 100%; height: 100%;
             object-fit: cover;
         }
 
-        /* ═══ RIFT LAYERS ═══ */
-        .rift-glow {
-            position: fixed; inset: 0; z-index: 1;
-            pointer-events: none;
-        }
-        .rift-mask {
-            position: fixed; inset: 0; z-index: 2;
-            pointer-events: none;
-            background: #0a0a0a;
-        }
+        /* Phase clip-paths applied via JS */
+
+        /* ═══ PARTICLES ═══ */
         #particles {
-            position: fixed; top: 0; left: 0; z-index: 3;
+            position: fixed; top: 0; left: 0; z-index: 2;
             pointer-events: none;
             mix-blend-mode: screen;
         }
@@ -77,11 +76,11 @@
         /* ═══ SCROLL SPACE ═══ */
         .scroll-space {
             position: relative;
-            z-index: 4;
+            z-index: 3;
         }
 
-        /* ═══ SECTION ═══ */
-        .s {
+        /* ═══ PHASE SECTION ═══ */
+        .phase {
             position: relative;
             min-height: 100dvh;
             display: flex;
@@ -90,7 +89,7 @@
             padding: 60px max(24px, env(safe-area-inset-left, 24px));
         }
 
-        .s-inner {
+        .phase-inner {
             text-align: center;
             max-width: 720px;
             opacity: 0;
@@ -98,36 +97,48 @@
             transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
                         transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .s-inner.visible {
+        .phase-inner.visible {
             opacity: 1;
             transform: translateY(0);
         }
-        .s-inner.exit {
+        .phase-inner.exit {
             opacity: 0;
             transform: translateY(-20px);
             transition: opacity 0.5s, transform 0.5s;
         }
 
+        /* Alignment variants */
+        .phase-right .phase-inner {
+            text-align: right;
+            margin-right: max(48px, 8vw);
+            margin-left: auto;
+        }
+        .phase-left .phase-inner {
+            text-align: left;
+            margin-left: max(48px, 8vw);
+            margin-right: auto;
+        }
+
         /* ═══ TYPOGRAPHY ═══ */
-        .s-overline {
+        .phase-overline {
             font-size: 0.6rem;
             font-weight: 600;
             letter-spacing: 0.25em;
             text-transform: uppercase;
             margin-bottom: 16px;
-            color: rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.2);
         }
 
-        .s-display {
-            font-size: clamp(44px, 10vw, 120px);
+        .phase-display {
+            font-size: clamp(48px, 11vw, 140px);
             font-weight: 900;
             letter-spacing: -0.05em;
-            line-height: 0.9;
+            line-height: 0.88;
             margin-bottom: 20px;
             text-shadow: 0 4px 40px rgba(0,0,0,0.6), 0 0 80px rgba(0,0,0,0.3);
         }
 
-        .s-body {
+        .phase-body {
             font-size: clamp(15px, 1.8vw, 19px);
             font-weight: 400;
             line-height: 1.7;
@@ -136,20 +147,16 @@
             margin: 0 auto;
             text-shadow: 0 2px 20px rgba(0,0,0,0.6);
         }
+        .phase-right .phase-body { margin-left: auto; margin-right: 0; }
+        .phase-left .phase-body { margin-right: auto; margin-left: 0; }
 
         /* Color accents */
-        .t-cyan { color: #3ce8ff; }
-        .t-violet { color: #c77dff; }
-        .t-pink { color: #ff3c8e; }
-        .t-gold { color: #ffe14d; }
-        .t-rift {
-            background: linear-gradient(135deg, #3ce8ff, #c77dff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .t-rift-warm {
-            background: linear-gradient(135deg, #ffe14d, #ff3c8e);
+        .t-aqua { color: #7df9ff; }
+        .t-lavender { color: #b388ff; }
+        .t-rose { color: #ff80ab; }
+        .t-gold { color: #ffd54f; }
+        .t-verso {
+            background: linear-gradient(135deg, #7df9ff, #b388ff, #ff80ab);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -161,7 +168,7 @@
             font-weight: 900;
             letter-spacing: -0.06em;
             line-height: 0.85;
-            text-shadow: 0 0 80px rgba(60,232,255,0.15);
+            text-shadow: 0 0 80px rgba(125,249,255,0.15);
         }
         .intro-sub {
             font-size: clamp(13px, 1.4vw, 16px);
@@ -171,17 +178,18 @@
             letter-spacing: 0.06em;
         }
 
-        /* ═══ PEAK ═══ */
-        .s-peak .s-display {
-            font-size: clamp(56px, 14vw, 180px);
-            text-shadow:
-                0 0 40px rgba(60,232,255,0.25),
-                0 0 80px rgba(60,232,255,0.1),
-                0 4px 40px rgba(0,0,0,0.6);
+        /* ═══ LETTERBOX BAR ═══ */
+        .letterbox-bar {
+            position: fixed;
+            left: 0; right: 0;
+            background: #0a0a0a;
+            z-index: 1;
+            height: 0;
+            transition: height 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
         }
-
-        /* ═══ SILENCE ═══ */
-        .s-silence { min-height: 60dvh; }
+        .letterbox-top { top: 0; }
+        .letterbox-bottom { bottom: 0; }
 
         /* ═══ OUTRO ═══ */
         .outro-title {
@@ -189,7 +197,7 @@
             font-weight: 900;
             letter-spacing: -0.06em;
             line-height: 0.85;
-            text-shadow: 0 0 60px rgba(60,232,255,0.1);
+            text-shadow: 0 0 60px rgba(125,249,255,0.1);
         }
         .outro-small {
             font-size: clamp(12px, 1.2vw, 14px);
@@ -221,7 +229,7 @@
         }
         .progress-fill {
             height: 100%; width: 0%;
-            background: linear-gradient(90deg, #3ce8ff, #c77dff, #ff3c8e);
+            background: linear-gradient(90deg, #7df9ff, #b388ff, #ff80ab);
             transition: width 0.15s linear;
         }
 
@@ -279,36 +287,38 @@
 
         /* ═══ RESPONSIVE ═══ */
         @media (max-width: 480px) {
-            .s { padding-left: 16px; padding-right: 16px; }
-            .s-display { font-size: clamp(36px, 10vw, 80px); }
+            .phase { padding-left: 16px; padding-right: 16px; }
+            .phase-display { font-size: clamp(36px, 10vw, 80px); }
             .intro-title { font-size: clamp(56px, 16vw, 180px); }
-            .s-peak .s-display { font-size: clamp(44px, 12vw, 120px); }
             .outro-title { font-size: clamp(44px, 12vw, 120px); }
+            .phase-left .phase-inner { margin-left: 16px; }
+            .phase-right .phase-inner { margin-right: 16px; }
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .s-inner { opacity: 1; transform: none; transition: none; }
+            .phase-inner { opacity: 1; transform: none; transition: none; }
             #particles { display: none; }
-            .rift-glow { display: none; }
-            .rift-mask { background: rgba(10,10,10,0.3) !important; }
+            .video-panel { transition: none; }
+            .letterbox-bar { transition: none; }
             .loader-ring { animation: none; }
         }
     </style>
 </head>
 <body>
     <div class="loader" id="loader">
-        <div class="loader-text">Rift</div>
+        <div class="loader-text">Verso</div>
         <div class="loader-ring"></div>
     </div>
 
-    <div class="video-wrap">
-        <video id="bgVideo" muted loop playsinline disablePictureInPicture preload="auto" aria-label="Abstract multiverse journey">
-            <source src="https://storage.googleapis.com/myproject-public-assets/art/MADvids/Abstract_Multiverse_Cinematic_Journey_Generated.mp4" type="video/mp4">
+    <div class="video-panel" id="videoPanel">
+        <video id="bgVideo" muted loop playsinline disablePictureInPicture preload="auto" aria-label="Surreal gradient liquid video">
+            <source src="https://storage.googleapis.com/myproject-public-assets/art/MADvids/Surreal_Gradient_Liquid_Video_Generation.mp4" type="video/mp4">
         </video>
     </div>
 
-    <div class="rift-glow" id="riftGlow"></div>
-    <div class="rift-mask" id="riftMask"></div>
+    <div class="letterbox-bar letterbox-top" id="lbTop"></div>
+    <div class="letterbox-bar letterbox-bottom" id="lbBottom"></div>
+
     <canvas id="particles"></canvas>
 
     <div class="progress-track">
@@ -321,111 +331,54 @@
     </button>
 
     <nav class="nav-bar" id="navBar">
-        <a class="nav-btn" href="../shape-reveal/" title="Previous" aria-label="Previous experiment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></a>
+        <a class="nav-btn" href="../rift/" title="Previous" aria-label="Previous experiment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></a>
         <div class="nav-sep"></div>
         <a class="nav-btn" href="../../" title="Home" aria-label="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><polyline points="9 21 9 13 15 13 15 21"/></svg></a>
         <div class="nav-sep"></div>
-        <a class="nav-btn" href="../verso/" title="Next" aria-label="Next experiment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
+        <a class="nav-btn" href="../superflat/" title="Next" aria-label="Next experiment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
     </nav>
 
     <div class="scroll-space" id="scrollSpace">
-        <!-- 0 — INTRO -->
-        <section class="s">
-            <div class="s-inner" data-s="0">
-                <h1 class="intro-title">Rift</h1>
-                <p class="intro-sub">A breach between worlds. Scroll to look through.</p>
+        <!-- Phase 0 — FULL BLEED: Video fills viewport, title center -->
+        <section class="phase" data-phase="0">
+            <div class="phase-inner" data-s="0">
+                <h1 class="intro-title"><span class="t-verso">Verso</span></h1>
+                <p class="intro-sub">The other side of the page. Scroll to turn.</p>
             </div>
         </section>
 
-        <!-- 1 -->
-        <section class="s">
-            <div class="s-inner" data-s="1">
-                <p class="s-overline">Observation</p>
-                <h2 class="s-display">There is a <span class="t-cyan">crack</span><br>in everything.</h2>
-                <p class="s-body">Not a flaw. A feature. A place where the light gets in &mdash; and something else gets out.</p>
+        <!-- Phase 1 — SPLIT LEFT: Video left 50%, text right -->
+        <section class="phase phase-right" data-phase="1">
+            <div class="phase-inner" data-s="1">
+                <p class="phase-overline">Refraction</p>
+                <h2 class="phase-display">Liquid doesn't<br><span class="t-aqua">break.</span></h2>
+                <p class="phase-body">It bends. It curves around edges and fills impossible shapes. Every gradient a small act of defiance against straight lines.</p>
             </div>
         </section>
 
-        <!-- 2 -->
-        <section class="s">
-            <div class="s-inner" data-s="2">
-                <p class="s-overline">Proximity</p>
-                <h2 class="s-display">Light <span class="t-violet">bleeds</span> from<br>the place between.</h2>
-                <p class="s-body">Not sunlight. Not starlight. The kind of light that exists between pages of reality.</p>
+        <!-- Phase 2 — INVERT: Video right 50%, text left -->
+        <section class="phase phase-left" data-phase="2">
+            <div class="phase-inner" data-s="2">
+                <p class="phase-overline">Resonance</p>
+                <h2 class="phase-display">Color speaks<br>in <span class="t-lavender">wavelengths.</span></h2>
+                <p class="phase-body">Not words. Not symbols. Pure electromagnetic poetry. Frequencies that bypass language and arrive directly in feeling.</p>
             </div>
         </section>
 
-        <!-- 3 -->
-        <section class="s">
-            <div class="s-inner" data-s="3">
-                <p class="s-overline">Breach detected</p>
-                <h2 class="s-display">The multiverse<br><span class="t-rift">doesn't knock.</span></h2>
-                <p class="s-body">It leaks. Slowly. Through the cracks you were told to ignore.</p>
+        <!-- Phase 3 — LETTERBOX: Video in cinematic 21:9, text above/below -->
+        <section class="phase" data-phase="3">
+            <div class="phase-inner" data-s="3">
+                <p class="phase-overline">Frame Rate: Infinite</p>
+                <h2 class="phase-display">Every surface<br><span class="t-rose">remembers</span> light.</h2>
+                <p class="phase-body">Photons trapped in gradients. Reflections that outlive their sources. This isn't rendering. It's archaeology of luminance.</p>
             </div>
         </section>
 
-        <!-- 4 -->
-        <section class="s">
-            <div class="s-inner" data-s="4">
-                <p class="s-overline">Depth reading</p>
-                <h2 class="s-display">Dimensions press<br>like <span class="t-gold">pages</span> in a book.</h2>
-                <p class="s-body">Thin enough to feel the other side. Close enough to hear colors that don't exist here.</p>
-            </div>
-        </section>
-
-        <!-- 5 -->
-        <section class="s">
-            <div class="s-inner" data-s="5">
-                <p class="s-overline">Signal</p>
-                <h2 class="s-display">Every frame is<br>a <span class="t-pink">window.</span></h2>
-                <p class="s-body">Into somewhere without coordinates. A place that exists only in the space between looking and seeing.</p>
-            </div>
-        </section>
-
-        <!-- 6 — PEAK -->
-        <section class="s s-peak">
-            <div class="s-inner" data-s="6">
-                <h2 class="s-display"><span class="t-rift">Look through.</span></h2>
-            </div>
-        </section>
-
-        <!-- 7 — SILENCE (full immersion, no text) -->
-        <section class="s s-silence">
-            <div class="s-inner" data-s="7"></div>
-        </section>
-
-        <!-- 8 -->
-        <section class="s">
-            <div class="s-inner" data-s="8">
-                <p class="s-overline">Return signal</p>
-                <h2 class="s-display">You've been somewhere<br><span class="t-rift-warm">impossible.</span></h2>
-                <p class="s-body">A place with no name, no map, no return address. Just colors and motion and the feeling of being infinitely small.</p>
-            </div>
-        </section>
-
-        <!-- 9 -->
-        <section class="s">
-            <div class="s-inner" data-s="9">
-                <p class="s-overline">Trace detected</p>
-                <h2 class="s-display">The breach<br><span class="t-violet">knows you</span> now.</h2>
-                <p class="s-body">It remembers everyone who looks through. Not maliciously. More like how a river remembers a stone.</p>
-            </div>
-        </section>
-
-        <!-- 10 -->
-        <section class="s">
-            <div class="s-inner" data-s="10">
-                <p class="s-overline">Status</p>
-                <h2 class="s-display">Some rifts close.<br>This one <span class="t-cyan">just narrows.</span></h2>
-                <p class="s-body">Still there. Still glowing. Waiting for the next curious pair of eyes.</p>
-            </div>
-        </section>
-
-        <!-- 11 — OUTRO -->
-        <section class="s">
-            <div class="s-inner" data-s="11">
-                <h2 class="outro-title"><span class="t-rift">Still looking.</span></h2>
-                <a class="scroll-top-link" id="scrollTop">Back to the void &uarr;</a>
+        <!-- Phase 4 — DISSOLVE: Video fades to black, final line -->
+        <section class="phase" data-phase="4">
+            <div class="phase-inner" data-s="4">
+                <h2 class="outro-title"><span class="t-verso">Turn the page.</span></h2>
+                <a class="scroll-top-link" id="scrollTop">Back to the surface &uarr;</a>
                 <p class="outro-small">MADvids</p>
             </div>
         </section>
@@ -470,80 +423,105 @@
             resizeCanvas();
         }, { passive: true });
 
-        /* ═══ RIFT KEYFRAMES ═══ */
-        /* w/h = radius as % of viewport dimension from center */
-        var riftKF = [
-            { p: 0.00, w: 0,  h: 0,    g: [60,232,255] },
-            { p: 0.04, w: 22, h: 0.15, g: [60,232,255] },
-            { p: 0.10, w: 20, h: 2.5,  g: [60,232,255] },
-            { p: 0.20, w: 16, h: 9,    g: [91,127,255] },
-            { p: 0.30, w: 20, h: 17,   g: [123,95,255] },
-            { p: 0.40, w: 25, h: 25,   g: [199,125,255] },
-            { p: 0.50, w: 35, h: 33,   g: [255,225,77] },
-            { p: 0.58, w: 45, h: 43,   g: [255,255,255] },
-            { p: 0.65, w: 58, h: 55,   g: [255,255,255] },
-            { p: 0.72, w: 65, h: 65,   g: [255,255,255] },
-            { p: 0.80, w: 42, h: 40,   g: [255,60,142] },
-            { p: 0.88, w: 20, h: 19,   g: [255,60,142] },
-            { p: 0.94, w: 5,  h: 5,    g: [60,232,255] },
-            { p: 1.00, w: 0,  h: 0,    g: [60,232,255] }
-        ];
+        /* ═══ PHASE SYSTEM ═══ */
+        var videoPanel = document.getElementById('videoPanel');
+        var lbTop = document.getElementById('lbTop');
+        var lbBottom = document.getElementById('lbBottom');
+        var progressFill = document.getElementById('progressFill');
+        var phases = document.querySelectorAll('.phase');
+        var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        function lerpRift(progress) {
-            var kf = riftKF;
-            if (progress <= kf[0].p) return { w: 0, h: 0, gR: kf[0].g[0], gG: kf[0].g[1], gB: kf[0].g[2] };
-            var last = kf[kf.length - 1];
-            if (progress >= last.p) return { w: 0, h: 0, gR: last.g[0], gG: last.g[1], gB: last.g[2] };
-            for (var i = 0; i < kf.length - 1; i++) {
-                if (progress >= kf[i].p && progress <= kf[i + 1].p) {
-                    var t = (progress - kf[i].p) / (kf[i + 1].p - kf[i].p);
-                    t = t * t * (3 - 2 * t); /* smoothstep */
-                    return {
-                        w:  kf[i].w  + (kf[i+1].w  - kf[i].w)  * t,
-                        h:  kf[i].h  + (kf[i+1].h  - kf[i].h)  * t,
-                        gR: Math.round(kf[i].g[0] + (kf[i+1].g[0] - kf[i].g[0]) * t),
-                        gG: Math.round(kf[i].g[1] + (kf[i+1].g[1] - kf[i].g[1]) * t),
-                        gB: Math.round(kf[i].g[2] + (kf[i+1].g[2] - kf[i].g[2]) * t)
-                    };
+        /* Phase boundaries: computed once, recomputed on resize */
+        var phaseBounds = [];
+        function computePhaseBounds() {
+            phaseBounds = [];
+            for (var i = 0; i < phases.length; i++) {
+                phaseBounds.push({
+                    top: phases[i].offsetTop,
+                    height: phases[i].offsetHeight,
+                    idx: parseInt(phases[i].dataset.phase)
+                });
+            }
+        }
+        computePhaseBounds();
+
+        var resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(computePhaseBounds, 200);
+        }, { passive: true });
+
+        /* Determine current phase and local progress within it */
+        function getPhaseProgress(scrollY) {
+            var viewCenter = scrollY + cachedVH * 0.5;
+            for (var i = phaseBounds.length - 1; i >= 0; i--) {
+                var b = phaseBounds[i];
+                if (viewCenter >= b.top) {
+                    var local = Math.min(Math.max((viewCenter - b.top) / b.height, 0), 1);
+                    return { phase: b.idx, local: local };
                 }
             }
-            return { w: 0, h: 0, gR: 60, gG: 232, gB: 255 };
+            return { phase: 0, local: 0 };
         }
 
-        /* ═══ RIFT RENDERING ═══ */
-        var riftMask = document.getElementById('riftMask');
-        var riftGlow = document.getElementById('riftGlow');
-        var progressFill = document.getElementById('progressFill');
-        var currentRiftW = 0, currentRiftH = 0;
-        var currentGlowOpacity = 0;
+        /* Apply video panel clip-path + letterbox based on phase */
+        function applyPhase(phase, local) {
+            var lbH = 0;
 
-        function updateRift() {
+            if (reducedMotion) {
+                /* No clip transitions, always full bleed */
+                videoPanel.style.clipPath = 'inset(0 0 0 0)';
+                lbTop.style.height = '0';
+                lbBottom.style.height = '0';
+                return;
+            }
+
+            switch (phase) {
+                case 0:
+                    /* Full bleed */
+                    videoPanel.style.clipPath = 'inset(0 0 0 0)';
+                    break;
+                case 1:
+                    /* Split left — video on left 50% */
+                    var rightInset = 50 * local;
+                    videoPanel.style.clipPath = 'inset(0 ' + rightInset + '% 0 0)';
+                    break;
+                case 2:
+                    /* Invert — video on right 50% */
+                    var leftInset = 50 * local;
+                    videoPanel.style.clipPath = 'inset(0 0 0 ' + leftInset + '%)';
+                    break;
+                case 3:
+                    /* Letterbox — cinematic 21:9 */
+                    var targetBar = Math.round(cachedVH * 0.12);
+                    lbH = Math.round(targetBar * local);
+                    videoPanel.style.clipPath = 'inset(' + lbH + 'px 0 ' + lbH + 'px 0)';
+                    break;
+                case 4:
+                    /* Dissolve — video fades via opacity (handled below) */
+                    videoPanel.style.clipPath = 'inset(0 0 0 0)';
+                    break;
+            }
+
+            lbTop.style.height = lbH + 'px';
+            lbBottom.style.height = lbH + 'px';
+        }
+
+        /* ═══ SCROLL HANDLER ═══ */
+        function updateScroll() {
             var scrollY = window.scrollY;
             var p = cachedTotal > 0 ? Math.min(Math.max(scrollY / cachedTotal, 0), 1) : 0;
             progressFill.style.width = (p * 100) + '%';
 
-            var r = lerpRift(p);
-            var rW = r.w * cachedVW / 100;
-            var rH = r.h * cachedVH / 100;
-            currentRiftW = rW;
-            currentRiftH = rH;
+            var pp = getPhaseProgress(scrollY);
+            applyPhase(pp.phase, pp.local);
 
-            /* Mask: dark overlay with transparent portal hole */
-            if (rW < 1 && rH < 1) {
-                riftMask.style.background = '#0a0a0a';
+            /* Dissolve: fade video in last phase */
+            if (pp.phase === 4) {
+                video.style.opacity = Math.max(1 - pp.local * 1.5, 0);
             } else {
-                riftMask.style.background = 'radial-gradient(ellipse ' + rW + 'px ' + rH + 'px at 50% 50%, transparent 0%, transparent 85%, #0a0a0a 100%)';
+                video.style.opacity = '';
             }
-
-            /* Glow: luminous ring around the rift edge */
-            var maxR = Math.max(rW, rH);
-            var maxScreen = Math.max(cachedVW, cachedVH) * 0.5;
-            var glowOp = 0;
-            if (maxR > 5 && maxR < maxScreen) {
-                glowOp = Math.min(maxR / 40, 1) * Math.min((maxScreen - maxR) / (maxScreen * 0.2), 1);
-            }
-            currentGlowOpacity = glowOp;
-            riftGlow.style.background = 'radial-gradient(ellipse ' + rW + 'px ' + rH + 'px at 50% 50%, transparent 0%, transparent 78%, rgba(' + r.gR + ',' + r.gG + ',' + r.gB + ',0.25) 90%, transparent 100%)';
 
             updateAudioFromScroll(p);
         }
@@ -552,7 +530,7 @@
         window.addEventListener('scroll', function() {
             if (!scrollTicking) {
                 requestAnimationFrame(function() {
-                    updateRift();
+                    updateScroll();
                     scrollTicking = false;
                 });
                 scrollTicking = true;
@@ -574,13 +552,12 @@
             });
         }, { threshold: 0.25 });
 
-        document.querySelectorAll('.s-inner').forEach(function(el) {
+        document.querySelectorAll('.phase-inner').forEach(function(el) {
             sectionObserver.observe(el);
         });
 
-        /* First section visible immediately */
         setTimeout(function() {
-            var first = document.querySelector('.s-inner[data-s="0"]');
+            var first = document.querySelector('.phase-inner[data-s="0"]');
             if (first) first.classList.add('visible');
         }, 300);
 
@@ -588,7 +565,7 @@
         var canvas = document.getElementById('particles');
         var ctx = canvas.getContext('2d');
         var particles = [];
-        var PARTICLE_COUNT = 70;
+        var PARTICLE_COUNT = 40;
 
         function resizeCanvas() {
             canvas.width = cachedVW;
@@ -602,12 +579,13 @@
                 particles.push({
                     x: Math.random() * cachedVW,
                     y: Math.random() * cachedVH,
-                    vx: (Math.random() - 0.5) * 0.3,
-                    vy: (Math.random() - 0.5) * 0.3,
-                    size: 0.5 + Math.random() * 1.5,
-                    baseAlpha: 0.08 + Math.random() * 0.18,
+                    vx: (Math.random() - 0.5) * 0.25,
+                    vy: (Math.random() - 0.5) * 0.25,
+                    size: 0.8 + Math.random() * 1.8,
+                    baseAlpha: 0.06 + Math.random() * 0.15,
                     twinklePhase: Math.random() * Math.PI * 2,
-                    twinkleSpeed: 0.001 + Math.random() * 0.002
+                    twinkleSpeed: 0.001 + Math.random() * 0.002,
+                    hue: 170 + Math.random() * 80
                 });
             }
         }
@@ -619,7 +597,6 @@
                 var pt = particles[i];
                 pt.x += pt.vx;
                 pt.y += pt.vy;
-                /* Wrap around */
                 if (pt.x < -5) pt.x = cachedVW + 5;
                 if (pt.x > cachedVW + 5) pt.x = -5;
                 if (pt.y < -5) pt.y = cachedVH + 5;
@@ -628,31 +605,20 @@
                 var twinkle = 0.4 + 0.6 * Math.sin(time * pt.twinkleSpeed + pt.twinklePhase);
                 var alpha = pt.baseAlpha * twinkle;
 
-                /* Dim particles near center when rift is open (they'd overlap video) */
-                var dx = pt.x - cachedVW * 0.5;
-                var dy = pt.y - cachedVH * 0.5;
-                var distFromCenter = Math.sqrt(dx * dx + dy * dy);
-                var riftRadius = Math.max(currentRiftW, currentRiftH);
-                if (riftRadius > 10 && distFromCenter < riftRadius * 0.85) {
-                    alpha *= Math.max(0, distFromCenter / (riftRadius * 0.85));
-                }
-
                 ctx.globalAlpha = alpha;
-                ctx.fillStyle = '#c8dcff';
-                ctx.fillRect(pt.x, pt.y, pt.size, pt.size);
+                ctx.fillStyle = 'hsl(' + pt.hue + ', 80%, 75%)';
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
+                ctx.fill();
             }
             ctx.globalAlpha = 1;
         }
 
         /* ═══ ANIMATION LOOP ═══ */
         function animate(time) {
-            /* Glow pulse */
-            var pulse = 0.8 + 0.2 * Math.sin(time * 0.0008);
-            riftGlow.style.opacity = currentGlowOpacity * pulse;
-
-            /* Particles */
-            updateAndDrawParticles(time);
-
+            if (!reducedMotion) {
+                updateAndDrawParticles(time);
+            }
             requestAnimationFrame(animate);
         }
 
@@ -674,7 +640,7 @@
         }
         initLoopFade(video);
 
-        /* ═══ AMBIENT SOUND (Web Audio API) ═══ */
+        /* ═══ AMBIENT SOUND (Web Audio) ═══ */
         var audioCtx = null, masterGain = null, droneFilter = null;
         var soundEnabled = false;
         var soundBtn = document.getElementById('soundToggle');
@@ -693,12 +659,12 @@
             droneFilter = audioCtx.createBiquadFilter();
             droneFilter.type = 'lowpass';
             droneFilter.frequency.value = 200;
-            droneFilter.Q.value = 3;
+            droneFilter.Q.value = 2.5;
             droneGain.connect(droneFilter);
             droneFilter.connect(masterGain);
 
-            /* Deep ominous drone: fifths with detuning */
-            [41.2, 55, 61.7, 82.4].forEach(function(f) {
+            /* A2 + E3 + A3 — gentle sine drone */
+            [110, 164.8, 220].forEach(function(f) {
                 var osc = audioCtx.createOscillator();
                 osc.type = 'sine';
                 osc.frequency.value = f;
@@ -706,16 +672,16 @@
                 osc.start();
                 var osc2 = audioCtx.createOscillator();
                 osc2.type = 'sine';
-                osc2.frequency.value = f * 1.004;
+                osc2.frequency.value = f * 1.003;
                 osc2.connect(droneGain);
                 osc2.start();
             });
 
-            /* Very slow filter LFO */
+            /* Slow filter LFO */
             var lfo = audioCtx.createOscillator();
             var lfoG = audioCtx.createGain();
-            lfo.frequency.value = 0.05;
-            lfoG.gain.value = 80;
+            lfo.frequency.value = 0.06;
+            lfoG.gain.value = 90;
             lfo.connect(lfoG);
             lfoG.connect(droneFilter.frequency);
             lfo.start();
@@ -723,12 +689,8 @@
 
         function updateAudioFromScroll(p) {
             if (!droneFilter || !soundEnabled) return;
-            /* Filter opens as rift opens */
-            var riftSize = Math.max(currentRiftW, currentRiftH);
-            var maxScreen = Math.max(cachedVW, cachedVH) * 0.5;
-            var openness = Math.min(riftSize / maxScreen, 1);
             droneFilter.frequency.linearRampToValueAtTime(
-                150 + openness * 800,
+                150 + p * 550,
                 audioCtx.currentTime + 0.1
             );
         }
@@ -753,8 +715,8 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
-        /* Initial rift state */
-        updateRift();
+        /* Initial state */
+        updateScroll();
 
     /* ─── Service Worker ─── */
     if ('serviceWorker' in navigator) {

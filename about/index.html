@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About — MADvids</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        @view-transition { navigation: auto; }
+        ::view-transition-old(root) { animation: vt-fade 0.25s ease both; }
+        ::view-transition-new(root) { animation: vt-fade 0.25s ease both reverse; }
+        @keyframes vt-fade { to { opacity: 0; } }
+
+        :focus-visible { outline: 2px solid rgba(26,26,46,0.3); outline-offset: 2px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #f2f2f7;
+            color: #1a1a2e;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            line-height: 1.6;
+        }
+
+        /* ═══ HEADER ═══ */
+        .header {
+            padding: clamp(60px, 12vw, 120px) max(24px, env(safe-area-inset-left, 24px)) clamp(40px, 6vw, 60px);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: rgba(26,26,46,0.35);
+            text-decoration: none;
+            margin-bottom: clamp(32px, 6vw, 56px);
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: rgba(26,26,46,0.6); }
+        .back-link svg { width: 14px; height: 14px; }
+
+        .header h1 {
+            font-size: clamp(36px, 7vw, 64px);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            line-height: 1;
+            margin-bottom: 16px;
+        }
+        .header .lead {
+            font-size: clamp(15px, 1.8vw, 18px);
+            color: rgba(26,26,46,0.45);
+            max-width: 560px;
+            line-height: 1.65;
+        }
+
+        /* ═══ SECTIONS ═══ */
+        .section {
+            padding: clamp(40px, 6vw, 60px) max(24px, env(safe-area-inset-left, 24px));
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .section-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: rgba(26,26,46,0.25);
+            margin-bottom: 24px;
+        }
+        .section h2 {
+            font-size: clamp(22px, 3.5vw, 32px);
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            margin-bottom: 16px;
+        }
+        .section p {
+            font-size: 0.92rem;
+            color: rgba(26,26,46,0.5);
+            max-width: 600px;
+            line-height: 1.7;
+            margin-bottom: 12px;
+        }
+
+        /* ═══ EXPERIMENT GRID ═══ */
+        .exp-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .exp-card {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            padding: 18px 20px;
+            background: rgba(255,255,255,0.55);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            border: 1px solid rgba(255,255,255,0.7);
+            border-radius: 14px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.02), 0 8px 24px rgba(0,0,0,0.03);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s;
+        }
+        .exp-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 16px 48px rgba(0,0,0,0.06);
+        }
+        .exp-card h3 {
+            font-size: 0.88rem;
+            font-weight: 650;
+            letter-spacing: -0.01em;
+            margin-bottom: 4px;
+        }
+        .exp-card .exp-desc {
+            font-size: 0.74rem;
+            color: rgba(26,26,46,0.4);
+            line-height: 1.5;
+        }
+        .exp-card .exp-tags {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .exp-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.54rem;
+            color: rgba(26,26,46,0.28);
+            background: rgba(26,26,46,0.04);
+            padding: 3px 8px;
+            border-radius: 5px;
+        }
+
+        /* ═══ TECHNIQUE LIST ═══ */
+        .tech-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+            gap: 16px;
+            margin-top: 8px;
+        }
+        .tech-item {
+            padding: 20px;
+            background: rgba(255,255,255,0.45);
+            border: 1px solid rgba(255,255,255,0.6);
+            border-radius: 12px;
+        }
+        .tech-item h3 {
+            font-size: 0.85rem;
+            font-weight: 650;
+            margin-bottom: 6px;
+        }
+        .tech-item p {
+            font-size: 0.78rem;
+            color: rgba(26,26,46,0.45);
+            line-height: 1.6;
+            margin-bottom: 0;
+        }
+        .tech-item code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            background: rgba(26,26,46,0.04);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: rgba(26,26,46,0.55);
+        }
+
+        /* ═══ STACK ═══ */
+        .stack-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .stack-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: rgba(26,26,46,0.4);
+            background: rgba(255,255,255,0.5);
+            border: 1px solid rgba(255,255,255,0.6);
+            padding: 8px 14px;
+            border-radius: 8px;
+        }
+
+        /* ═══ COMMANDS ═══ */
+        .cmd-list {
+            margin-top: 8px;
+        }
+        .cmd-row {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(26,26,46,0.04);
+        }
+        .cmd-row:last-child { border-bottom: none; }
+        .cmd-code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: rgba(26,26,46,0.55);
+            white-space: nowrap;
+        }
+        .cmd-desc {
+            font-size: 0.78rem;
+            color: rgba(26,26,46,0.35);
+        }
+
+        /* ═══ DIVIDER ═══ */
+        .divider {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 max(24px, env(safe-area-inset-left, 24px));
+        }
+        .divider hr {
+            border: none;
+            height: 1px;
+            background: rgba(26,26,46,0.06);
+        }
+
+        /* ═══ FOOTER ═══ */
+        .footer {
+            padding: clamp(40px, 8vw, 80px) max(24px, env(safe-area-inset-left, 24px));
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .footer p {
+            font-size: 0.75rem;
+            color: rgba(26,26,46,0.2);
+        }
+
+        /* ═══ RESPONSIVE ═══ */
+        @media (max-width: 480px) {
+            .header, .section, .footer { padding-left: 16px; padding-right: 16px; }
+            .divider { padding: 0 16px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .exp-card { transition: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a class="back-link" href="../">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            Back to experiments
+        </a>
+        <h1>About MADvids</h1>
+        <p class="lead">A collection of video web experiments exploring cinematic scroll, interactive animation, and real-time visual effects — all built for 60fps.</p>
+    </div>
+
+    <div class="divider"><hr></div>
+
+    <div class="section">
+        <div class="section-label">Experiments</div>
+        <div class="exp-grid">
+            <a class="exp-card" href="../experiments/superflat/">
+                <h3>Superflat</h3>
+                <p class="exp-desc">Murakami dreamscape scroll with AI videos, pop-art typography, and Web Audio ambient.</p>
+                <div class="exp-tags"><span class="exp-tag">murakami</span><span class="exp-tag">scroll</span><span class="exp-tag">AI-video</span></div>
+            </a>
+            <a class="exp-card" href="../experiments/hyperpod-cinematic/">
+                <h3>Cinematic Scroll</h3>
+                <p class="exp-desc">Sticky full-screen video with scroll-driven section reveals and animated stat counters.</p>
+                <div class="exp-tags"><span class="exp-tag">scroll-driven</span><span class="exp-tag">video</span></div>
+            </a>
+            <a class="exp-card" href="../experiments/hyperpod-showcase/">
+                <h3>Split Narrative</h3>
+                <p class="exp-desc">Alternating content sections over dedicated video backgrounds with metric pills.</p>
+                <div class="exp-tags"><span class="exp-tag">parallax</span><span class="exp-tag">marketing</span></div>
+            </a>
+            <a class="exp-card" href="../experiments/hyperpod-grid/">
+                <h3>Bento Mosaic</h3>
+                <p class="exp-desc">Asymmetric video grid with staggered cell reveals, marquee ticker, and label overlays.</p>
+                <div class="exp-tags"><span class="exp-tag">grid</span><span class="exp-tag">bento</span></div>
+            </a>
+            <a class="exp-card" href="../experiments/hyperpod-immersive/">
+                <h3>Depth & Grain</h3>
+                <p class="exp-desc">Parallax video zoom with film grain, numbered feature strips, and frosted metric cards.</p>
+                <div class="exp-tags"><span class="exp-tag">parallax</span><span class="exp-tag">cinematic</span></div>
+            </a>
+            <a class="exp-card" href="../experiments/delightfull-video/">
+                <h3>Delightful Video</h3>
+                <p class="exp-desc">Scroll-driven typography animation with video background and staggered letter reveals.</p>
+                <div class="exp-tags"><span class="exp-tag">typography</span><span class="exp-tag">scroll</span></div>
+            </a>
+            <a class="exp-card" href="../experiments/chromatic-shift/">
+                <h3>Chromatic Shift</h3>
+                <p class="exp-desc">Scroll-driven color grading with live blend-mode overlays through five cinematic moods.</p>
+                <div class="exp-tags"><span class="exp-tag">color</span><span class="exp-tag">blend-mode</span></div>
+            </a>
+            <a class="exp-card" href="../experiments/mesh-flow/">
+                <h3>Mesh Flow</h3>
+                <p class="exp-desc">Floating gradient blobs with screen blending, scroll-driven parallax, and ambient drift.</p>
+                <div class="exp-tags"><span class="exp-tag">gradients</span><span class="exp-tag">blend-mode</span></div>
+            </a>
+            <a class="exp-card" href="../experiments/lumina/">
+                <h3>Lumina</h3>
+                <p class="exp-desc">Interactive light story — collect luminous particles to unlock a poetic narrative.</p>
+                <div class="exp-tags"><span class="exp-tag">interactive</span><span class="exp-tag">canvas</span><span class="exp-tag">game</span></div>
+            </a>
+            <a class="exp-card" href="../experiments/shape-reveal/">
+                <h3>Shape Reveal</h3>
+                <p class="exp-desc">Scroll-driven clip-path morphing — seven geometric shapes progressively unmask the video.</p>
+                <div class="exp-tags"><span class="exp-tag">clip-path</span><span class="exp-tag">scroll</span></div>
+            </a>
+            <a class="exp-card" href="../experiments/rift/">
+                <h3>Rift</h3>
+                <p class="exp-desc">Scroll-driven dimensional portal — a radial rift expands to reveal the multiverse.</p>
+                <div class="exp-tags"><span class="exp-tag">portal</span><span class="exp-tag">radial-gradient</span><span class="exp-tag">particles</span></div>
+            </a>
+            <a class="exp-card" href="../experiments/autonomy-dashboard/">
+                <h3>Autonomy Dashboard</h3>
+                <p class="exp-desc">React-based interactive dashboard with real-time data visualizations.</p>
+                <div class="exp-tags"><span class="exp-tag">react</span><span class="exp-tag">vite</span></div>
+            </a>
+        </div>
+    </div>
+
+    <div class="divider"><hr></div>
+
+    <div class="section">
+        <div class="section-label">Key Techniques</div>
+        <div class="tech-list">
+            <div class="tech-item">
+                <h3>Video-through-text</h3>
+                <p>White mask with <code>mix-blend-mode: screen</code> reveals video only through black text pixels. Black shows video, white hides it.</p>
+            </div>
+            <div class="tech-item">
+                <h3>Scroll-driven color grading</h3>
+                <p>HSL interpolation with <code>lerpAngle()</code> for hue wrapping. <code>mix-blend-mode: color</code> overlay transforms video mood.</p>
+            </div>
+            <div class="tech-item">
+                <h3>Glass morphism</h3>
+                <p><code>backdrop-filter: blur(40px) saturate(180%)</code> with decorative orbs behind for blur visibility on light backgrounds.</p>
+            </div>
+            <div class="tech-item">
+                <h3>Clip-path morphing</h3>
+                <p>Scroll-driven <code>clip-path</code> generators produce polygon, circle, inset, and organic blob shapes per frame.</p>
+            </div>
+            <div class="tech-item">
+                <h3>Portal reveals</h3>
+                <p><code>radial-gradient</code> masking with smoothstep keyframe interpolation creates expanding/collapsing dimensional portals.</p>
+            </div>
+            <div class="tech-item">
+                <h3>Web Audio synthesis</h3>
+                <p>Oscillator drones and pentatonic collection pings generated in real-time. No audio files needed.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="divider"><hr></div>
+
+    <div class="section">
+        <div class="section-label">Performance Patterns</div>
+        <div class="tech-list">
+            <div class="tech-item">
+                <h3>Compositor-only animations</h3>
+                <p>All animations use <code>transform</code> and <code>opacity</code> via <code>translate3d</code> — no layout or paint operations in the render path.</p>
+            </div>
+            <div class="tech-item">
+                <h3>rAF loop fades</h3>
+                <p>Video loop crossfades use <code>requestAnimationFrame</code> ticks that self-terminate on pause. Zero overhead for invisible videos.</p>
+            </div>
+            <div class="tech-item">
+                <h3>Lazy video loading</h3>
+                <p><code>IntersectionObserver</code> controls play/pause. Far-observer removes <code>src</code> at 600px outside viewport to release decoders.</p>
+            </div>
+            <div class="tech-item">
+                <h3>Cached layout reads</h3>
+                <p><code>innerHeight</code> and <code>offsetHeight</code> cached in resize handler — never read per-scroll. Passive listeners everywhere.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="divider"><hr></div>
+
+    <div class="section">
+        <div class="section-label">Tech Stack</div>
+        <div class="stack-grid">
+            <span class="stack-pill">Vite</span>
+            <span class="stack-pill">React (dashboard)</span>
+            <span class="stack-pill">Vanilla JS</span>
+            <span class="stack-pill">CSS custom properties</span>
+            <span class="stack-pill">IntersectionObserver</span>
+            <span class="stack-pill">Web Audio API</span>
+            <span class="stack-pill">WebGL (grain shader)</span>
+            <span class="stack-pill">View Transitions API</span>
+            <span class="stack-pill">Service Worker</span>
+            <span class="stack-pill">GitHub Pages</span>
+        </div>
+    </div>
+
+    <div class="divider"><hr></div>
+
+    <div class="section">
+        <div class="section-label">Development</div>
+        <div class="cmd-list">
+            <div class="cmd-row">
+                <span class="cmd-code">npm run dev</span>
+                <span class="cmd-desc">Start local dev server with hot reload</span>
+            </div>
+            <div class="cmd-row">
+                <span class="cmd-code">npx vite build</span>
+                <span class="cmd-desc">Build for production</span>
+            </div>
+            <div class="cmd-row">
+                <span class="cmd-code">npx vite preview</span>
+                <span class="cmd-desc">Preview production build locally</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>MADvids</p>
+    </div>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/MADvids/sw.js').catch(function() {});
+        }
+    </script>
+</body>
+</html>

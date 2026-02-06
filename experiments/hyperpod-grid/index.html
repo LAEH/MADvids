@@ -321,42 +321,42 @@
         <div class="grid-label">Featured</div>
         <div class="bento">
             <div class="cell g1" data-reveal data-delay="0" data-speed="1">
-                <video class="preload-video" autoplay muted loop playsinline disablePictureInPicture aria-label="Grid video">
+                <video class="preload-video" muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Grid video">
                     <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-dgfdf.mp4" type="video/mp4">
                 </video>
                 <div class="cell-label">Parallel I/O Architecture</div>
                 <div class="cell-meta">1x</div>
             </div>
             <div class="cell g2" data-reveal data-delay="80" data-speed="0.7">
-                <video class="preload-video" autoplay muted loop playsinline disablePictureInPicture aria-label="Grid video">
+                <video class="preload-video" muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Grid video">
                     <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jhojeh.mp4" type="video/mp4">
                 </video>
                 <div class="cell-label">GPU Direct Storage</div>
                 <div class="cell-meta">0.7x</div>
             </div>
             <div class="cell g3" data-reveal data-delay="160" data-speed="0.4">
-                <video class="preload-video" autoplay muted loop playsinline disablePictureInPicture aria-label="Grid video">
+                <video class="preload-video" muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Grid video">
                     <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-kjhxsa.mp4" type="video/mp4">
                 </video>
                 <div class="cell-label">Elastic Scaling</div>
                 <div class="cell-meta">0.4x</div>
             </div>
             <div class="cell g4" data-reveal data-delay="240" data-speed="0.5">
-                <video class="preload-video" autoplay muted loop playsinline disablePictureInPicture aria-label="Grid video">
+                <video class="preload-video" muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Grid video">
                     <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jhojeh.mp4" type="video/mp4">
                 </video>
                 <div class="cell-label">Data Pipeline</div>
                 <div class="cell-meta">0.5x</div>
             </div>
             <div class="cell g5" data-reveal data-delay="320" data-speed="0.85">
-                <video class="preload-video" autoplay muted loop playsinline disablePictureInPicture aria-label="Grid video">
+                <video class="preload-video" muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Grid video">
                     <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-dgfdf.mp4" type="video/mp4">
                 </video>
                 <div class="cell-label">Multi-Cluster Orchestration</div>
                 <div class="cell-meta">0.85x</div>
             </div>
             <div class="cell g6" data-reveal data-delay="400" data-speed="0.6">
-                <video class="preload-video" autoplay muted loop playsinline disablePictureInPicture aria-label="Grid video">
+                <video class="preload-video" muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Grid video">
                     <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-kjhxsa.mp4" type="video/mp4">
                 </video>
                 <div class="cell-label">Fault Tolerance</div>
@@ -384,19 +384,19 @@
         <div class="grid-label" style="margin-bottom: 24px;">Capabilities</div>
         <div class="tri-grid">
             <div class="tri-cell" data-reveal data-delay="0">
-                <video class="preload-video" autoplay muted loop playsinline disablePictureInPicture aria-label="Grid video">
+                <video class="preload-video" muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Grid video">
                     <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-kjhxsa.mp4" type="video/mp4">
                 </video>
                 <div class="cell-label">Training at Scale</div>
             </div>
             <div class="tri-cell" data-reveal data-delay="80">
-                <video class="preload-video" autoplay muted loop playsinline disablePictureInPicture aria-label="Grid video">
+                <video class="preload-video" muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Grid video">
                     <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-dgfdf.mp4" type="video/mp4">
                 </video>
                 <div class="cell-label">Inference Pipeline</div>
             </div>
             <div class="tri-cell" data-reveal data-delay="160">
-                <video class="preload-video" autoplay muted loop playsinline disablePictureInPicture aria-label="Grid video">
+                <video class="preload-video" muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Grid video">
                     <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jhojeh.mp4" type="video/mp4">
                 </video>
                 <div class="cell-label">Data Lake</div>
@@ -418,22 +418,26 @@
             localStorage.setItem('ddn-theme', next);
         });
 
-        // Preload
+        // Preload — wait for first 2 visible videos (not all 9)
         const videos = document.querySelectorAll('.preload-video');
         const loader = document.getElementById('loader');
         let loaded = 0;
-        const total = videos.length;
-        function check() { if (++loaded >= total) launch(); }
+        const targetLoad = 2;
+        let launched = false;
+        function check() { if (++loaded >= targetLoad) launch(); }
         function launch() {
+            if (launched) return;
+            launched = true;
             loader.classList.add('done');
             document.body.classList.add('ready');
             setTimeout(() => loader.remove(), 600);
         }
-        videos.forEach(v => {
-            if (v.readyState >= 3) { check(); return; }
-            v.addEventListener('canplaythrough', check, { once: true });
+        videos.forEach(function(v, i) {
+            if (i >= targetLoad) return;
+            if (v.readyState >= 2) { check(); return; }
+            v.addEventListener('loadeddata', check, { once: true });
         });
-        setTimeout(launch, 8000);
+        setTimeout(launch, 6000);
 
         // Reveal
         const observer = new IntersectionObserver((entries) => {
@@ -452,19 +456,44 @@
             if (v) v.playbackRate = parseFloat(cell.dataset.speed);
         });
 
-        /* Smooth loop fade on all videos */
-        (function() {
-            const fade = 0.5;
-            videos.forEach(function(v) {
-                v.addEventListener('timeupdate', function() {
-                    if (!v.duration) return;
-                    const rem = v.duration - v.currentTime;
-                    if (rem < fade) v.style.opacity = rem / fade;
-                    else if (v.currentTime < fade) v.style.opacity = Math.min(v.currentTime / fade, 1);
-                    else if (v.style.opacity !== '') v.style.opacity = '';
-                });
+        /* Smooth loop fade — rAF-based, self-terminates when paused */
+        function initLoopFade(v) {
+            var fadeDur = 0.5;
+            function tick() {
+                if (v.paused) return;
+                if (v.duration) {
+                    var rem = v.duration - v.currentTime;
+                    var o = 1;
+                    if (rem < fadeDur) o = rem / fadeDur;
+                    else if (v.currentTime < fadeDur) o = Math.min(v.currentTime / fadeDur, 1);
+                    v.style.opacity = o;
+                }
+                requestAnimationFrame(tick);
+            }
+            v.addEventListener('play', function() { requestAnimationFrame(tick); });
+        }
+        videos.forEach(function(v) { initLoopFade(v); });
+
+        /* Lazy video play/pause — only decode visible videos */
+        const videoObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) {
+                const v = e.target.querySelector('video');
+                if (!v) return;
+                if (e.isIntersecting) {
+                    v.play().catch(function() {});
+                } else {
+                    v.pause();
+                }
             });
-        })();
+        }, { rootMargin: '120px' });
+        document.querySelectorAll('.cell, .tri-cell').forEach(function(cell) {
+            videoObserver.observe(cell);
+        });
+
+    /* ─── Service Worker ─── */
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/MADvids/sw.js').catch(function(){});
+    }
     })();
     </script>
 </body>

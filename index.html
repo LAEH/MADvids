@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MADvids — A collection of cinematic video web experiments exploring scroll-driven animations, blend modes, parallax, canvas particles, and Web Audio.">
+    <meta property="og:title" content="MADvids — Video Experiences">
+    <meta property="og:description" content="Cinematic video web experiments: scroll-driven animations, blend modes, parallax effects, and interactive sound design.">
+    <meta property="og:type" content="website">
     <title>MADvids — Experiments</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="dns-prefetch" href="https://storage.googleapis.com">
+    <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -25,7 +29,7 @@
 
         body {
             font-family: 'Inter', -apple-system, sans-serif;
-            background: #f2f2f7;
+            background: #fff;
             color: #1a1a2e;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
@@ -38,7 +42,7 @@
            ═══════════════════════════════════════ */
         .hero {
             position: relative;
-            min-height: 100dvh;
+            min-height: calc(100dvh - 80px);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -110,22 +114,46 @@
             .title-video { display: none; }
         }
 
-        .subtitle {
-            font-size: clamp(14px, 1.6vw, 17px);
-            font-weight: 400;
-            color: rgba(26,26,46,0.35);
-            text-align: center;
-            max-width: 440px;
-            line-height: 1.65;
+        /* Play button — black circle with play triangle */
+        .genie-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #1a1a2e;
+            border: none;
+            text-decoration: none;
             margin-top: clamp(28px, 4vw, 44px);
             opacity: 0;
             transform: translateY(20px);
+            cursor: pointer;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                        background 0.3s;
         }
-        .subtitle.revealed {
+        .genie-btn svg {
+            width: 22px;
+            height: 22px;
+            margin-left: 3px;
+        }
+        .genie-btn.revealed {
             opacity: 1;
             transform: translateY(0);
-            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-                        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: genieFloat 3s ease-in-out infinite;
+        }
+        .genie-btn:hover {
+            transform: scale(1.15);
+            background: #000;
+        }
+        .genie-btn:active {
+            transform: scale(0.9);
+        }
+        @keyframes genieFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
         }
 
         .scroll-cue {
@@ -214,14 +242,12 @@
             background: rgba(255,255,255,0.55);
             backdrop-filter: blur(40px) saturate(180%);
             -webkit-backdrop-filter: blur(40px) saturate(180%);
-            border: 1px solid rgba(255,255,255,0.75);
+            border: 1px solid rgba(0,0,0,0.06);
             box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.5),
-                0 0 0 0.5px rgba(0,0,0,0.03),
-                0 2px 8px rgba(0,0,0,0.03),
-                0 12px 40px rgba(0,0,0,0.04);
+                0 1px 3px rgba(0,0,0,0.04),
+                0 8px 24px rgba(0,0,0,0.06);
             opacity: 0;
-            transform: translateY(36px);
+            transform: translateY(20px);
             will-change: transform, opacity;
             contain: layout style paint;
         }
@@ -229,23 +255,21 @@
             opacity: 1;
             transform: translateY(0);
             transition:
-                opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-                transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-                box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+                opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .card:hover {
-            transform: translateY(-4px) scale(1.008);
+            transform: translateY(-6px) scale(1.02);
             box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.5),
-                0 0 0 0.5px rgba(0,0,0,0.04),
-                0 4px 16px rgba(0,0,0,0.05),
-                0 24px 64px rgba(0,0,0,0.08);
+                0 2px 8px rgba(0,0,0,0.06),
+                0 20px 48px rgba(0,0,0,0.12);
         }
         .card.visible:hover {
-            transform: translateY(-4px) scale(1.008);
+            transform: translateY(-6px) scale(1.02);
             transition:
-                transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-                box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+                transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         /* Card preview — inset with its own radius */
@@ -339,10 +363,8 @@
             .card.visible:hover {
                 transform: none;
                 box-shadow:
-                    inset 0 1px 0 rgba(255,255,255,0.5),
-                    0 0 0 0.5px rgba(0,0,0,0.03),
-                    0 2px 8px rgba(0,0,0,0.03),
-                    0 12px 40px rgba(0,0,0,0.04);
+                    0 1px 3px rgba(0,0,0,0.04),
+                    0 8px 24px rgba(0,0,0,0.06);
             }
             .card:active {
                 transform: scale(0.97);
@@ -360,11 +382,23 @@
             .experiments { padding-bottom: max(clamp(80px, 12vw, 160px), env(safe-area-inset-bottom)); }
         }
 
+        .about-link {
+            display: block;
+            text-align: center;
+            padding: 0 24px 40px;
+            font-size: 0.75rem;
+            color: rgba(26,26,46,0.18);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .about-link:hover { color: rgba(26,26,46,0.4); }
+
+
         @media (prefers-reduced-motion: reduce) {
             .letter { opacity: 1; transform: none; }
             .letter.revealed { transition: none; }
-            .subtitle { opacity: 1; transform: none; }
-            .subtitle.revealed { transition: none; }
+            .genie-btn { opacity: 1; transform: none; animation: none; }
+            .genie-btn.revealed { transition: none; animation: none; }
             .card { opacity: 1; transform: none; }
             .card.visible { transition: none; }
             .card-preview::before { animation: none; }
@@ -406,21 +440,17 @@
             animation: splashIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
         }
 
-        .splash-bar-track {
-            width: min(240px, 60vw);
-            height: 3px;
-            border-radius: 3px;
-            background: rgba(26,26,46,0.06);
-            overflow: hidden;
+        .splash-ring {
+            width: 48px; height: 48px;
             opacity: 0;
             animation: splashIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
         }
-        .splash-bar {
-            height: 100%;
-            width: 0%;
-            border-radius: 3px;
-            background: rgba(26,26,46,0.25);
-            transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        .splash-ring svg {
+            width: 100%; height: 100%;
+            animation: spinRing 1.4s linear infinite;
+        }
+        @keyframes spinRing {
+            to { transform: rotate(360deg); }
         }
 
         @keyframes splashIn {
@@ -431,8 +461,19 @@
 <body class="loading">
     <div class="splash" id="splash">
         <div class="splash-title"><span style="font-weight:900">MAD</span><span style="font-weight:300">vids</span></div>
-        <div class="splash-bar-track">
-            <div class="splash-bar" id="splashBar"></div>
+        <div class="splash-ring">
+            <svg viewBox="0 0 50 50">
+                <defs>
+                    <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#ff6b9d"/>
+                        <stop offset="25%" stop-color="#4a9fff"/>
+                        <stop offset="50%" stop-color="#b388ff"/>
+                        <stop offset="75%" stop-color="#e8a44a"/>
+                        <stop offset="100%" stop-color="#ffc857"/>
+                    </linearGradient>
+                </defs>
+                <circle cx="25" cy="25" r="20" fill="none" stroke="url(#rg)" stroke-width="3" stroke-linecap="round" stroke-dasharray="94" stroke-dashoffset="28"/>
+            </svg>
         </div>
     </div>
 
@@ -448,9 +489,7 @@
                 </h1>
             </div>
         </div>
-        <p class="subtitle" id="heroSubtitle">
-            Where cinematic video meets precision web engineering — scroll animation, parallax, interactive layouts. 60fps. Always.
-        </p>
+        <a class="genie-btn" id="genieBtn" href="experiments/journey/index.html" title="Enter the Journey" aria-label="Enter the Journey"><svg viewBox="0 0 24 24" fill="#fff"><polygon points="8,5 20,12 8,19"/></svg></a>
         <div class="scroll-cue" id="scrollCue">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M6 9l6 6 6-6"/>
@@ -515,7 +554,7 @@
 
             <a class="card" href="experiments/hyperpod-grid/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="none" aria-label="Experiment preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Experiment preview">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-kjhxsa.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -531,7 +570,7 @@
 
             <a class="card" href="experiments/hyperpod-immersive/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="none" aria-label="Experiment preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Experiment preview">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jfdgyie.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -547,7 +586,7 @@
 
             <a class="card" href="experiments/delightfull-video/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="none" aria-label="Experiment preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Experiment preview">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/Video_Generation_With_Specific_Colors%20copy.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -563,7 +602,7 @@
 
             <a class="card" href="experiments/chromatic-shift/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="none" aria-label="Experiment preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Experiment preview">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-kjhxsa.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -579,7 +618,7 @@
 
             <a class="card" href="experiments/mesh-flow/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="none" aria-label="Experiment preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Experiment preview">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jhojeh.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -595,7 +634,7 @@
 
             <a class="card" href="experiments/lumina/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="none" aria-label="Experiment preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Experiment preview">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/claude-pretty-ugvuda.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -612,7 +651,7 @@
 
             <a class="card" href="experiments/shape-reveal/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="none" aria-label="Experiment preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Experiment preview">
                         <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-dgfdf.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -629,7 +668,7 @@
 
             <a class="card" href="experiments/rift/index.html">
                 <div class="card-preview">
-                    <video muted loop playsinline disablePictureInPicture preload="none" aria-label="Experiment preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Experiment preview">
                         <source src="https://storage.googleapis.com/myproject-public-assets/art/MADvids/Abstract_Multiverse_Cinematic_Journey_Generated.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -640,6 +679,40 @@
                         <span class="tag-pill">portal</span>
                         <span class="tag-pill">radial-gradient</span>
                         <span class="tag-pill">particles</span>
+                    </div>
+                </div>
+            </a>
+
+            <a class="card" href="experiments/verso/index.html">
+                <div class="card-preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Experiment preview">
+                        <source src="https://storage.googleapis.com/myproject-public-assets/art/MADvids/Surreal_Gradient_Liquid_Video_Generation.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="card-body">
+                    <h2>Verso</h2>
+                    <p>Scroll-driven verse experience — video shifts between full bleed, split panels, and cinematic letterbox.</p>
+                    <div class="tags">
+                        <span class="tag-pill">clip-path</span>
+                        <span class="tag-pill">scroll</span>
+                        <span class="tag-pill">particles</span>
+                    </div>
+                </div>
+            </a>
+
+            <a class="card" href="experiments/journey/index.html">
+                <div class="card-preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Experiment preview">
+                        <source src="https://storage.googleapis.com/myproject-public-assets/art/MADvids/Surreal_Gradient_Liquid_Video_Generation.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="card-body">
+                    <h2>Journey</h2>
+                    <p>5 imagination worlds to explore. Portal intro, juicy navigation, particle effects, ambient sound.</p>
+                    <div class="tags">
+                        <span class="tag-pill">imagination</span>
+                        <span class="tag-pill">worlds</span>
+                        <span class="tag-pill">sound</span>
                     </div>
                 </div>
             </a>
@@ -660,34 +733,26 @@
         </div>
     </section>
 
+    <a class="about-link" href="about/">About this project</a>
+
     <script>
         /* ═══ 0. SPLASH / LOADING SCREEN ═══
            Waits for fonts + hero video + first card videos.
            Max timeout 6s so it never hangs forever. */
 
         const splash = document.getElementById('splash');
-        const splashBar = document.getElementById('splashBar');
         let splashDismissed = false;
 
-        /* Track loading milestones */
-        const loadState = { fonts: false, heroVideo: false, cardVideos: 0 };
-        const cardVideos = document.querySelectorAll('.card-preview video');
-        const targetCards = Math.min(cardVideos.length, 3); /* first row (3 cards) */
+        /* Track loading milestones — just fonts + hero video */
+        const loadState = { fonts: false, heroVideo: false };
 
         function updateProgress() {
-            const total = 2 + targetCards; /* fonts + hero + N cards */
-            const done = (loadState.fonts ? 1 : 0)
-                     + (loadState.heroVideo ? 1 : 0)
-                     + Math.min(loadState.cardVideos, targetCards);
-            const pct = Math.round((done / total) * 100);
-            splashBar.style.width = pct + '%';
-            if (done >= total) dismissSplash();
+            if (loadState.fonts && loadState.heroVideo) dismissSplash();
         }
 
         function dismissSplash() {
             if (splashDismissed) return;
             splashDismissed = true;
-            splashBar.style.width = '100%';
             setTimeout(function() {
                 splash.classList.add('hidden');
                 document.body.classList.remove('loading');
@@ -724,24 +789,11 @@
             loadState.heroVideo = true;
         }
 
-        /* Card videos — listen for enough data on first N */
-        cardVideos.forEach(function(v, i) {
-            if (i >= targetCards) return;
-            if (v.readyState >= 2) {
-                loadState.cardVideos++;
-            } else {
-                v.addEventListener('loadeddata', function() {
-                    loadState.cardVideos++;
-                    updateProgress();
-                }, { once: true });
-            }
-        });
-
         /* Initial check (some may already be loaded) */
         updateProgress();
 
-        /* Max timeout — never wait more than 6s */
-        setTimeout(dismissSplash, 6000);
+        /* Max timeout — never wait more than 3s */
+        setTimeout(dismissSplash, 3000);
 
         /* ═══ 1. LETTER-BY-LETTER REVEAL ═══
            Split title lines into individual <span> letters.
@@ -775,19 +827,19 @@
                 }, delay);
             });
 
-            const subtitleDelay = 200 + (allLetters.length * 28) + 120 + 200;
+            const genieDelay = 200 + (allLetters.length * 28) + 120 + 200;
             setTimeout(function() {
-                document.getElementById('heroSubtitle').classList.add('revealed');
-            }, subtitleDelay);
+                document.getElementById('genieBtn').classList.add('revealed');
+            }, genieDelay);
 
             setTimeout(function() {
                 document.getElementById('scrollCue').classList.add('visible');
-            }, subtitleDelay + 600);
+            }, genieDelay + 600);
 
             /* Clean up will-change after all animations settle */
             setTimeout(function() {
                 allLetters.forEach(function(s) { s.style.willChange = 'auto'; });
-            }, subtitleDelay + 1200);
+            }, genieDelay + 1200);
         }
 
         /* ═══ 2. HERO PARALLAX ON SCROLL ═══
@@ -829,7 +881,9 @@
                     const idx = parseInt(e.target.dataset.idx || '0');
                     setTimeout(function() {
                         e.target.classList.add('visible');
-                    }, idx * 90);
+                        /* Clean up will-change after entrance transition */
+                        setTimeout(function() { e.target.style.willChange = 'auto'; }, 900);
+                    }, idx * 30);
                     cardObserver.unobserve(e.target);
                 }
             });
@@ -867,20 +921,21 @@
             }).catch(function() {});
         }
 
-        /* Smooth loop: fade out near end, fade back in at start */
+        /* Smooth loop: rAF-based fade — self-terminates when paused */
         function initLoopFade(v) {
-            const fadeZone = 0.4; /* seconds before end to start fading */
-            v.addEventListener('timeupdate', function() {
-                if (!v.duration) return;
-                const remaining = v.duration - v.currentTime;
-                if (remaining < fadeZone) {
-                    v.style.opacity = String(remaining / fadeZone);
-                } else if (v.currentTime < fadeZone) {
-                    v.style.opacity = String(Math.min(v.currentTime / fadeZone, 1));
-                } else if (v.style.opacity !== '1' && v.style.opacity !== '') {
-                    v.style.opacity = '1';
+            var fadeDur = 0.4;
+            function tick() {
+                if (v.paused) return;
+                if (v.duration) {
+                    var rem = v.duration - v.currentTime;
+                    var o = 1;
+                    if (rem < fadeDur) o = rem / fadeDur;
+                    else if (v.currentTime < fadeDur) o = Math.min(v.currentTime / fadeDur, 1);
+                    v.style.opacity = o;
                 }
-            });
+                requestAnimationFrame(tick);
+            }
+            v.addEventListener('play', function() { requestAnimationFrame(tick); });
         }
 
         document.querySelectorAll('.card-preview video').forEach(function(v) {
@@ -941,34 +996,44 @@
             });
         }
 
-        /* ═══ 7. CARD TILT + VIDEO SPEED ON HOVER ═══ */
+        /* ═══ 7. CARD TILT + VIDEO SPEED ON HOVER ═══
+           Rect cached on mouseenter, tilt batched to single rAF per frame. */
         if (window.matchMedia('(hover: hover)').matches) {
             document.querySelectorAll('.card').forEach(function(card) {
                 const preview = card.querySelector('.card-preview');
                 const vid = card.querySelector('.card-preview video');
+                var cachedRect = null;
+                var tiltRafId = 0;
+                var tiltX = 0, tiltY = 0;
+
+                card.addEventListener('mouseenter', function() {
+                    cachedRect = card.getBoundingClientRect();
+                    if (vid) vid.playbackRate = 0.6;
+                });
 
                 card.addEventListener('mousemove', function(e) {
-                    const rect = card.getBoundingClientRect();
-                    const x = (e.clientX - rect.left) / rect.width;
-                    const y = (e.clientY - rect.top) / rect.height;
-                    const rx = (0.5 - y) * 10;
-                    const ry = (x - 0.5) * 10;
-                    if (preview) {
-                        preview.style.transition = 'transform 0.1s ease-out';
-                        preview.style.transform = 'perspective(800px) rotateX(' + rx + 'deg) rotateY(' + ry + 'deg) scale(1.02)';
+                    if (!cachedRect || !preview) return;
+                    var x = (e.clientX - cachedRect.left) / cachedRect.width;
+                    var y = (e.clientY - cachedRect.top) / cachedRect.height;
+                    tiltX = (0.5 - y) * 10;
+                    tiltY = (x - 0.5) * 10;
+                    if (!tiltRafId) {
+                        tiltRafId = requestAnimationFrame(function() {
+                            preview.style.transition = 'transform 0.1s ease-out';
+                            preview.style.transform = 'perspective(800px) rotateX(' + tiltX + 'deg) rotateY(' + tiltY + 'deg) scale(1.02)';
+                            tiltRafId = 0;
+                        });
                     }
                 });
 
                 card.addEventListener('mouseleave', function() {
+                    cachedRect = null;
+                    if (tiltRafId) { cancelAnimationFrame(tiltRafId); tiltRafId = 0; }
                     if (preview) {
                         preview.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
                         preview.style.transform = '';
                     }
                     if (vid) vid.playbackRate = 1;
-                });
-
-                card.addEventListener('mouseenter', function() {
-                    if (vid) vid.playbackRate = 0.6;
                 });
             });
         }

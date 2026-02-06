@@ -1029,16 +1029,28 @@
         chapters[0].classList.add('active');
         requestAnimationFrame(frame);
 
-        /* Smooth loop fade */
+        /* Smooth loop fade — rAF-based, self-terminates when paused */
         const bgVid = document.getElementById('bgVideo');
-        const loopFade = 0.5;
-        bgVid.addEventListener('timeupdate', function() {
-            if (!bgVid.duration) return;
-            const rem = bgVid.duration - bgVid.currentTime;
-            if (rem < loopFade) bgVid.style.opacity = rem / loopFade;
-            else if (bgVid.currentTime < loopFade) bgVid.style.opacity = Math.min(bgVid.currentTime / loopFade, 1);
-            else if (bgVid.style.opacity !== '') bgVid.style.opacity = '';
-        });
+        (function() {
+            var fadeDur = 0.5;
+            function tick() {
+                if (bgVid.paused) return;
+                if (bgVid.duration) {
+                    var rem = bgVid.duration - bgVid.currentTime;
+                    var o = 1;
+                    if (rem < fadeDur) o = rem / fadeDur;
+                    else if (bgVid.currentTime < fadeDur) o = Math.min(bgVid.currentTime / fadeDur, 1);
+                    bgVid.style.opacity = o;
+                }
+                requestAnimationFrame(tick);
+            }
+            bgVid.addEventListener('play', function() { requestAnimationFrame(tick); });
+        })();
+
+    /* ─── Service Worker ─── */
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/MADvids/sw.js').catch(function(){});
+    }
 
     })();
     </script>

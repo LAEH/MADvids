@@ -383,19 +383,29 @@
             sections[0].classList.add('visible');
         }, 300);
 
-        /* Smooth loop fade */
+        /* Smooth loop fade — rAF-based, self-terminates when paused */
         (function() {
-            const v = document.querySelector('.video-layer video');
+            var v = document.querySelector('.video-layer video');
             if (!v) return;
-            const fade = 0.5;
-            v.addEventListener('timeupdate', function() {
-                if (!v.duration) return;
-                const rem = v.duration - v.currentTime;
-                if (rem < fade) v.style.opacity = rem / fade;
-                else if (v.currentTime < fade) v.style.opacity = Math.min(v.currentTime / fade, 1);
-                else if (v.style.opacity !== '') v.style.opacity = '';
-            });
+            var fadeDur = 0.5;
+            function tick() {
+                if (v.paused) return;
+                if (v.duration) {
+                    var rem = v.duration - v.currentTime;
+                    var o = 1;
+                    if (rem < fadeDur) o = rem / fadeDur;
+                    else if (v.currentTime < fadeDur) o = Math.min(v.currentTime / fadeDur, 1);
+                    v.style.opacity = o;
+                }
+                requestAnimationFrame(tick);
+            }
+            v.addEventListener('play', function() { requestAnimationFrame(tick); });
         })();
+
+    /* ─── Service Worker ─── */
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/MADvids/sw.js').catch(function(){});
+    }
     })();
     </script>
 </body>
