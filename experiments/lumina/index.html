@@ -367,15 +367,13 @@
         <svg class="icon-on" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
     </button>
 
-    <nav class="exp-nav">
-        <a href="../mesh-flow/" title="Previous" aria-label="Previous experiment"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></a>
-        <a href="../../" title="All experiments" aria-label="Home"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg></a>
-        <a href="../shape-reveal/" title="Next" aria-label="Next experiment"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
-    </nav>
 
     <script>
     (function() {
         'use strict';
+        /* Video override via ?v= */
+        var _p = new URLSearchParams(location.search); var _cv = _p.get('v');
+        if (_cv) { document.querySelectorAll('video source').forEach(function(s) { s.setAttribute('src', _cv); s.parentElement.load(); }); }
 
         /* ═══════════════════════════════════════
            SOUND ENGINE (Web Audio API synthesis)
@@ -1054,5 +1052,6 @@
 
     })();
     </script>
+    <script src="/MADvids/nav.js"></script>
 </body>
 </html>
