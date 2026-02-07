@@ -48,7 +48,7 @@
                 0 0 120px rgba(var(--accent-rgb), 0.12);
             border: 2px solid rgba(255,255,255,0.2);
             opacity: 0;
-            will-change: transform, opacity, width, height, border-radius;
+            will-change: transform, opacity;
         }
 
         .portal-disk video {
@@ -122,7 +122,7 @@
         .world-video {
             width: 100%; height: 100%;
             object-fit: cover;
-            transition: filter 1.2s ease, transform 1.2s var(--smooth);
+            transition: filter 0.4s ease, transform 0.4s var(--smooth);
         }
 
         /* Frozen state — video paused, desaturated, slight scale */
@@ -400,16 +400,18 @@
         /* Click ripple */
         .ripple {
             position: fixed;
-            width: 10px; height: 10px;
+            width: 200px; height: 200px;
+            margin: -100px 0 0 -100px;
             border-radius: 50%;
             border: 2px solid var(--accent);
-            opacity: 0.7;
             pointer-events: none;
             z-index: 17;
+            will-change: transform, opacity;
             animation: rippleOut 0.7s ease-out forwards;
         }
         @keyframes rippleOut {
-            to { width: 200px; height: 200px; margin: -100px 0 0 -100px; opacity: 0; }
+            from { transform: scale(0.05); opacity: 0.7; }
+            to { transform: scale(1); opacity: 0; }
         }
 
         /* ═══════════════════════════════════════
@@ -1015,10 +1017,13 @@
 
         setAccent(idx);
 
-        /* Flash */
+        /* Flash — double-rAF avoids forced reflow */
         flash.classList.remove('pop');
-        void flash.offsetWidth;
-        flash.classList.add('pop');
+        requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+                flash.classList.add('pop');
+            });
+        });
 
         /* Particles from arrow */
         var arrow = dir > 0 ? arrowR : arrowL;
@@ -1315,10 +1320,10 @@
             ring2.style.opacity = '0';
 
             var sz = Math.max(innerWidth, innerHeight) * 1.6;
+            var scale = sz / 120;
             portalDisk.style.transition =
-                'width 1.4s var(--smooth), height 1.4s var(--smooth), border-radius 1.4s var(--smooth), box-shadow 0.8s ease, border-color 0.8s ease';
-            portalDisk.style.width = sz + 'px';
-            portalDisk.style.height = sz + 'px';
+                'transform 1.4s var(--smooth), border-radius 1.4s var(--smooth), box-shadow 0.8s ease, border-color 0.8s ease';
+            portalDisk.style.transform = 'scale(' + scale + ')';
             portalDisk.style.borderRadius = '0';
             portalDisk.style.boxShadow = 'none';
             portalDisk.style.borderColor = 'transparent';

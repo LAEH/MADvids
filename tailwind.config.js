@@ -38,17 +38,13 @@ export default {
         'border-pulse': 'border-pulse 2s ease-in-out infinite',
         'typing': 'typing 1.5s steps(20) forwards',
         'blink': 'blink 1s step-end infinite',
+        'vision-scan': 'vision-scan 2s linear infinite',
+        'vision-spin': 'vision-spin 8s linear infinite',
       },
       keyframes: {
         'pulse-glow': {
-          '0%, 100%': {
-            boxShadow: '0 0 5px currentColor, 0 0 10px currentColor',
-            opacity: '1'
-          },
-          '50%': {
-            boxShadow: '0 0 20px currentColor, 0 0 40px currentColor',
-            opacity: '0.8'
-          },
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.6' },
         },
         'scan-line': {
           '0%': { transform: 'translateY(-100%)' },
@@ -68,15 +64,23 @@ export default {
           '100%': { transform: 'translate(0)' },
         },
         'border-pulse': {
-          '0%, 100%': { borderColor: 'rgba(57, 255, 20, 0.3)' },
-          '50%': { borderColor: 'rgba(57, 255, 20, 0.8)' },
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.5' },
         },
         'typing': {
-          'from': { width: '0' },
-          'to': { width: '100%' },
+          'from': { clipPath: 'inset(0 100% 0 0)' },
+          'to': { clipPath: 'inset(0 0 0 0)' },
         },
         'blink': {
           '50%': { borderColor: 'transparent' },
+        },
+        'vision-scan': {
+          'from': { transform: 'translateY(-100%)' },
+          'to': { transform: 'translateY(200%)' },
+        },
+        'vision-spin': {
+          'from': { transform: 'rotateY(0deg)' },
+          'to': { transform: 'rotateY(360deg)' },
         },
       },
       backgroundImage: {

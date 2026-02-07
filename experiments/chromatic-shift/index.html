@@ -79,11 +79,12 @@
             background: rgba(0,0,0,0.3);
         }
 
-        /* Color grade — single element, color interpolated via JS */
+        /* Color grade — pre-colored layers, only opacity animated (compositor-friendly) */
         .color-overlay {
             position: absolute; inset: 0; z-index: 2;
             mix-blend-mode: color;
             opacity: 0;
+            will-change: opacity;
         }
 
         /* Vignette */
@@ -174,11 +175,13 @@
         .progress-bar {
             position: fixed;
             bottom: env(safe-area-inset-bottom, 0);
-            left: 0;
+            left: 0; right: 0;
             height: 2px;
             background: rgba(255,255,255,0.2);
             z-index: 100;
-            will-change: width;
+            transform-origin: left;
+            transform: scaleX(0);
+            will-change: transform;
         }
 
         /* ═══ DOT NAV ═══ */
@@ -232,7 +235,11 @@
             <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-kjhxsa.mp4" type="video/mp4">
         </video>
         <div class="base-overlay"></div>
-        <div class="color-overlay" id="colorOverlay"></div>
+        <div class="color-overlay" id="cL1" style="background:hsl(39,76%,66%)"></div>
+        <div class="color-overlay" id="cL2" style="background:hsl(187,74%,47%)"></div>
+        <div class="color-overlay" id="cL3" style="background:hsl(272,85%,56%)"></div>
+        <div class="color-overlay" id="cL4" style="background:hsl(150,71%,51%)"></div>
+        <div class="color-overlay" id="cL5" style="background:hsl(342,100%,66%)"></div>
         <div class="vignette"></div>
         <canvas class="grain-canvas" id="grainCanvas"></canvas>
     </div>
@@ -330,7 +337,13 @@
 
         const video = document.getElementById('bgVideo');
         const loader = document.getElementById('loader');
-        const colorOverlay = document.getElementById('colorOverlay');
+        const colorLayers = [
+            document.getElementById('cL1'),
+            document.getElementById('cL2'),
+            document.getElementById('cL3'),
+            document.getElementById('cL4'),
+            document.getElementById('cL5')
+        ];
         const progressBar = document.getElementById('progressBar');
         const sections = [];
         for (let i = 0; i < 6; i++) sections.push(document.getElementById('s' + i));
@@ -371,7 +384,7 @@
             const p = Math.min(Math.max(y / cachedTotal, 0), 1);
 
             /* Progress */
-            progressBar.style.width = (p * 100) + '%';
+            progressBar.style.transform = 'scaleX(' + p + ')';
 
             /* Active section (hard cut — CSS handles smooth transitions) */
             const count = 6;
@@ -398,22 +411,21 @@
             const cLo = PALETTE[lo];
             const cHi = PALETTE[hi];
 
+            /* Opacity-only crossfade between pre-colored layers (compositor-friendly) */
+            for (var k = 0; k < colorLayers.length; k++) {
+                colorLayers[k].style.opacity = '0';
+            }
             if (!cLo && !cHi) {
-                colorOverlay.style.opacity = '0';
+                /* All at 0 — no color grade */
             } else if (!cLo) {
                 /* Fade from raw into first color */
-                colorOverlay.style.opacity = String(t * 0.85);
-                colorOverlay.style.backgroundColor = 'hsl(' + cHi[0] + ',' + cHi[1] + '%,' + cHi[2] + '%)';
+                colorLayers[hi - 1].style.opacity = String(t * 0.85);
             } else if (!cHi) {
-                colorOverlay.style.opacity = '0.85';
-                colorOverlay.style.backgroundColor = 'hsl(' + cLo[0] + ',' + cLo[1] + '%,' + cLo[2] + '%)';
+                colorLayers[lo - 1].style.opacity = '0.85';
             } else {
-                /* HSL interpolation with hue angle wrapping */
-                const h = lerpAngle(cLo[0], cHi[0], t);
-                const s = cLo[1] + (cHi[1] - cLo[1]) * t;
-                const l = cLo[2] + (cHi[2] - cLo[2]) * t;
-                colorOverlay.style.opacity = '0.85';
-                colorOverlay.style.backgroundColor = 'hsl(' + h + ',' + s + '%,' + l + '%)';
+                /* Cross-fade between adjacent color layers */
+                colorLayers[lo - 1].style.opacity = String((1 - t) * 0.85);
+                colorLayers[hi - 1].style.opacity = String(t * 0.85);
             }
         }
 
@@ -512,15 +524,24 @@
                 grainHidden = e.matches;
             });
 
+            var grainRafId = null;
             function grainLoop(t) {
-                if (!grainHidden) {
-                    gl.uniform1f(uTime, t * 0.001);
-                    gl.clear(gl.COLOR_BUFFER_BIT);
-                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-                }
-                requestAnimationFrame(grainLoop);
+                gl.uniform1f(uTime, t * 0.001);
+                gl.clear(gl.COLOR_BUFFER_BIT);
+                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+                grainRafId = requestAnimationFrame(grainLoop);
             }
-            requestAnimationFrame(grainLoop);
+            function startGrain() { if (!grainRafId) grainRafId = requestAnimationFrame(grainLoop); }
+            function stopGrain() { if (grainRafId) { cancelAnimationFrame(grainRafId); grainRafId = null; } }
+            if (!grainHidden) startGrain();
+            window.matchMedia('(max-width: 768px), (prefers-reduced-motion: reduce)').addEventListener('change', function(e) {
+                grainHidden = e.matches;
+                if (grainHidden) stopGrain(); else startGrain();
+            });
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) stopGrain();
+                else if (!grainHidden) startGrain();
+            });
         })();
 
     /* ─── Service Worker ─── */

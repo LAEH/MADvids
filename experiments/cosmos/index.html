@@ -85,6 +85,7 @@
             border-radius: 50%;
             border: 2px solid transparent;
             pointer-events: none;
+            will-change: opacity;
         }
         .portal-label {
             position: absolute;
@@ -690,17 +691,18 @@
                     (p.x - PORTAL_SIZE / 2) + 'px,' +
                     (p.y - PORTAL_SIZE / 2) + 'px, 0) scale(' + breath + ')';
 
-                /* Glow ring */
+                /* Glow ring — static box-shadow, only opacity animated (compositor-friendly) */
                 var glowEl = p.el.querySelector('.portal-glow');
                 var glowPulse = reducedMotion ? 0.4 : 0.3 + 0.15 * Math.sin(t * 0.002 + i * 1.5);
-                glowEl.style.borderColor = WORLDS[i].color;
+                if (!glowEl._init) {
+                    glowEl.style.borderColor = WORLDS[i].color;
+                    glowEl.style.boxShadow = '0 0 20px rgba(' +
+                        parseInt(WORLDS[i].color.slice(1, 3), 16) + ',' +
+                        parseInt(WORLDS[i].color.slice(3, 5), 16) + ',' +
+                        parseInt(WORLDS[i].color.slice(5, 7), 16) + ',0.4)';
+                    glowEl._init = true;
+                }
                 glowEl.style.opacity = glowPulse;
-                glowEl.style.boxShadow = '0 0 20px ' + WORLDS[i].color.replace(')', ',' + (glowPulse * 0.4) + ')').replace('#', 'rgba(');
-                /* Simpler box-shadow using hex */
-                glowEl.style.boxShadow = '0 0 20px rgba(' +
-                    parseInt(WORLDS[i].color.slice(1, 3), 16) + ',' +
-                    parseInt(WORLDS[i].color.slice(3, 5), 16) + ',' +
-                    parseInt(WORLDS[i].color.slice(5, 7), 16) + ',' + (glowPulse * 0.4) + ')';
             }
         }
 
@@ -1130,6 +1132,7 @@
            ═══════════════════════════════════ */
 
         var running = true;
+        var loopRafId = null;
         function loop(t) {
             if (!running) return;
             drawStars(t);
@@ -1138,8 +1141,18 @@
                 drawConnections();
             }
             drawParticles();
-            requestAnimationFrame(loop);
+            loopRafId = requestAnimationFrame(loop);
         }
+
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                running = false;
+                if (loopRafId) { cancelAnimationFrame(loopRafId); loopRafId = null; }
+            } else {
+                running = true;
+                if (!loopRafId) loopRafId = requestAnimationFrame(loop);
+            }
+        });
 
         /* ─── LOADER ─── */
         var loader = document.getElementById('loader');

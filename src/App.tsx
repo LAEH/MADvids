@@ -182,7 +182,7 @@ function ModuleCard({ module, onClick }: { module: Module; onClick?: () => void 
       whileHover={{ x: 4 }}
       onClick={onClick}
       className={`
-        flex items-center gap-2 px-3 py-2.5 rounded-xl border backdrop-blur-sm
+        flex items-center gap-2 px-3 py-2.5 rounded-xl border
         transition-all duration-200 text-left w-full
         ${colors[module.color]}
         ${module.active ? 'ring-1 ring-white/20' : ''}
@@ -272,7 +272,7 @@ function MetricPill({ metric }: { metric: Metric }) {
   return (
     <div className={`
       flex items-center gap-1.5 px-3 py-1.5 rounded-full
-      bg-black/40 backdrop-blur-sm border
+      bg-black/60 border
       ${colors[metric.color]}
     `}>
       <Clock className="w-2.5 h-2.5 opacity-60" />
@@ -333,21 +333,17 @@ function VisionOverlay({ module, onClose }: { module: Module; onClose: () => voi
 
         {/* Visualization */}
         <div className={`relative h-36 rounded-xl overflow-hidden bg-black/50 border ${c.border} mb-4`}>
-          <motion.div
-            animate={{ y: ['-100%', '200%'] }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-            className="absolute inset-x-0 h-0.5"
+          <div
+            className="absolute inset-x-0 h-0.5 animate-vision-scan"
             style={{ background: `linear-gradient(to bottom, transparent, ${c.hex}50, transparent)` }}
           />
           <div className="absolute inset-0 flex items-center justify-center">
-            <motion.div
-              animate={{ rotateY: 360 }}
-              transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-              className={c.text}
+            <div
+              className={`${c.text} animate-vision-spin`}
               style={{ transformStyle: 'preserve-3d', opacity: 0.3 }}
             >
               <Box className="w-16 h-16" strokeWidth={0.5} />
-            </motion.div>
+            </div>
           </div>
           <div className={`absolute top-2 left-2 text-[9px] font-mono ${c.text}`}>
             ACTIVE
@@ -434,7 +430,7 @@ export default function App() {
 
         {/* ═══════════ TOP LEFT LOGO ═══════════ */}
         <div className="absolute top-4 left-4">
-          <div className="w-12 h-12 rounded-full border-2 border-yellow-500/50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+          <div className="w-12 h-12 rounded-full border-2 border-yellow-500/50 bg-black/70 flex items-center justify-center">
             <img src="/ddn-logo.png" alt="Logo" className="w-7 h-7 object-contain" />
           </div>
         </div>
@@ -460,12 +456,12 @@ export default function App() {
 
         {/* ═══════════ TOP RIGHT STATUS ═══════════ */}
         <div className="absolute top-4 right-4 flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-sm border border-emerald-500/30">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 border border-emerald-500/30">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-[10px] font-semibold text-emerald-400">&lt;50ms</span>
             <span className="text-[9px] text-gray-500">Latency</span>
           </div>
-          <button className="p-1.5 rounded-lg bg-black/40 backdrop-blur-sm border border-white/10 text-gray-400 hover:text-white transition-colors">
+          <button className="p-1.5 rounded-lg bg-black/60 border border-white/10 text-gray-400 hover:text-white transition-colors">
             <Maximize className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -541,7 +537,7 @@ export default function App() {
           <div className="flex items-center gap-3">
             <button
               onClick={prevSlide}
-              className="w-10 h-10 rounded-lg bg-black/40 backdrop-blur-sm border border-white/10 flex flex-col items-center justify-center text-gray-400 hover:text-white hover:border-white/30 transition-all"
+              className="w-10 h-10 rounded-lg bg-black/60 border border-white/10 flex flex-col items-center justify-center text-gray-400 hover:text-white hover:border-white/30 transition-all"
             >
               <ChevronLeft className="w-4 h-4" />
               <span className="text-[7px]">PREV</span>
@@ -559,17 +555,17 @@ export default function App() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsPaused(!isPaused)}
-              className="p-1.5 rounded-lg bg-black/40 backdrop-blur-sm border border-white/10 text-gray-400 hover:text-white transition-colors"
+              className="p-1.5 rounded-lg bg-black/60 border border-white/10 text-gray-400 hover:text-white transition-colors"
             >
               {isPaused ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
             </button>
             <button
               onClick={() => setIsMuted(!isMuted)}
-              className="p-1.5 rounded-lg bg-black/40 backdrop-blur-sm border border-white/10 text-gray-400 hover:text-white transition-colors"
+              className="p-1.5 rounded-lg bg-black/60 border border-white/10 text-gray-400 hover:text-white transition-colors"
             >
               {isMuted ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
             </button>
-            <div className="flex items-center gap-0.5 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-sm border border-white/10">
+            <div className="flex items-center gap-0.5 px-2.5 py-1 rounded-full bg-black/60 border border-white/10">
               <span className="text-white font-bold text-xs">{currentSlide + 1}</span>
               <span className="text-gray-500 text-xs">/</span>
               <span className="text-gray-500 text-xs">{SLIDES.length}</span>
@@ -579,7 +575,7 @@ export default function App() {
           {/* Right: Next */}
           <button
             onClick={nextSlide}
-            className="w-10 h-10 rounded-lg bg-black/40 backdrop-blur-sm border border-white/10 flex flex-col items-center justify-center text-gray-400 hover:text-white hover:border-white/30 transition-all"
+            className="w-10 h-10 rounded-lg bg-black/60 border border-white/10 flex flex-col items-center justify-center text-gray-400 hover:text-white hover:border-white/30 transition-all"
           >
             <ChevronRight className="w-4 h-4" />
             <span className="text-[7px]">NEXT</span>

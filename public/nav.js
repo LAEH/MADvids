@@ -93,7 +93,7 @@
     var style = document.createElement('style');
     style.textContent = [
         /* Nav pill */
-        '#mv-nav{position:fixed;top:max(14px,env(safe-area-inset-top,14px));left:max(14px,env(safe-area-inset-left,14px));z-index:9990;display:flex;align-items:center;gap:2px;padding:4px;border-radius:14px;background:rgba(255,255,255,0.06);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;transition:background 0.3s,border-color 0.3s}',
+        '#mv-nav{position:fixed;top:max(14px,env(safe-area-inset-top,14px));left:max(14px,env(safe-area-inset-left,14px));z-index:9990;display:flex;align-items:center;gap:2px;padding:4px;border-radius:14px;background:rgba(255,255,255,0.06);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.08);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;transition:background 0.3s,border-color 0.3s}',
         '#mv-nav .mv-btn{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;border:none;background:none;color:rgba(255,255,255,0.5);cursor:pointer;text-decoration:none;transition:background 0.2s,color 0.2s;-webkit-tap-highlight-color:transparent}',
         '#mv-nav .mv-btn:hover{background:rgba(255,255,255,0.1);color:#fff}',
         '#mv-nav .mv-sep{width:1px;height:18px;background:rgba(255,255,255,0.08);flex-shrink:0}',
@@ -111,7 +111,7 @@
         '@media(prefers-reduced-motion:reduce){#mv-nav{transition:none}#mv-nav .mv-btn{transition:none}}',
 
         /* ═══ MIXER OVERLAY ═══ */
-        '#mv-mixer{position:fixed;inset:0;z-index:9995;display:none;flex-direction:column;background:rgba(0,0,0,0.85);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0}',
+        '#mv-mixer{position:fixed;inset:0;z-index:9995;display:none;flex-direction:column;background:rgba(0,0,0,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0}',
         '#mv-mixer.open{display:flex}',
         '#mv-mixer *{box-sizing:border-box}',
 

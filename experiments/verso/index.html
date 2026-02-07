@@ -286,9 +286,11 @@
             z-index: 100;
         }
         .progress-fill {
-            height: 100%; width: 0%;
+            height: 100%; width: 100%;
             background: linear-gradient(90deg, #7df9ff, #b388ff, #ff80ab);
-            transition: width 0.15s linear;
+            transform-origin: left;
+            transform: scaleX(0);
+            will-change: transform;
         }
 
         /* ═══ NAV ═══ */
@@ -572,7 +574,7 @@
         function updateScroll() {
             var scrollY = window.scrollY;
             var p = cachedTotal > 0 ? Math.min(Math.max(scrollY / cachedTotal, 0), 1) : 0;
-            progressFill.style.width = (p * 100) + '%';
+            progressFill.style.transform = 'scaleX(' + p + ')';
 
             var pp = getPhaseProgress(scrollY);
             applyPhase(pp.phase, pp.local);
@@ -628,9 +630,13 @@
         var particles = [];
         var PARTICLE_COUNT = 40;
 
+        var canvasDpr = Math.min(window.devicePixelRatio || 1, 2);
         function resizeCanvas() {
-            canvas.width = cachedVW;
-            canvas.height = cachedVH;
+            canvas.width = cachedVW * canvasDpr;
+            canvas.height = cachedVH * canvasDpr;
+            canvas.style.width = cachedVW + 'px';
+            canvas.style.height = cachedVH + 'px';
+            ctx.setTransform(canvasDpr, 0, 0, canvasDpr, 0, 0);
         }
         resizeCanvas();
 
@@ -676,12 +682,21 @@
         }
 
         /* ═══ ANIMATION LOOP ═══ */
+        var animRafId = null;
         function animate(time) {
             if (!reducedMotion) {
                 updateAndDrawParticles(time);
             }
-            requestAnimationFrame(animate);
+            animRafId = requestAnimationFrame(animate);
         }
+
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                if (animRafId) { cancelAnimationFrame(animRafId); animRafId = null; }
+            } else {
+                if (!animRafId) animRafId = requestAnimationFrame(animate);
+            }
+        });
 
         /* ═══ SMOOTH LOOP FADE ═══ */
         function initLoopFade(v) {
