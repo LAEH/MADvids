@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "laeh380to760"
+  },
+  "targets": {
+    "laeh380to760": {
+      "hosting": {
+        "madvids": [
+          "laeh-madvids"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
