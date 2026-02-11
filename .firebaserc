@@ -5,8 +5,8 @@
   "targets": {
     "laeh380to760": {
       "hosting": {
-        "madvids": [
-          "laeh-madvids"
+        "laeh-madvid": [
+          "laeh-madvid"
         ]
       }
     }
