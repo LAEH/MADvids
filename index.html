@@ -1,13 +1,1052 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MADengine</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MADvids — A collection of cinematic video web experiments exploring scroll-driven animations, blend modes, parallax, canvas particles, and Web Audio.">
+    <meta property="og:title" content="MADvids — Video Experiences">
+    <meta property="og:description" content="Cinematic video web experiments: scroll-driven animations, blend modes, parallax effects, and interactive sound design.">
+    <meta property="og:type" content="website">
+    <title>MADvids — Experiments</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        @view-transition { navigation: auto; }
+        ::view-transition-old(root) { animation: vt-fade 0.25s ease both; }
+        ::view-transition-new(root) { animation: vt-fade 0.25s ease both reverse; }
+        ::view-transition-old(hero) { animation: vt-shrink 0.35s cubic-bezier(0.16,1,0.3,1) both; }
+        ::view-transition-new(hero) { animation: vt-grow 0.35s cubic-bezier(0.16,1,0.3,1) both; }
+        @keyframes vt-fade { to { opacity: 0; } }
+        @keyframes vt-shrink { to { transform: scale(0.94); opacity: 0; } }
+        @keyframes vt-grow { from { transform: scale(0.94); opacity: 0; } }
+
+        :focus-visible { outline: 2px solid rgba(26,26,46,0.3); outline-offset: 2px; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #fff;
+            color: #1a1a2e;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
+        }
+
+/* ═══════════════════════════════════════
+           HERO
+           ═══════════════════════════════════════ */
+        .hero {
+            position: relative;
+            min-height: calc(100dvh - 80px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0 24px;
+            z-index: 1;
+            will-change: transform, opacity;
+            background: #fff;
+        }
+
+        /* Video-textured title */
+        .title-container {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            padding: 20vh 25vw;
+            margin: -20vh -25vw;
+        }
+
+        .title-video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+        }
+
+        .title-mask {
+            position: relative;
+            z-index: 1;
+            background: #fff;
+            mix-blend-mode: screen;
+            padding: 8px 0;
+            box-shadow: 0 0 0 100vmax #fff;
+        }
+
+        .title-mask h1 {
+            font-size: clamp(52px, 12vw, 160px);
+            font-weight: 900;
+            letter-spacing: -0.045em;
+            line-height: 0.92;
+            color: #000;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .title-mask .line {
+            display: block;
+        }
+
+        .letter {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(50px) scale(0.94);
+            will-change: transform, opacity;
+        }
+        .letter.revealed {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Blend-mode fallback */
+        @supports not (mix-blend-mode: screen) {
+            .title-mask { background: transparent; mix-blend-mode: normal; }
+            .title-mask h1 { color: #1a1a2e; }
+            .title-video { display: none; }
+        }
+
+        /* Play button — bare play triangle */
+        .genie-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 56px;
+            height: 56px;
+            background: none;
+            border: none;
+            text-decoration: none;
+            margin-top: clamp(28px, 4vw, 44px);
+            opacity: 0;
+            transform: translateY(20px);
+            cursor: pointer;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .genie-btn svg {
+            width: 44px;
+            height: 44px;
+            margin-left: 4px;
+        }
+        .genie-btn.revealed {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: genieFloat 3s ease-in-out infinite;
+        }
+        .genie-btn:hover {
+            transform: scale(1.15);
+        }
+        .genie-btn:active {
+            transform: scale(0.9);
+        }
+        @keyframes genieFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .scroll-cue {
+            position: absolute;
+            bottom: clamp(28px, 5vw, 48px);
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(26,26,46,0.15);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        .scroll-cue.visible {
+            opacity: 1;
+        }
+        .scroll-cue svg {
+            animation: float 2.8s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(7px); }
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* ═══════════════════════════════════════
+           EXPERIMENTS GRID
+           ═══════════════════════════════════════ */
+        .experiments {
+            position: relative;
+            z-index: 2;
+            padding: clamp(20px, 4vw, 40px) max(24px, env(safe-area-inset-left, 24px)) clamp(80px, 12vw, 160px);
+            max-width: 1300px;
+            margin: 0 auto;
+            content-visibility: auto;
+            contain-intrinsic-size: auto 800px;
+        }
+
+        /* Decorative orbs — give glass cards something to blur */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .orb-1 {
+            top: -80px;
+            left: -60px;
+            width: 480px;
+            height: 480px;
+            background: radial-gradient(circle, rgba(100,130,255,0.09) 0%, transparent 70%);
+        }
+        .orb-2 {
+            bottom: 40px;
+            right: -80px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255,120,170,0.07) 0%, transparent 70%);
+        }
+        .orb-3 {
+            top: 45%;
+            left: 30%;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(80,220,180,0.06) 0%, transparent 70%);
+        }
+
+        .grid {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+            gap: clamp(16px, 2.5vw, 24px);
+        }
+
+        /* ═══════════════════════════════════════
+           GLASS CARD
+           ═══════════════════════════════════════ */
+        .card {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            border-radius: 20px;
+            padding: 8px;
+            background: rgba(255,255,255,0.55);
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid rgba(0,0,0,0.06);
+            box-shadow:
+                0 1px 3px rgba(0,0,0,0.04),
+                0 8px 24px rgba(0,0,0,0.06);
+            opacity: 0;
+            transform: translateY(20px);
+            will-change: transform, opacity;
+            contain: layout style paint;
+        }
+        .card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition:
+                opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow:
+                0 2px 8px rgba(0,0,0,0.06),
+                0 20px 48px rgba(0,0,0,0.12);
+        }
+        .card.visible:hover {
+            transform: translateY(-6px) scale(1.02);
+            transition:
+                transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Card preview — inset with its own radius */
+        .card-preview {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            overflow: hidden;
+            border-radius: 13px;
+            background: rgba(26,26,46,0.04);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            transform-origin: center center;
+        }
+        .card-preview::before {
+            content: '';
+            position: absolute; inset: 0; z-index: 1;
+            background: linear-gradient(
+                110deg,
+                transparent 30%,
+                rgba(255,255,255,0.15) 50%,
+                transparent 70%
+            );
+            background-size: 200% 100%;
+            animation: shimmer 2s ease infinite;
+        }
+        .card-preview.loaded::before { opacity: 0; transition: opacity 0.5s; }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .card-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .card-preview video.playing { opacity: 1; }
+
+        .card-preview.no-video {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(26,26,46,0.03), rgba(26,26,46,0.07));
+        }
+        .card-preview.no-video .placeholder {
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            color: rgba(26,26,46,0.06);
+        }
+
+        /* Card body */
+        .card-body {
+            padding: clamp(14px, 2.5vw, 18px) clamp(14px, 2.5vw, 18px) clamp(16px, 2.5vw, 20px);
+        }
+        .card-body h2 {
+            font-size: 0.95rem;
+            font-weight: 650;
+            color: #1a1a2e;
+            letter-spacing: -0.015em;
+            margin-bottom: 5px;
+        }
+        .card-body p {
+            font-size: 0.78rem;
+            color: rgba(26,26,46,0.4);
+            line-height: 1.55;
+        }
+        .card-body .tags {
+            display: flex;
+            gap: 6px;
+            margin-top: 12px;
+        }
+        .card-body .tag-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.56rem;
+            color: rgba(26,26,46,0.3);
+            background: rgba(26,26,46,0.04);
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.02em;
+        }
+
+        /* ═══════════════════════════════════════
+           RESPONSIVE
+           ═══════════════════════════════════════ */
+        @media (hover: none) {
+            .card:hover,
+            .card.visible:hover {
+                transform: none;
+                box-shadow:
+                    0 1px 3px rgba(0,0,0,0.04),
+                    0 8px 24px rgba(0,0,0,0.06);
+            }
+            .card:active {
+                transform: scale(0.97);
+                transition: transform 0.1s ease;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero { padding: 0 16px; }
+            .experiments { padding-left: 16px; padding-right: 16px; }
+            .title-mask h1 { font-size: clamp(40px, 13vw, 64px); }
+        }
+
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .experiments { padding-bottom: max(clamp(80px, 12vw, 160px), env(safe-area-inset-bottom)); }
+        }
+
+        .about-link {
+            display: block;
+            text-align: center;
+            padding: 0 24px 40px;
+            font-size: 0.75rem;
+            color: rgba(26,26,46,0.18);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .about-link:hover { color: rgba(26,26,46,0.4); }
+
+
+        @media (prefers-reduced-motion: reduce) {
+            .letter { opacity: 1; transform: none; }
+            .letter.revealed { transition: none; }
+            .genie-btn { opacity: 1; transform: none; animation: none; }
+            .genie-btn.revealed { transition: none; animation: none; }
+            .card { opacity: 1; transform: none; }
+            .card.visible { transition: none; }
+            .card-preview::before { animation: none; }
+            .scroll-cue svg { animation: none; }
+            .hero { will-change: auto; }
+            .splash { display: none; }
+        }
+
+        /* ═══════════════════════════════════════
+           SPLASH / LOADING SCREEN
+           ═══════════════════════════════════════ */
+        body.loading { overflow: hidden; }
+
+        .splash {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 32px;
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .splash.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .splash-title {
+            font-size: clamp(32px, 8vw, 56px);
+            font-weight: 900;
+            letter-spacing: -0.045em;
+            color: #1a1a2e;
+            text-transform: uppercase;
+            opacity: 0;
+            transform: translateY(12px);
+            animation: splashIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+        }
+
+        .splash-ring {
+            width: 48px; height: 48px;
+            opacity: 0;
+            animation: splashIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+        }
+        .splash-ring svg {
+            width: 100%; height: 100%;
+            animation: spinRing 1.4s linear infinite;
+        }
+        @keyframes spinRing {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes splashIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="loading">
+    <div class="splash" id="splash">
+        <div class="splash-title"><span style="font-weight:900">MAD</span><span style="font-weight:300">vids</span></div>
+        <div class="splash-ring">
+            <svg viewBox="0 0 50 50">
+                <defs>
+                    <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#ff6b9d"/>
+                        <stop offset="25%" stop-color="#4a9fff"/>
+                        <stop offset="50%" stop-color="#b388ff"/>
+                        <stop offset="75%" stop-color="#e8a44a"/>
+                        <stop offset="100%" stop-color="#ffc857"/>
+                    </linearGradient>
+                </defs>
+                <circle cx="25" cy="25" r="20" fill="none" stroke="url(#rg)" stroke-width="3" stroke-linecap="round" stroke-dasharray="94" stroke-dashoffset="28"/>
+            </svg>
+        </div>
+    </div>
+
+    <section class="hero" id="hero">
+        <div class="title-container">
+            <video class="title-video" muted autoplay loop playsinline disablePictureInPicture preload="auto" aria-label="Background cinematic footage">
+                <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/Video_Generation_With_Specific_Colors%20copy.mp4" type="video/mp4">
+            </video>
+            <div class="title-mask">
+                <h1 id="heroTitle">
+                    <span class="line">Video</span>
+                    <span class="line">Experiences</span>
+                </h1>
+            </div>
+        </div>
+        <a class="genie-btn" id="genieBtn" href="experiments/journey/index.html" title="Enter the Journey" aria-label="Enter the Journey"><svg viewBox="0 0 24 24" fill="#000"><path d="M8.2 5.9a1 1 0 0 1 1.5-.86l9.6 5.5a1 1 0 0 1 0 1.73l-9.6 5.5a1 1 0 0 1-1.5-.87V5.9Z"/></svg></a>
+        <div class="scroll-cue" id="scrollCue">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9l6 6 6-6"/>
+            </svg>
+        </div>
+    </section>
+
+    <section class="experiments">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+
+        <div class="grid">
+            <a class="card" href="experiments/superflat/index.html">
+                <div class="card-preview">
+                    <video muted loop playsinline disablePictureInPicture preload="auto" aria-label="Experiment preview">
+                        <source src="https://storage.googleapis.com/myproject-public-assets/art/MADvids/Surreal_Murakami_Dreamscape_Video_Generation.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="card-body">
+                    <h2>Superflat</h2>
+                    <p>Scroll-driven journey through a Murakami dreamscape with playful pop-art typography.</p>
+                    <div class="tags">
+                        <span class="tag-pill">murakami</span>
+                        <span class="tag-pill">scroll</span>
+                        <span class="tag-pill">AI-video</span>
+                    </div>
+                </div>
+            </a>
+
+            <a class="card" href="experiments/hyperpod-cinematic/index.html">
+                <div class="card-preview">
+                    <video muted loop playsinline disablePictureInPicture preload="auto" aria-label="Experiment preview">
+                        <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-dgfdf.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="card-body">
+                    <h2>Cinematic Scroll</h2>
+                    <p>Sticky full-screen video with scroll-driven section reveals and animated stat counters.</p>
+                    <div class="tags">
+                        <span class="tag-pill">scroll-driven</span>
+                        <span class="tag-pill">video</span>
+                    </div>
+                </div>
+            </a>
+
+            <a class="card" href="experiments/hyperpod-showcase/index.html">
+                <div class="card-preview">
+                    <video muted loop playsinline disablePictureInPicture preload="auto" aria-label="Experiment preview">
+                        <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jhojeh.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="card-body">
+                    <h2>Split Narrative</h2>
+                    <p>Alternating content sections over dedicated video backgrounds with metric pills.</p>
+                    <div class="tags">
+                        <span class="tag-pill">parallax</span>
+                        <span class="tag-pill">marketing</span>
+                    </div>
+                </div>
+            </a>
+
+            <a class="card" href="experiments/hyperpod-grid/index.html">
+                <div class="card-preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Experiment preview">
+                        <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-kjhxsa.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="card-body">
+                    <h2>Bento Mosaic</h2>
+                    <p>Asymmetric video grid with staggered cell reveals, marquee ticker, and label overlays.</p>
+                    <div class="tags">
+                        <span class="tag-pill">grid</span>
+                        <span class="tag-pill">bento</span>
+                    </div>
+                </div>
+            </a>
+
+            <a class="card" href="experiments/hyperpod-immersive/index.html">
+                <div class="card-preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Experiment preview">
+                        <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jfdgyie.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="card-body">
+                    <h2>Depth & Grain</h2>
+                    <p>Parallax video zoom with film grain, numbered feature strips, and frosted metric cards.</p>
+                    <div class="tags">
+                        <span class="tag-pill">parallax</span>
+                        <span class="tag-pill">cinematic</span>
+                    </div>
+                </div>
+            </a>
+
+            <a class="card" href="experiments/delightfull-video/index.html">
+                <div class="card-preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Experiment preview">
+                        <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/Video_Generation_With_Specific_Colors%20copy.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="card-body">
+                    <h2>Delightful Video</h2>
+                    <p>Scroll-driven typography animation with video background and staggered letter reveals.</p>
+                    <div class="tags">
+                        <span class="tag-pill">typography</span>
+                        <span class="tag-pill">scroll</span>
+                    </div>
+                </div>
+            </a>
+
+            <a class="card" href="experiments/chromatic-shift/index.html">
+                <div class="card-preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Experiment preview">
+                        <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-kjhxsa.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="card-body">
+                    <h2>Chromatic Shift</h2>
+                    <p>Scroll-driven color grading with live blend-mode overlays transforming one video through five cinematic moods.</p>
+                    <div class="tags">
+                        <span class="tag-pill">color</span>
+                        <span class="tag-pill">blend-mode</span>
+                    </div>
+                </div>
+            </a>
+
+            <a class="card" href="experiments/mesh-flow/index.html">
+                <div class="card-preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Experiment preview">
+                        <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-jhojeh.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="card-body">
+                    <h2>Mesh Flow</h2>
+                    <p>Floating gradient blobs with screen blending, scroll-driven parallax, and ambient sine-wave drift over video.</p>
+                    <div class="tags">
+                        <span class="tag-pill">gradients</span>
+                        <span class="tag-pill">blend-mode</span>
+                    </div>
+                </div>
+            </a>
+
+            <a class="card" href="experiments/lumina/index.html">
+                <div class="card-preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Experiment preview">
+                        <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/claude-pretty-ugvuda.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="card-body">
+                    <h2>Lumina</h2>
+                    <p>Interactive light story — collect luminous particles to unlock a poetic narrative. Gamified with combos and achievements.</p>
+                    <div class="tags">
+                        <span class="tag-pill">interactive</span>
+                        <span class="tag-pill">canvas</span>
+                        <span class="tag-pill">game</span>
+                    </div>
+                </div>
+            </a>
+
+            <a class="card" href="experiments/shape-reveal/index.html">
+                <div class="card-preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Experiment preview">
+                        <source src="https://storage.googleapis.com/myproject-public-assets/ddn/videos/test/hyperpod-dgfdf.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="card-body">
+                    <h2>Shape Reveal</h2>
+                    <p>Scroll-driven clip-path morphing — seven geometric shapes progressively unmask the video.</p>
+                    <div class="tags">
+                        <span class="tag-pill">clip-path</span>
+                        <span class="tag-pill">scroll</span>
+                        <span class="tag-pill">geometry</span>
+                    </div>
+                </div>
+            </a>
+
+            <a class="card" href="experiments/rift/index.html">
+                <div class="card-preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Experiment preview">
+                        <source src="https://storage.googleapis.com/myproject-public-assets/art/MADvids/Abstract_Multiverse_Cinematic_Journey_Generated.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="card-body">
+                    <h2>Rift</h2>
+                    <p>Scroll-driven dimensional portal — a radial rift expands to reveal the multiverse, then collapses back to void.</p>
+                    <div class="tags">
+                        <span class="tag-pill">portal</span>
+                        <span class="tag-pill">radial-gradient</span>
+                        <span class="tag-pill">particles</span>
+                    </div>
+                </div>
+            </a>
+
+            <a class="card" href="experiments/verso/index.html">
+                <div class="card-preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Experiment preview">
+                        <source src="https://storage.googleapis.com/myproject-public-assets/art/MADvids/Surreal_Gradient_Liquid_Video_Generation.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="card-body">
+                    <h2>Verso</h2>
+                    <p>Scroll-driven verse experience — video shifts between full bleed, split panels, and cinematic letterbox.</p>
+                    <div class="tags">
+                        <span class="tag-pill">clip-path</span>
+                        <span class="tag-pill">scroll</span>
+                        <span class="tag-pill">particles</span>
+                    </div>
+                </div>
+            </a>
+
+            <a class="card" href="experiments/journey/index.html">
+                <div class="card-preview">
+                    <video muted loop playsinline disablePictureInPicture preload="metadata" aria-label="Experiment preview">
+                        <source src="https://storage.googleapis.com/myproject-public-assets/art/MADvids/Surreal_Gradient_Liquid_Video_Generation.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="card-body">
+                    <h2>Journey</h2>
+                    <p>5 imagination worlds to explore. Portal intro, juicy navigation, particle effects, ambient sound.</p>
+                    <div class="tags">
+                        <span class="tag-pill">imagination</span>
+                        <span class="tag-pill">worlds</span>
+                        <span class="tag-pill">sound</span>
+                    </div>
+                </div>
+            </a>
+
+            <a class="card" href="experiments/autonomy-dashboard/index.html">
+                <div class="card-preview no-video">
+                    <span class="placeholder">Dashboard</span>
+                </div>
+                <div class="card-body">
+                    <h2>Autonomy Dashboard</h2>
+                    <p>React-based interactive dashboard with real-time data visualizations and cyber-themed UI.</p>
+                    <div class="tags">
+                        <span class="tag-pill">react</span>
+                        <span class="tag-pill">vite</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <a class="about-link" href="about/">About this project</a>
+
+    <script>
+        /* ═══ 0. SPLASH / LOADING SCREEN ═══
+           Waits for fonts + hero video + first card videos.
+           Max timeout 6s so it never hangs forever. */
+
+        const splash = document.getElementById('splash');
+        let splashDismissed = false;
+
+        /* Track loading milestones — just fonts + hero video */
+        const loadState = { fonts: false, heroVideo: false };
+
+        function updateProgress() {
+            if (loadState.fonts && loadState.heroVideo) dismissSplash();
+        }
+
+        function dismissSplash() {
+            if (splashDismissed) return;
+            splashDismissed = true;
+            setTimeout(function() {
+                splash.classList.add('hidden');
+                document.body.classList.remove('loading');
+                startHeroAnimation();
+                initFarObserver();
+                splash.addEventListener('transitionend', function() {
+                    splash.remove();
+                }, { once: true });
+            }, 200);
+        }
+
+        /* Fonts */
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(function() {
+                loadState.fonts = true;
+                updateProgress();
+            });
+        } else {
+            loadState.fonts = true;
+        }
+
+        /* Hero video */
+        const heroVid = document.querySelector('.title-video');
+        if (heroVid) {
+            if (heroVid.readyState >= 3) {
+                loadState.heroVideo = true;
+            } else {
+                heroVid.addEventListener('canplaythrough', function() {
+                    loadState.heroVideo = true;
+                    updateProgress();
+                }, { once: true });
+            }
+        } else {
+            loadState.heroVideo = true;
+        }
+
+        /* Initial check (some may already be loaded) */
+        updateProgress();
+
+        /* Max timeout — never wait more than 3s */
+        setTimeout(dismissSplash, 3000);
+
+        /* ═══ 1. LETTER-BY-LETTER REVEAL ═══
+           Split title lines into individual <span> letters.
+           Each letter transitions in with a staggered delay.
+           Uses class-toggle transitions (not CSS animation) so
+           will-change can be cleaned up after reveal completes.
+           Triggered AFTER splash dismisses. */
+
+        const lines = document.querySelectorAll('#heroTitle .line');
+        const allLetters = [];
+
+        lines.forEach(function(line, lineIdx) {
+            const text = line.textContent;
+            line.textContent = '';
+            const lineDelay = lineIdx * 120;
+            for (let i = 0; i < text.length; i++) {
+                const span = document.createElement('span');
+                span.className = 'letter';
+                span.textContent = text[i] === ' ' ? '\u00A0' : text[i];
+                span.dataset.delay = String(lineDelay + i * 28 + 200);
+                line.appendChild(span);
+                allLetters.push(span);
+            }
+        });
+
+        function startHeroAnimation() {
+            allLetters.forEach(function(span) {
+                const delay = parseInt(span.dataset.delay);
+                setTimeout(function() {
+                    span.classList.add('revealed');
+                }, delay);
+            });
+
+            const genieDelay = 200 + (allLetters.length * 28) + 120 + 200;
+            setTimeout(function() {
+                document.getElementById('genieBtn').classList.add('revealed');
+            }, genieDelay);
+
+            setTimeout(function() {
+                document.getElementById('scrollCue').classList.add('visible');
+            }, genieDelay + 600);
+
+            /* Clean up will-change after all animations settle */
+            setTimeout(function() {
+                allLetters.forEach(function(s) { s.style.willChange = 'auto'; });
+            }, genieDelay + 1200);
+        }
+
+        /* ═══ 2. HERO PARALLAX ON SCROLL ═══
+           Compositor-only: transform + opacity via translate3d.
+           Throttled to one rAF per frame for guaranteed 60fps. */
+
+        const hero = document.getElementById('hero');
+        const scrollCue = document.getElementById('scrollCue');
+        let heroTicking = false;
+        let cachedVH = window.innerHeight;
+
+        window.addEventListener('resize', function() {
+            cachedVH = window.innerHeight;
+        }, { passive: true });
+
+        window.addEventListener('scroll', function() {
+            if (!heroTicking) {
+                requestAnimationFrame(function() {
+                    const y = window.scrollY;
+                    const p = Math.min(y / (cachedVH * 0.7), 1);
+                    hero.style.transform = 'translate3d(0,' + (y * 0.35) + 'px,0)';
+                    hero.style.opacity = String(1 - p);
+                    if (y > 60 && scrollCue.classList.contains('visible')) {
+                        scrollCue.classList.remove('visible');
+                    }
+                    heroTicking = false;
+                });
+                heroTicking = true;
+            }
+        }, { passive: true });
+
+        /* ═══ 3. CARD STAGGER REVEAL ═══
+           IntersectionObserver triggers class-based transitions.
+           Stagger delay by card index for a cascade effect. */
+
+        const cardObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) {
+                if (e.isIntersecting) {
+                    const idx = parseInt(e.target.dataset.idx || '0');
+                    setTimeout(function() {
+                        e.target.classList.add('visible');
+                        /* Clean up will-change after entrance transition */
+                        setTimeout(function() { e.target.style.willChange = 'auto'; }, 900);
+                    }, idx * 30);
+                    cardObserver.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.08 });
+
+        document.querySelectorAll('.card').forEach(function(c, i) {
+            c.dataset.idx = String(i);
+            cardObserver.observe(c);
+        });
+
+        /* ═══ 4. LAZY VIDEO PLAYBACK ═══
+           Only decode videos in/near the viewport.
+           Play on intersect, pause when out. */
+
+        const videosInView = new Set();
+
+        const videoObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) {
+                const v = e.target;
+                if (e.isIntersecting) {
+                    videosInView.add(v);
+                    if (v.readyState >= 2) tryPlay(v);
+                } else {
+                    videosInView.delete(v);
+                    v.pause();
+                    v.classList.remove('playing');
+                }
+            });
+        }, { rootMargin: '120px' });
+
+        function tryPlay(v) {
+            v.play().then(function() {
+                v.classList.add('playing');
+                v.closest('.card-preview').classList.add('loaded');
+            }).catch(function() {});
+        }
+
+        /* Smooth loop: rAF-based fade — self-terminates when paused */
+        function initLoopFade(v) {
+            var fadeDur = 0.4;
+            function tick() {
+                if (v.paused) return;
+                if (v.duration) {
+                    var rem = v.duration - v.currentTime;
+                    var o = 1;
+                    if (rem < fadeDur) o = rem / fadeDur;
+                    else if (v.currentTime < fadeDur) o = Math.min(v.currentTime / fadeDur, 1);
+                    v.style.opacity = o;
+                }
+                requestAnimationFrame(tick);
+            }
+            v.addEventListener('play', function() { requestAnimationFrame(tick); });
+        }
+
+        document.querySelectorAll('.card-preview video').forEach(function(v) {
+            v.addEventListener('loadeddata', function() {
+                v.closest('.card-preview').classList.add('loaded');
+                if (videosInView.has(v)) tryPlay(v);
+            }, { once: true });
+            initLoopFade(v);
+            videoObserver.observe(v);
+        });
+
+        /* ═══ 5. PREFETCH ON HOVER ═══
+           Warm the browser cache for instant navigation. */
+
+        const prefetched = {};
+        document.querySelectorAll('.card').forEach(function(card) {
+            card.addEventListener('mouseenter', function() {
+                const href = card.getAttribute('href');
+                if (!href || prefetched[href]) return;
+                prefetched[href] = true;
+                const link = document.createElement('link');
+                link.rel = 'prefetch';
+                link.href = href;
+                document.head.appendChild(link);
+            }, { once: true });
+        });
+
+        /* ═══ 6. VIDEO MEMORY MANAGEMENT ═══
+           Far-observer releases video decoders when cards are
+           well outside the viewport, restores src when approaching.
+           Deferred until after splash so preload="auto" isn't killed. */
+
+        function initFarObserver() {
+            const farObserver = new IntersectionObserver(function(entries) {
+                entries.forEach(function(e) {
+                    const v = e.target.querySelector('video');
+                    if (!v) return;
+                    if (!e.isIntersecting) {
+                        v.pause();
+                        v.removeAttribute('src');
+                        v.load();
+                        v.classList.remove('playing');
+                    } else if (!v.getAttribute('src')) {
+                        const source = v.querySelector('source');
+                        if (source) {
+                            v.src = source.getAttribute('src');
+                            v.addEventListener('loadeddata', function() {
+                                v.closest('.card-preview').classList.add('loaded');
+                                if (videosInView.has(v)) tryPlay(v);
+                            }, { once: true });
+                        }
+                    }
+                });
+            }, { rootMargin: '600px' });
+
+            document.querySelectorAll('.card-preview').forEach(function(cp) {
+                farObserver.observe(cp);
+            });
+        }
+
+        /* ═══ 7. CARD TILT + VIDEO SPEED ON HOVER ═══
+           Rect cached on mouseenter, tilt batched to single rAF per frame. */
+        if (window.matchMedia('(hover: hover)').matches) {
+            document.querySelectorAll('.card').forEach(function(card) {
+                const preview = card.querySelector('.card-preview');
+                const vid = card.querySelector('.card-preview video');
+                var cachedRect = null;
+                var tiltRafId = 0;
+                var tiltX = 0, tiltY = 0;
+
+                card.addEventListener('mouseenter', function() {
+                    cachedRect = card.getBoundingClientRect();
+                    if (vid) vid.playbackRate = 0.6;
+                });
+
+                card.addEventListener('mousemove', function(e) {
+                    if (!cachedRect || !preview) return;
+                    var x = (e.clientX - cachedRect.left) / cachedRect.width;
+                    var y = (e.clientY - cachedRect.top) / cachedRect.height;
+                    tiltX = (0.5 - y) * 10;
+                    tiltY = (x - 0.5) * 10;
+                    if (!tiltRafId) {
+                        tiltRafId = requestAnimationFrame(function() {
+                            preview.style.transition = 'transform 0.1s ease-out';
+                            preview.style.transform = 'perspective(800px) rotateX(' + tiltX + 'deg) rotateY(' + tiltY + 'deg) scale(1.02)';
+                            tiltRafId = 0;
+                        });
+                    }
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    cachedRect = null;
+                    if (tiltRafId) { cancelAnimationFrame(tiltRafId); tiltRafId = 0; }
+                    if (preview) {
+                        preview.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+                        preview.style.transform = '';
+                    }
+                    if (vid) vid.playbackRate = 1;
+                });
+            });
+        }
+
+        /* ═══ 8. VIEW TRANSITION — set name on clicked card ═══ */
+        document.querySelectorAll('.card').forEach(function(card) {
+            card.addEventListener('click', function() {
+                const preview = card.querySelector('.card-preview');
+                if (preview) preview.style.viewTransitionName = 'hero';
+            });
+        });
+
+        /* ═══ 9. SERVICE WORKER ═══ */
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/MADvids/sw.js').catch(function() {});
+        }
+    </script>
+</body>
 </html>
