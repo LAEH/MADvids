@@ -1,0 +1,1 @@
+{"root":["./src/main.tsx","./src/engine/store.ts","./src/engine/types.ts","./src/engine/components/overlay.tsx","./src/engine/components/stage.tsx","./src/engine/hooks/usetime.ts"],"errors":true,"version":"6.0.2"}
