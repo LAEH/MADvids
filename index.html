@@ -904,20 +904,40 @@
                 const v = e.target;
                 if (e.isIntersecting) {
                     videosInView.add(v);
-                    if (v.readyState >= 2) tryPlay(v);
+                    /* Ensure src is set from <source> if missing */
+                    if (!v.getAttribute('src')) {
+                        var source = v.querySelector('source');
+                        if (source) { v.src = source.getAttribute('src'); }
+                    }
+                    tryPlay(v);
                 } else {
                     videosInView.delete(v);
                     v.pause();
                     v.classList.remove('playing');
                 }
             });
-        }, { rootMargin: '120px' });
+        }, { rootMargin: '200px' });
 
         function tryPlay(v) {
-            v.play().then(function() {
-                v.classList.add('playing');
-                v.closest('.card-preview').classList.add('loaded');
-            }).catch(function() {});
+            if (v.readyState >= 2) {
+                v.play().then(function() {
+                    v.classList.add('playing');
+                    v.closest('.card-preview').classList.add('loaded');
+                }).catch(function() {});
+            } else {
+                /* Not ready yet — wait for enough data then retry */
+                v.addEventListener('canplay', function() {
+                    if (videosInView.has(v)) {
+                        v.play().then(function() {
+                            v.classList.add('playing');
+                            v.closest('.card-preview').classList.add('loaded');
+                        }).catch(function() {});
+                    }
+                }, { once: true });
+                /* Kick the load if stuck on metadata */
+                if (v.preload === 'metadata') v.preload = 'auto';
+                v.load();
+            }
         }
 
         /* Smooth loop: rAF-based fade — self-terminates when paused */
@@ -977,14 +997,17 @@
                         v.removeAttribute('src');
                         v.load();
                         v.classList.remove('playing');
+                        e.target.classList.remove('loaded');
                     } else if (!v.getAttribute('src')) {
                         const source = v.querySelector('source');
                         if (source) {
                             v.src = source.getAttribute('src');
-                            v.addEventListener('loadeddata', function() {
+                            v.preload = 'auto';
+                            v.addEventListener('canplay', function() {
                                 v.closest('.card-preview').classList.add('loaded');
                                 if (videosInView.has(v)) tryPlay(v);
                             }, { once: true });
+                            v.load();
                         }
                     }
                 });
