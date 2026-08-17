@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verso</title>
-    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -431,7 +431,7 @@
         <section class="phase" data-phase="4">
             <div class="phase-inner" data-s="4">
                 <h2 class="outro-title"><span class="t-verso">Turn the page.</span></h2>
-                <a class="next-exp" href="/MADvids/experiments/cosmos/" aria-label="Next: Cosmos">
+                <a class="next-exp" href="/experiments/cosmos/" aria-label="Next: Cosmos">
                     <span>
                         <span class="next-exp-label">Next experience</span><br>
                         Cosmos
@@ -796,10 +796,10 @@
 
     /* ─── Service Worker ─── */
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/MADvids/sw.js').catch(function(){});
+        navigator.serviceWorker.register('/sw.js').catch(function(){});
     }
     })();
     </script>
-    <script src="/nav.js"></script>
+    <script src="/nav.js?v=2"></script>
 </body>
 </html>

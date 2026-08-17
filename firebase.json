@@ -7,10 +7,30 @@
       "**/.*",
       "**/node_modules/**"
     ],
-    "rewrites": [
+    "redirects": [
       {
-        "source": "**",
-        "destination": "/index.html"
+        "source": "/MADvids",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/MADvids/:rest*",
+        "destination": "/:rest*",
+        "type": 301
+      }
+    ],
+    "headers": [
+      {
+        "source": "/nav.js",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache" }
+        ]
+      },
+      {
+        "source": "/sw.js",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache" }
+        ]
       }
     ]
   }

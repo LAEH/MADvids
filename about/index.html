@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About — MADvids</title>
-    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -314,11 +314,6 @@
                 <p class="exp-desc">Scroll-driven clip-path morphing — seven geometric shapes progressively unmask the video.</p>
                 <div class="exp-tags"><span class="exp-tag">clip-path</span><span class="exp-tag">scroll</span></div>
             </a>
-            <a class="exp-card" href="../experiments/rift/">
-                <h3>Rift</h3>
-                <p class="exp-desc">Scroll-driven dimensional portal — a radial rift expands to reveal the multiverse.</p>
-                <div class="exp-tags"><span class="exp-tag">portal</span><span class="exp-tag">radial-gradient</span><span class="exp-tag">particles</span></div>
-            </a>
             <a class="exp-card" href="../experiments/autonomy-dashboard/">
                 <h3>Autonomy Dashboard</h3>
                 <p class="exp-desc">React-based interactive dashboard with real-time data visualizations.</p>
@@ -427,9 +422,9 @@
 
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/MADvids/sw.js').catch(function() {});
+            navigator.serviceWorker.register('/sw.js').catch(function() {});
         }
     </script>
-    <script src="/nav.js"></script>
+    <script src="/nav.js?v=2"></script>
 </body>
 </html>

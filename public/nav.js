@@ -1,11 +1,11 @@
 /* nav.js — Shared glass navbar for all MADvids pages
    Injects CSS + HTML + event handlers automatically.
-   Include via <script src="/MADvids/nav.js"></script> */
+   Include via <script src="/nav.js"></script> */
 (function() {
     'use strict';
 
     /* ─── Config ─── */
-    var BASE = '/MADvids/';
+    var BASE = '/';
     var THEME_KEY = 'madvids-theme';
 
     var NAV_ORDER = [
